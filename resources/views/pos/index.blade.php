@@ -49,7 +49,14 @@
                                     @endif
                                     <h4 class="font-medium text-sm text-gray-900 mb-1">{{ $product->name }}</h4>
                                     <p class="text-lg font-bold text-blue-600">₱{{ number_format($product->price, 2) }}</p>
-                                    <p class="text-xs text-gray-500">Stock: {{ $product->inventory->first()->quantity ?? 0 }}</p>
+                                    @php $qty = $product->inventory->first()->quantity ?? 0; @endphp
+                                    <p class="text-xs">
+                                        @if($product->is_active && $qty > 0)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Available</span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Unavailable</span>
+                                        @endif
+                                    </p>
                                 </div>
                                 @endforeach
                             </div>

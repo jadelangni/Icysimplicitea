@@ -35,7 +35,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Products Management (Supervisors and Owners only)
     Route::middleware(['role:owner,supervisor'])->group(function () {
-        Route::resource('products', ProductController::class);
+    Route::resource('products', ProductController::class);
+    // Toggle availability without requiring full update payload
+    Route::post('/products/{product}/toggle-availability', [ProductController::class, 'toggleAvailability'])->name('products.toggle-availability');
         Route::resource('inventory', InventoryController::class);
         
         // Reports
