@@ -18,14 +18,9 @@
         <div class="min-h-screen">
             @include('layouts.navigation')
 
-            <div class="flex" x-data="{ collapsed: false }">
+            <div class="flex">
                 <!-- Main Content Area -->
-                <div class="flex-1 pt-16 transition-all duration-500 ease-out"
-                     :class="{
-                        'lg:ml-64': !collapsed,
-                        'lg:ml-16': collapsed
-                     }"
-                     @resize.window="if (window.innerWidth < 1024) { collapsed = false }"">
+                <div class="flex-1 pt-16 ml-0 lg:ml-64">
                     <!-- Page Heading -->
                     @isset($header)
                         <header class="bg-white shadow-sm border-b border-gray-200">

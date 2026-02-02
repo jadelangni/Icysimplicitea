@@ -12,13 +12,15 @@ class SalesItem extends Model
         'product_id',
         'quantity',
         'unit_price',
-        'total_price'
+        'total_price',
+        'options'
     ];
 
     protected $casts = [
         'quantity' => 'integer',
         'unit_price' => 'decimal:2',
         'total_price' => 'decimal:2',
+        'options' => 'array',
     ];
 
     public function sale(): BelongsTo

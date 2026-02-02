@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -23,7 +24,9 @@ class User extends Authenticatable
         'password',
         'role',
         'branch_id',
-        'is_active'
+        'is_active',
+        'qr_token',
+        'qr_token_generated_at',
     ];
 
     /**
@@ -34,6 +37,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'qr_token',
     ];
 
     /**
@@ -47,6 +51,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'qr_token_generated_at' => 'datetime',
         ];
     }
 
@@ -58,6 +63,11 @@ class User extends Authenticatable
     public function sales(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Sale::class);
+    }
+
+    public function activityLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserActivityLog::class);
     }
 
     public function isOwner(): bool
@@ -73,5 +83,17 @@ class User extends Authenticatable
     public function isCashier(): bool
     {
         return $this->role === 'cashier';
+    }
+
+    /**
+     * Generate a new QR token for the user.
+     */
+    public function generateQrToken(): string
+    {
+        $this->qr_token = Str::random(64);
+        $this->qr_token_generated_at = now();
+        $this->save();
+
+        return $this->qr_token;
     }
 }

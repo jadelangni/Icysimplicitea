@@ -43,14 +43,31 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
+            'custom_category' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'sometimes|boolean',
-            'initial_stock' => 'nullable|integer|min:0'
+            'options' => 'nullable|json'
         ]);
+
+        // Handle custom category creation
+        if (!empty($data['custom_category'])) {
+            $category = Category::create([
+                'name' => $data['custom_category'],
+                'is_active' => true
+            ]);
+            $data['category_id'] = $category->id;
+        }
+        
+        // Validate that we have a category
+        if (empty($data['category_id'])) {
+            return back()->withErrors(['category_id' => 'Please select a category or create a new one.'])->withInput();
+        }
+        
+        unset($data['custom_category']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
@@ -60,17 +77,6 @@ class ProductController extends Controller
         $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : true;
 
         $product = Product::create($data);
-
-        // create initial inventory record for the current branch
-        $branchId = Auth::user()->branch_id;
-        $initialStock = isset($data['initial_stock']) ? (int)$data['initial_stock'] : 0;
-
-        Inventory::create([
-            'branch_id' => $branchId,
-            'product_id' => $product->id,
-            'quantity' => $initialStock,
-            'min_stock_level' => 0
-        ]);
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
@@ -91,11 +97,8 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $categories = Category::where('is_active', true)->get();
-        $branchId = Auth::user()->branch_id;
-        $branchInventory = $product->inventory()->where('branch_id', $branchId)->first();
-        $branchStock = $branchInventory ? $branchInventory->quantity : 0;
 
-        return view('products.edit', compact('product', 'categories', 'branchStock'));
+        return view('products.edit', compact('product', 'categories'));
     }
 
     /**
@@ -106,14 +109,30 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $data = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
+            'custom_category' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
-            'is_active' => 'sometimes|boolean',
-            'stock' => 'nullable|integer|min:0'
+            'is_active' => 'sometimes|boolean'
         ]);
+
+        // Handle custom category creation
+        if (!empty($data['custom_category'])) {
+            $category = Category::create([
+                'name' => $data['custom_category'],
+                'is_active' => true
+            ]);
+            $data['category_id'] = $category->id;
+        }
+        
+        // Validate that we have a category
+        if (empty($data['category_id'])) {
+            return back()->withErrors(['category_id' => 'Please select a category or create a new one.'])->withInput();
+        }
+        
+        unset($data['custom_category']);
 
         if ($request->hasFile('image')) {
             // delete old image if exists
@@ -125,20 +144,12 @@ class ProductController extends Controller
         }
 
         $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : false;
-
-        $product->update($data);
-
-        // update or create inventory for current branch
-        $branchId = Auth::user()->branch_id;
-        if (isset($data['stock'])) {
-            $inventory = Inventory::firstOrNew([
-                'branch_id' => $branchId,
-                'product_id' => $product->id
-            ]);
-            $inventory->quantity = (int)$data['stock'];
-            $inventory->min_stock_level = $inventory->min_stock_level ?? 0;
-            $inventory->save();
+        // handle options input (JSON string coming from form)
+        if ($request->filled('options')) {
+            $opts = json_decode($request->input('options'), true);
+            $data['options'] = $opts ?: null;
         }
+        $product->update($data);
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }

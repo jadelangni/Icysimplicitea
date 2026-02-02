@@ -9,11 +9,17 @@
     display: none !important;
 }
 
-/* Enhanced blur effect */
-.backdrop-blur-sm {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+/* Prevent sidebar hover expansion - force fixed width */
+.fixed.inset-y-0:hover {
+    width: inherit !important;
 }
+
+/* Remove all width transitions on sidebar */
+.fixed.inset-y-0 {
+    transition: transform 0.5s ease-out !important;
+}
+
+/* (removed global backdrop blur utilities to avoid page blur effects) */
 
 /* Sidebar animations */
 .sidebar-slide {

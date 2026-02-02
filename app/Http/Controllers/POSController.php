@@ -9,6 +9,8 @@ use App\Models\Sale;
 use App\Models\SalesItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class POSController extends Controller
 {
@@ -29,37 +31,48 @@ class POSController extends Controller
 
     public function processSale(Request $request)
     {
-        $request->validate([
+        try {
+            // Normalize items: client may send JSON string in FormData
+            if (is_string($request->input('items'))) {
+                $decoded = json_decode($request->input('items'), true);
+                $request->merge(['items' => $decoded]);
+            }
+
+        $validator = Validator::make($request->all(), [
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
+            'items.*.options' => 'nullable|array',
             'payment_method' => 'required|in:cash,card,gcash',
             'amount_paid' => 'required|numeric|min:0',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Validation failed: ' . $validator->errors()->first()
+            ], 422);
+        }
 
         $branchId = Auth::user()->branch_id;
         $subtotal = 0;
         $items = [];
 
-        // Calculate totals and validate inventory
+        // Calculate totals (inventory now managed at ingredient level)
         foreach ($request->items as $item) {
             $product = Product::findOrFail($item['product_id']);
-            $inventory = Inventory::where('branch_id', $branchId)
-                ->where('product_id', $product->id)
-                ->first();
 
-            if (!$inventory || $inventory->quantity < $item['quantity']) {
-                return back()->withErrors(['error' => "Insufficient stock for {$product->name}"]);
-            }
-
-            $lineTotal = $product->price * $item['quantity'];
+            // Compute unit price based on selected options (if any)
+            $unitPrice = $this->getUnitPrice($product, $item['options'] ?? null);
+            $lineTotal = $unitPrice * $item['quantity'];
             $subtotal += $lineTotal;
 
             $items[] = [
                 'product' => $product,
                 'quantity' => $item['quantity'],
-                'unit_price' => $product->price,
-                'total_price' => $lineTotal
+                'unit_price' => $unitPrice,
+                'total_price' => $lineTotal,
+                'options' => $item['options'] ?? null,
             ];
         }
 
@@ -69,7 +82,10 @@ class POSController extends Controller
         $changeAmount = max(0, $request->amount_paid - $totalAmount);
 
         if ($request->amount_paid < $totalAmount) {
-            return back()->withErrors(['error' => 'Insufficient payment amount']);
+            return response()->json([
+                'success' => false,
+                'error' => 'Insufficient payment amount'
+            ], 400);
         }
 
         // Create the sale
@@ -94,23 +110,78 @@ class POSController extends Controller
                 'product_id' => $item['product']->id,
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'],
-                'total_price' => $item['total_price']
+                'total_price' => $item['total_price'],
+                'options' => $item['options'] ?? null,
             ]);
 
-            // Update inventory
-            $inventory = Inventory::where('branch_id', $branchId)
-                ->where('product_id', $item['product']->id)
-                ->first();
-            $inventory->decrement('quantity', $item['quantity']);
+            // Note: Inventory (ingredients) managed separately in ingredients system
         }
 
-        return redirect()->route('pos.receipt', $sale->id)->with('success', 'Sale completed successfully!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Sale completed successfully!',
+            'redirect_url' => route('pos.receipt', $sale->id)
+        ]);
+        } catch (\Exception $e) {
+            Log::error('POS Sale Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'An error occurred while processing the sale: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function showReceipt(Sale $sale)
     {
         $sale->load(['salesItems.product', 'user', 'branch']);
         return view('pos.receipt', compact('sale'));
+    }
+
+    /**
+     * Determine unit price from product options and selected values.
+     * Uses fixed pricing: use the price from the selected option (typically Size).
+     */
+    private function getUnitPrice(Product $product, $selectedOptions)
+    {
+        $base = $product->price;
+
+        $options = $product->options ?? [];
+        if (empty($options) || empty($selectedOptions) || !is_array($selectedOptions)) {
+            return $base;
+        }
+
+        foreach ($options as $opt) {
+            $optName = $opt['name'] ?? null;
+            $values = $opt['values'] ?? [];
+            if (!$optName) continue;
+
+            // selected option value for this option name
+            if (!array_key_exists($optName, $selectedOptions)) continue;
+            $selectedVal = $selectedOptions[$optName];
+
+            // find matching value in option definitions and use fixed price
+            foreach ($values as $v) {
+                if (is_array($v) || is_object($v)) {
+                    $vArr = (array) $v;
+                    $label = $vArr['label'] ?? $vArr['value'] ?? $vArr['name'] ?? null;
+                    if ($label == $selectedVal && isset($vArr['price'])) {
+                        $fixedPrice = (float) $vArr['price'];
+                        // Use fixed price if it's greater than 0, otherwise fallback to base
+                        if ($fixedPrice > 0) {
+                            return $fixedPrice;
+                        }
+                        break; // found match for this option
+                    }
+                } else {
+                    if ($v == $selectedVal) {
+                        // no price info, continue
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $base;
     }
 
     private function generateReceiptNumber($branchId)
