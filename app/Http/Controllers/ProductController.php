@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Ingredient;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Inventory;
@@ -95,10 +96,21 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::with('ingredients')->findOrFail($id);
         $categories = Category::where('is_active', true)->get();
+        $ingredients = Ingredient::where('is_active', true)->orderBy('name')->get();
+        
+        // Format existing recipe for the view
+        $recipe = $product->ingredients->map(function($ingredient) {
+            return [
+                'ingredient_id' => $ingredient->id,
+                'name' => $ingredient->name,
+                'quantity_required' => $ingredient->pivot->quantity_required,
+                'unit' => $ingredient->pivot->unit ?? $ingredient->unit,
+            ];
+        });
 
-        return view('products.edit', compact('product', 'categories'));
+        return view('products.edit', compact('product', 'categories', 'ingredients', 'recipe'));
     }
 
     /**
@@ -150,6 +162,28 @@ class ProductController extends Controller
             $data['options'] = $opts ?: null;
         }
         $product->update($data);
+
+        // Handle recipe/ingredients
+        if ($request->filled('recipe')) {
+            $recipeData = json_decode($request->input('recipe'), true);
+            $syncData = [];
+            
+            if (is_array($recipeData)) {
+                foreach ($recipeData as $item) {
+                    if (!empty($item['ingredient_id']) && !empty($item['quantity_required'])) {
+                        $syncData[$item['ingredient_id']] = [
+                            'quantity_required' => $item['quantity_required'],
+                            'unit' => $item['unit'] ?? null,
+                        ];
+                    }
+                }
+            }
+            
+            $product->ingredients()->sync($syncData);
+        } else {
+            // Clear recipe if empty
+            $product->ingredients()->detach();
+        }
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }

@@ -22,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'pin',
+        'last_pin_login_at',
         'role',
         'branch_id',
         'is_active',
@@ -38,6 +40,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'qr_token',
+        'pin',
     ];
 
     /**
@@ -52,6 +55,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'qr_token_generated_at' => 'datetime',
+            'last_pin_login_at' => 'datetime',
         ];
     }
 
@@ -70,14 +74,9 @@ class User extends Authenticatable
         return $this->hasMany(UserActivityLog::class);
     }
 
-    public function isOwner(): bool
+    public function isAdmin(): bool
     {
-        return $this->role === 'owner';
-    }
-
-    public function isSupervisor(): bool
-    {
-        return $this->role === 'supervisor';
+        return $this->role === 'admin';
     }
 
     public function isCashier(): bool
@@ -95,5 +94,82 @@ class User extends Authenticatable
         $this->save();
 
         return $this->qr_token;
+    }
+
+    /**
+     * Set or update the user's PIN.
+     */
+    public function setPin(string $pin): void
+    {
+        $this->pin = bcrypt($pin);
+        $this->save();
+    }
+
+    /**
+     * Verify the user's PIN.
+     */
+    public function verifyPin(string $pin): bool
+    {
+        if (!$this->pin) {
+            return false;
+        }
+        return \Hash::check($pin, $this->pin);
+    }
+
+    /**
+     * Record PIN login.
+     */
+    public function recordPinLogin(): void
+    {
+        $this->last_pin_login_at = now();
+        $this->save();
+    }
+
+    /**
+     * Get the user's attendance records.
+     */
+    public function attendance(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StaffAttendance::class);
+    }
+
+    /**
+     * Get permission overrides requested by this user.
+     */
+    public function permissionOverridesRequested(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PermissionOverride::class, 'requested_by');
+    }
+
+    /**
+     * Get permission overrides approved/denied by this user.
+     */
+    public function permissionOverridesApproved(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PermissionOverride::class, 'approved_by');
+    }
+
+    /**
+     * Check if user is currently clocked in.
+     */
+    public function isClockedIn(): bool
+    {
+        return StaffAttendance::isUserClockedIn($this->id);
+    }
+
+    /**
+     * Check if user can approve permission overrides.
+     */
+    public function canApproveOverrides(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Check if user can perform a restricted action.
+     */
+    public function canPerformRestrictedAction(string $action): bool
+    {
+        return PermissionOverride::canPerformAction($this, $action);
     }
 }

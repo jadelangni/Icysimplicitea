@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Edit Product') }}</h2>
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-white leading-tight">{{ __('Edit Product') }}</h2>
     </x-slot>
 
     <div class="py-6">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="mb-4">
                         @php $qty = isset($branchStock) ? $branchStock : ($product->inventory->first()->quantity ?? 0); @endphp
@@ -31,8 +31,8 @@
 
                         <div class="grid grid-cols-1 gap-4">
                             <label class="block">
-                                <span class="text-sm font-medium text-gray-700">Category</span>
-                                <select id="category-select" name="category_id" class="mt-1 block w-full rounded-md border-gray-300">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Category</span>
+                                <select id="category-select" name="category_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}" @if($product->category_id == $category->id) selected @endif>{{ $category->name }}</option>
                                     @endforeach
@@ -41,29 +41,29 @@
                             </label>
 
                             <label id="custom-category-label" class="block hidden">
-                                <span class="text-sm font-medium text-gray-700">New Category Name</span>
-                                <input type="text" id="custom-category-input" name="custom_category" placeholder="Enter new category name" class="mt-1 block w-full rounded-md border-gray-300">
-                                <p class="text-xs text-gray-500 mt-1">This will create a new category and assign it to this product.</p>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">New Category Name</span>
+                                <input type="text" id="custom-category-input" name="custom_category" placeholder="Enter new category name" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This will create a new category and assign it to this product.</p>
                             </label>
 
                             <label class="block">
-                                <span class="text-sm font-medium text-gray-700">Name</span>
-                                <input type="text" name="name" value="{{ old('name', $product->name) }}" class="mt-1 block w-full rounded-md border-gray-300" required>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Name</span>
+                                <input type="text" name="name" value="{{ old('name', $product->name) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" required>
                             </label>
 
                             <label class="block">
-                                <span class="text-sm font-medium text-gray-700">Description</span>
-                                <textarea name="description" class="mt-1 block w-full rounded-md border-gray-300">{{ old('description', $product->description) }}</textarea>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Description</span>
+                                <textarea name="description" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">{{ old('description', $product->description) }}</textarea>
                             </label>
 
                             <label class="block">
-                                <span class="text-sm font-medium text-gray-700">Price</span>
-                                <input type="number" step="0.01" name="price" value="{{ old('price', $product->price) }}" class="mt-1 block w-full rounded-md border-gray-300" required>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Price</span>
+                                <input type="number" step="0.01" name="price" value="{{ old('price', $product->price) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" required>
                             </label>
 
                             <label class="block">
-                                <span class="text-sm font-medium text-gray-700">Image (optional)</span>
-                                <input type="file" name="image" class="mt-1 block w-full">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Image (optional)</span>
+                                <input type="file" name="image" class="mt-1 block w-full dark:text-gray-300">
                                 @if($product->image)
                                     <div class="mt-2">
                                         <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-24 h-24 object-cover rounded">
@@ -75,36 +75,77 @@
                             <input type="hidden" name="is_active" value="0">
             <label class="inline-flex items-center">
                 <input type="checkbox" name="is_active" value="1" class="form-checkbox" @if($product->is_active) checked @endif>
-                <span class="ml-2 text-gray-700">Active</span>
+                <span class="ml-2 text-gray-700 dark:text-gray-300">Active</span>
             </label>                            <!-- Options (variants) -->
                             <label class="block">
-                                <span class="text-sm font-medium text-gray-700">Options / Variants (e.g. Size, Temperature)</span>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Options / Variants (e.g. Size, Temperature)</span>
                                 <div id="options-container" class="space-y-3 mt-2">
                                     <!-- option groups will be added here -->
                                 </div>
-                                <div class="mt-3 p-3 border border-gray-200 rounded-lg">
+                                <div class="mt-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
                                     <div class="flex gap-2 mb-2">
-                                        <input id="option-name" type="text" placeholder="Option name (e.g. Size)" class="block w-1/3 rounded-md border-gray-300 px-2 py-1">
-                                        <button type="button" id="add-option-group" class="px-3 py-1 bg-simplicitea-100 text-simplicitea-700 rounded-md">Create Option Group</button>
+                                        <input id="option-name" type="text" placeholder="Option name (e.g. Size)" class="block w-1/3 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-2 py-1">
+                                        <button type="button" id="add-option-group" class="px-3 py-1 bg-simplicitea-100 dark:bg-simplicitea-900 text-simplicitea-700 dark:text-simplicitea-300 rounded-md">Create Option Group</button>
                                     </div>
                                     <div id="current-option-values" class="space-y-2 hidden">
-                                        <div class="text-sm font-medium text-gray-600 mb-2">Add values for this option:</div>
+                                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Add values for this option:</div>
                                         <div class="flex gap-2">
-                                            <input id="value-name" type="text" placeholder="Value name" class="block w-1/2 rounded-md border-gray-300 px-2 py-1">
-                                            <input id="value-price" type="number" step="0.01" placeholder="Fixed price (0 = base)" class="block w-1/3 rounded-md border-gray-300 px-2 py-1">
-                                            <button type="button" id="add-value" class="px-3 py-1 bg-gray-100 rounded-md">Add Value</button>
+                                            <input id="value-name" type="text" placeholder="Value name" class="block w-1/2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-2 py-1">
+                                            <input id="value-price" type="number" step="0.01" placeholder="Fixed price (0 = base)" class="block w-1/3 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-2 py-1">
+                                            <button type="button" id="add-value" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md">Add Value</button>
                                         </div>
                                         <div id="current-values-list" class="space-y-1"></div>
-                                        <button type="button" id="finish-option" class="px-3 py-1 bg-green-100 text-green-700 rounded-md">Finish Option</button>
+                                        <button type="button" id="finish-option" class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-md">Finish Option</button>
                                     </div>
                                 </div>
                                 <input type="hidden" name="options" id="options-input" value='{{ old("options", json_encode($product->options ?? [])) }}'>
-                                <p class="text-xs text-gray-400 mt-1">Create option groups (like Size) and set fixed prices. Set price to 0 to use base product price.</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Create option groups (like Size) and set fixed prices. Set price to 0 to use base product price.</p>
                             </label>
+
+                            <!-- Recipe / Ingredients Section -->
+                            <div class="block border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                    <span class="text-lg">🧪</span>
+                                    Product Recipe (Ingredients)
+                                </span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-3">Define which raw materials are needed to make this product</p>
+                                
+                                <div id="recipe-container" class="space-y-2 mt-2">
+                                    <!-- Recipe items will be added here -->
+                                </div>
+                                
+                                <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg">
+                                    <div class="flex gap-2 items-end">
+                                        <div class="flex-1">
+                                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Ingredient</label>
+                                            <select id="recipe-ingredient" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+                                                <option value="">Select ingredient...</option>
+                                                @foreach($ingredients as $ingredient)
+                                                    <option value="{{ $ingredient->id }}" data-name="{{ $ingredient->name }}" data-unit="{{ $ingredient->unit }}">
+                                                        {{ $ingredient->name }} ({{ $ingredient->unit }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="w-24">
+                                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Quantity</label>
+                                            <input id="recipe-quantity" type="number" step="0.01" min="0.01" placeholder="0.00" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+                                        </div>
+                                        <div class="w-20">
+                                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Unit</label>
+                                            <input id="recipe-unit" type="text" readonly class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-300 text-sm bg-gray-100">
+                                        </div>
+                                        <button type="button" id="add-recipe-item" class="px-3 py-2 bg-simplicitea-600 text-white text-sm rounded-md hover:bg-simplicitea-700 transition">
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="recipe" id="recipe-input" value='{{ old("recipe", json_encode($recipe ?? [])) }}'>
+                            </div>
 
                             <div class="pt-4">
                                 <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-lg">Update</button>
-                                <a href="{{ route('products.index') }}" class="ml-3 text-sm text-gray-600">Cancel</a>
+                                <a href="{{ route('products.index') }}" class="ml-3 text-sm text-gray-600 dark:text-gray-400">Cancel</a>
                             </div>
                         </div>
                     </form>
@@ -236,6 +277,105 @@
                                     this.name = 'category_id'; // Restore name for submission
                                 }
                             });
+                        })();
+
+                        // Recipe/Ingredients handler
+                        (function() {
+                            const recipeContainer = document.getElementById('recipe-container');
+                            const recipeHidden = document.getElementById('recipe-input');
+                            const ingredientSelect = document.getElementById('recipe-ingredient');
+                            const quantityInput = document.getElementById('recipe-quantity');
+                            const unitInput = document.getElementById('recipe-unit');
+                            const addBtn = document.getElementById('add-recipe-item');
+                            
+                            let recipeItems = [];
+
+                            function rebuildRecipeHidden() {
+                                recipeHidden.value = JSON.stringify(recipeItems);
+                            }
+
+                            function renderRecipe() {
+                                recipeContainer.innerHTML = '';
+                                if (recipeItems.length === 0) {
+                                    recipeContainer.innerHTML = '<p class="text-sm text-gray-400 dark:text-gray-500 italic">No ingredients added yet</p>';
+                                    return;
+                                }
+                                
+                                recipeItems.forEach((item, idx) => {
+                                    const div = document.createElement('div');
+                                    div.className = 'flex items-center justify-between p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg';
+                                    div.innerHTML = `
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg flex items-center justify-center">
+                                                <span class="text-sm">🧪</span>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-gray-900 dark:text-white text-sm">${item.name}</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">${item.quantity_required} ${item.unit}</p>
+                                            </div>
+                                        </div>
+                                        <button type="button" onclick="removeRecipeItem(${idx})" class="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
+                                    `;
+                                    recipeContainer.appendChild(div);
+                                });
+                            }
+
+                            window.removeRecipeItem = function(idx) {
+                                recipeItems.splice(idx, 1);
+                                renderRecipe();
+                                rebuildRecipeHidden();
+                            };
+
+                            // Update unit when ingredient is selected
+                            ingredientSelect.addEventListener('change', function() {
+                                const selected = this.options[this.selectedIndex];
+                                unitInput.value = selected.dataset.unit || '';
+                            });
+
+                            addBtn.addEventListener('click', function() {
+                                const ingredientId = ingredientSelect.value;
+                                const selected = ingredientSelect.options[ingredientSelect.selectedIndex];
+                                const name = selected.dataset.name;
+                                const quantity = parseFloat(quantityInput.value);
+                                const unit = unitInput.value || selected.dataset.unit;
+
+                                if (!ingredientId) return alert('Please select an ingredient');
+                                if (!quantity || quantity <= 0) return alert('Please enter a valid quantity');
+
+                                // Check if ingredient already exists
+                                const exists = recipeItems.find(item => item.ingredient_id == ingredientId);
+                                if (exists) return alert('This ingredient is already in the recipe');
+
+                                recipeItems.push({
+                                    ingredient_id: parseInt(ingredientId),
+                                    name: name,
+                                    quantity_required: quantity,
+                                    unit: unit
+                                });
+
+                                // Reset inputs
+                                ingredientSelect.value = '';
+                                quantityInput.value = '';
+                                unitInput.value = '';
+
+                                renderRecipe();
+                                rebuildRecipeHidden();
+                            });
+
+                            // Load existing recipe
+                            try {
+                                const existing = recipeHidden.value ? JSON.parse(recipeHidden.value) : [];
+                                if (Array.isArray(existing)) {
+                                    recipeItems = existing;
+                                    renderRecipe();
+                                }
+                            } catch (err) {
+                                console.error('Error loading recipe:', err);
+                            }
                         })();
                     </script>
                 </div>

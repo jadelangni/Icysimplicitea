@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Reports Dashboard') }}
             </h2>
         </div>
@@ -11,55 +11,55 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Overview Statistics -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors duration-200">
                     <div class="p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-md flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                                     </svg>
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-sm font-medium text-gray-500">Total Revenue</h3>
-                                <p class="text-2xl font-bold text-gray-900">₱{{ number_format($totalSales, 2) }}</p>
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</h3>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">₱{{ number_format($totalSales, 2) }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors duration-200">
                     <div class="p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-md flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                                     </svg>
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-sm font-medium text-gray-500">Total Transactions</h3>
-                                <p class="text-2xl font-bold text-gray-900">{{ number_format($totalTransactions) }}</p>
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Transactions</h3>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalTransactions) }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors duration-200">
                     <div class="p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-md flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                     </svg>
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-sm font-medium text-gray-500">Average Transaction</h3>
-                                <p class="text-2xl font-bold text-gray-900">₱{{ number_format($averageTransaction, 2) }}</p>
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Average Transaction</h3>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">₱{{ number_format($averageTransaction, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -67,9 +67,9 @@
             </div>
 
             <!-- Monthly Sales Chart -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 transition-colors duration-200">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Monthly Sales Overview</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Monthly Sales Overview</h3>
                     <div class="h-64">
                         <canvas id="monthlyChart"></canvas>
                     </div>

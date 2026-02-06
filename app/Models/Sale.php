@@ -19,7 +19,9 @@ class Sale extends Model
         'amount_paid',
         'change_amount',
         'payment_method',
-        'status'
+        'status',
+        'inventory_synced',
+        'idempotency_key',
     ];
 
     protected $casts = [
@@ -44,6 +46,14 @@ class Sale extends Model
     public function salesItems(): HasMany
     {
         return $this->hasMany(SalesItem::class);
+    }
+
+    /**
+     * Get all stock movements associated with this sale.
+     */
+    public function stockMovements(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(StockMovement::class, 'reference');
     }
 
     public function generateReceiptNumber(): string

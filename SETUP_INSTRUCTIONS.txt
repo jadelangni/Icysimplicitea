@@ -1,0 +1,114 @@
+============================================
+  Icy's Simplicitea POS System
+  Setup Instructions for New PC
+============================================
+
+STEP 1: INSTALL REQUIRED SOFTWARE
+----------------------------------
+Before running the setup, install these on the new PC:
+
+1. Laragon (RECOMMENDED - easiest option)
+   Download: https://laragon.org/download/
+   - This includes PHP, MySQL, Composer, and Node.js all in one!
+
+   OR install separately:
+
+2. PHP 8.1 or higher
+   Download: https://www.php.net/downloads
+
+3. Composer
+   Download: https://getcomposer.org/download/
+
+4. Node.js (LTS version)
+   Download: https://nodejs.org/
+
+5. MySQL
+   Download: https://dev.mysql.com/downloads/mysql/
+   (or use XAMPP/Laragon which includes MySQL)
+
+
+STEP 2: COPY PROJECT FILES
+---------------------------
+Copy this entire folder to the new PC.
+You can skip these folders to save space (they will be reinstalled):
+- vendor/
+- node_modules/
+
+
+STEP 3: RUN SETUP SCRIPT
+-------------------------
+1. Open Command Prompt or PowerShell
+2. Navigate to the project folder:
+   cd C:\path\to\simplicitea
+
+3. Run the setup script:
+   SETUP_NEW_PC.bat
+
+   Or run these commands manually:
+   - composer install
+   - npm install
+   - copy .env.example .env
+   - php artisan key:generate
+   - npm run build
+
+
+STEP 4: CONFIGURE DATABASE
+--------------------------
+1. Open the .env file in a text editor
+2. Update these lines with your MySQL credentials:
+   
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=simplicitea
+   DB_USERNAME=root
+   DB_PASSWORD=
+
+3. Create a database named 'simplicitea' in MySQL:
+   - Open MySQL/phpMyAdmin
+   - Create new database: simplicitea
+
+
+STEP 5: RUN MIGRATIONS
+----------------------
+In the terminal, run:
+   php artisan migrate
+
+To add sample data (optional):
+   php artisan db:seed
+
+
+STEP 6: START THE APPLICATION
+-----------------------------
+Run this command:
+   php artisan serve
+
+Then open your browser and go to:
+   http://localhost:8000
+
+
+============================================
+  TROUBLESHOOTING
+============================================
+
+Problem: "php is not recognized"
+Solution: Add PHP to your system PATH or use Laragon
+
+Problem: "composer is not recognized"
+Solution: Install Composer and restart your terminal
+
+Problem: Database connection error
+Solution: Make sure MySQL is running and .env credentials are correct
+
+Problem: Missing PHP extensions
+Solution: Enable these in php.ini:
+- extension=pdo_mysql
+- extension=mbstring
+- extension=openssl
+- extension=fileinfo
+
+
+============================================
+  Need Help?
+============================================
+Contact your system administrator or developer.

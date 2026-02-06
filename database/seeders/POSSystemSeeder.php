@@ -84,26 +84,18 @@ class POSSystemSeeder extends Seeder
             'name' => 'Admin User',
             'email' => 'admin@simplicitea.com',
             'password' => bcrypt('password'),
-            'role' => 'owner',
+            'role' => 'admin',
             'branch_id' => 1,
             'is_active' => true,
         ]);
 
-        // Create sample employees
+        // Create sample cashier
         $employees = [
             [
                 'name' => 'John Cashier',
                 'email' => 'cashier1@simplicitea.com',
                 'password' => bcrypt('password'),
                 'role' => 'cashier',
-                'branch_id' => 1,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Jane Supervisor',
-                'email' => 'supervisor1@simplicitea.com',
-                'password' => bcrypt('password'),
-                'role' => 'supervisor',
                 'branch_id' => 1,
                 'is_active' => true,
             ],

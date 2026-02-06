@@ -8,13 +8,12 @@ A Point of Sale (POS) system built with Laravel and Tailwind CSS for Icy's Simpl
 - **Sales Transaction Processing**: Complete POS interface for processing customer orders
 - **Real-time Inventory Management**: Track stock levels across all branches
 - **Multi-branch Support**: Manage operations across multiple locations
-- **User Role Management**: Three user roles - Owner, Supervisor, and Cashier
+- **User Role Management**: Two user roles - Admin and Cashier
 - **Receipt Generation**: Automatic receipt printing for all transactions
 - **Business Reporting**: Daily, weekly, and monthly sales and inventory reports
 
 ### User Roles & Permissions
-- **Owner**: Full system access including all management features
-- **Supervisor**: Access to products, inventory, and reports management
+- **Admin**: Full system access including all management features, products, inventory, reports, and user management
 - **Cashier**: Access to POS system and basic transaction processing
 
 ### Branch Management
@@ -71,16 +70,10 @@ Visit `http://localhost:8000` to access the application.
 
 ### Default Login Credentials
 
-#### Owner Account
+#### Admin Account
 - **Email**: admin@simplicitea.com
 - **Password**: password
-- **Role**: Owner
-- **Branch**: Oslob Main
-
-#### Supervisor Account
-- **Email**: supervisor1@simplicitea.com
-- **Password**: password
-- **Role**: Supervisor
+- **Role**: Admin
 - **Branch**: Oslob Main
 
 #### Cashier Account

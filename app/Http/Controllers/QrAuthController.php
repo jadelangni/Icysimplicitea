@@ -34,15 +34,15 @@ class QrAuthController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid QR code. Please try again or contact your supervisor.',
+                'message' => 'Invalid QR code. Please try again or contact your admin.',
             ], 404);
         }
 
-        // Check if user is a supervisor or cashier
-        if (!$user->isSupervisor() && !$user->isCashier()) {
+        // Check if user is a cashier (QR login is for cashiers only)
+        if (!$user->isCashier()) {
             return response()->json([
                 'success' => false,
-                'message' => 'QR login is only available for supervisors and cashiers.',
+                'message' => 'QR login is only available for cashiers.',
             ], 403);
         }
 
@@ -50,7 +50,7 @@ class QrAuthController extends Controller
         if (!$user->is_active) {
             return response()->json([
                 'success' => false,
-                'message' => 'Your account has been deactivated. Please contact your supervisor.',
+                'message' => 'Your account has been deactivated. Please contact your admin.',
             ], 403);
         }
 
@@ -182,8 +182,8 @@ class QrAuthController extends Controller
      */
     public function showUserQrCode(User $user)
     {
-        // Only owners can view other users' QR codes
-        if (!Auth::user()->isOwner()) {
+        // Only admins can view other users' QR codes
+        if (!Auth::user()->isAdmin()) {
             abort(403);
         }
 
@@ -200,8 +200,8 @@ class QrAuthController extends Controller
      */
     public function regenerateUserQrCode(User $user)
     {
-        // Only owners can regenerate other users' QR codes
-        if (!Auth::user()->isOwner()) {
+        // Only admins can regenerate other users' QR codes
+        if (!Auth::user()->isAdmin()) {
             abort(403);
         }
 

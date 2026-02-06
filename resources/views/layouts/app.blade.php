@@ -13,8 +13,37 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Dark mode initialization to prevent flash -->
+        <script>
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.documentElement.classList.add('dark');
+            }
+        </script>
     </head>
-    <body class="font-sans antialiased bg-gray-50" x-data="{ sidebarOpen: false }" @keydown.escape="sidebarOpen = false">
+    <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 transition-colors duration-200" 
+          x-data="{ 
+              sidebarOpen: false,
+              darkMode: localStorage.getItem('darkMode') === 'true',
+              toggleDarkMode() {
+                  this.darkMode = !this.darkMode;
+                  localStorage.setItem('darkMode', this.darkMode);
+                  if (this.darkMode) {
+                      document.documentElement.classList.add('dark');
+                  } else {
+                      document.documentElement.classList.remove('dark');
+                  }
+              }
+          }" 
+          x-init="$watch('darkMode', val => { 
+              localStorage.setItem('darkMode', val); 
+              if (val) { 
+                  document.documentElement.classList.add('dark'); 
+              } else { 
+                  document.documentElement.classList.remove('dark'); 
+              } 
+          })"
+          @keydown.escape="sidebarOpen = false">
         <div class="min-h-screen">
             @include('layouts.navigation')
 
@@ -23,7 +52,7 @@
                 <div class="flex-1 pt-16 ml-0 lg:ml-64">
                     <!-- Page Heading -->
                     @isset($header)
-                        <header class="bg-white shadow-sm border-b border-gray-200">
+                        <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
                             <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                                 {{ $header }}
                             </div>

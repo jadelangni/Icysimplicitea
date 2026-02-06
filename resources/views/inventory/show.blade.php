@@ -90,7 +90,7 @@
 
                     <!-- Actions -->
                     <div class="mt-8 pt-6 border-t border-gray-200 flex justify-between">
-                        <a href="{{ route('inventory.index') }}" class="px-4 py-2 text-gray-600 hover:text-gray-800">← Back to Inventory</a>
+                        <a href="{{ route('product-inventory.index', ['tab' => 'ingredients']) }}" class="px-4 py-2 text-gray-600 hover:text-gray-800">← Back to Inventory</a>
                         
                         <div class="flex space-x-3">
                             <a href="{{ route('inventory.edit', $ingredient) }}" class="px-4 py-2 bg-simplicitea-600 text-white rounded-lg hover:bg-simplicitea-700">Edit Ingredient</a>

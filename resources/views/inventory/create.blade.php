@@ -63,7 +63,7 @@
                             </label>
 
                             <div class="pt-4 flex justify-between">
-                                <a href="{{ route('inventory.index') }}" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</a>
+                                <a href="{{ route('product-inventory.index', ['tab' => 'ingredients']) }}" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</a>
                                 <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-lg hover:bg-simplicitea-700 focus:outline-none focus:ring-2 focus:ring-simplicitea-500">Add Ingredient</button>
                             </div>
                         </div>
