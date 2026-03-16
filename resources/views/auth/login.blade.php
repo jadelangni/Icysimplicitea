@@ -1,134 +1,168 @@
 <x-guest-layout>
-    <!-- Header -->
-    <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome Back! 👋</h2>
-        <p class="text-gray-500 dark:text-gray-400 mt-2">Sign in to access the POS system</p>
-    </div>
-
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-5">
-        @csrf
+    @if(session('error'))
+    <div class="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-300 font-medium">
+        {{ session('error') }}
+    </div>
+    @endif
 
-        <!-- Email Address -->
-        <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
-            </label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
-                    </svg>
-                </div>
-                <input id="email" 
-                       type="email" 
-                       name="email" 
-                       value="{{ old('email') }}"
-                       class="block w-full pl-11 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-                       placeholder="Enter your email"
-                       required 
-                       autofocus 
-                       autocomplete="username">
-            </div>
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+    <!-- Primary Login: QR Scan -->
+    <div id="qr-login-section">
+        <div class="text-center mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">Scan QR Code to Login</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Quick and secure access using your employee QR code</p>
         </div>
 
-        <!-- Password -->
-        <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password
-            </label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                </div>
-                <input id="password" 
-                       type="password" 
-                       name="password"
-                       class="block w-full pl-11 pr-12 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-                       placeholder="Enter your password"
-                       required 
-                       autocomplete="current-password">
-                <button type="button" 
-                        onclick="togglePassword()"
-                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                    <svg id="eye-open" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>
-                    <svg id="eye-closed" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                    </svg>
-                </button>
-            </div>
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me & Forgot Password -->
-        <div class="flex items-center justify-between">
-            <label for="remember_me" class="inline-flex items-center cursor-pointer">
-                <input id="remember_me" 
-                       type="checkbox" 
-                       class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-amber-600 focus:ring-amber-500 dark:focus:ring-amber-500 transition-colors" 
-                       name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
-            </label>
-
-            @if (Route::has('password.request'))
-                <a class="text-sm text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium transition-colors" 
-                   href="{{ route('password.request') }}">
-                    Forgot password?
-                </a>
-            @endif
-        </div>
-
-        <!-- Login Button -->
-        <button type="submit" 
-                class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+        <a href="{{ route('qr.scanner') }}" class="btn-mint w-full flex items-center justify-center gap-3 py-4 text-sm">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
             </svg>
-            Sign In
-        </button>
-    </form>
+            <span>Open QR Scanner</span>
+        </a>
+    </div>
 
     <!-- Divider -->
     <div class="relative my-6">
         <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
+            <div class="w-full border-t border-gray-100 dark:border-gray-700"></div>
         </div>
-        <div class="relative flex justify-center text-sm">
-            <span class="px-4 bg-white dark:bg-gray-800 text-gray-400">Quick Access</span>
+        <div class="relative flex justify-center">
+            <span class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] uppercase tracking-wider">
+                Or
+            </span>
         </div>
     </div>
 
-    <!-- Quick Login Hints -->
-    <div class="space-y-2">
-        <div class="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
-            <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/50 rounded-full flex items-center justify-center flex-shrink-0">
-                <span class="text-lg">👤</span>
+    <!-- Toggle for Email Login -->
+    <div class="text-center">
+        <button type="button" 
+                onclick="toggleEmailLogin()" 
+                id="toggle-email-btn"
+                class="text-sm text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors font-medium flex items-center justify-center gap-2 mx-auto">
+            <svg id="toggle-icon-down" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+            <svg id="toggle-icon-up" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+            </svg>
+            <span id="toggle-text">Sign in with Email</span>
+        </button>
+    </div>
+
+    <!-- Email Login Form (Hidden by default) -->
+    <div id="email-login-section" class="hidden mt-6">
+        <form method="POST" action="{{ route('login') }}" class="space-y-5">
+            @csrf
+
+            <!-- Email/Username Field -->
+            <div>
+                <label for="email" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                    Email Address
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none" style="padding-left: 14px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px] text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <input id="email" 
+                           type="email" 
+                           name="email" 
+                           value="{{ old('email') }}"
+                           class="mint-input block w-full pr-4 text-gray-800 dark:text-white placeholder-gray-400"
+                           style="padding-left: 44px;"
+                           placeholder="Email Address"
+                           required 
+                           autocomplete="username">
+                </div>
+                <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
-            <div class="text-sm">
-                <p class="font-medium text-gray-900 dark:text-white">Admin Account</p>
-                <p class="text-gray-500 dark:text-gray-400 text-xs">admin@simplicitea.com</p>
+
+            <!-- Password Field -->
+            <div>
+                <label for="password" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                    Password
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none" style="padding-left: 14px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px] text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <input id="password" 
+                           type="password" 
+                           name="password"
+                           class="mint-input block w-full pr-12 text-gray-800 dark:text-white placeholder-gray-400"
+                           style="padding-left: 44px;"
+                           placeholder="Password"
+                           required 
+                           autocomplete="current-password">
+                    <button type="button" 
+                            onclick="togglePassword()"
+                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
+                        <svg id="eye-open" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <svg id="eye-closed" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                        </svg>
+                    </button>
+                </div>
+                <x-input-error :messages="$errors->get('password')" class="mt-2" />
             </div>
-        </div>
-        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
-            <div class="w-10 h-10 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span class="text-lg">🧑‍💼</span>
+
+            <!-- Remember Me (hidden but functional) -->
+            <input type="hidden" name="remember" value="1">
+
+            <!-- Login Button -->
+            <button type="submit" class="btn-mint w-full py-3.5 text-sm mt-2">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Forgot Password -->
+        @if (Route::has('password.request'))
+            <div class="text-center mt-5">
+                <a class="text-sm text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 transition-colors font-medium" 
+                   href="{{ route('password.request') }}">
+                    Forgot password?
+                </a>
             </div>
-            <div class="text-sm">
-                <p class="font-medium text-gray-900 dark:text-white">Cashier Account</p>
-                <p class="text-gray-500 dark:text-gray-400 text-xs">cashier1@simplicitea.com</p>
-            </div>
-        </div>
+        @endif
     </div>
 
     <script>
+        // Auto-show email form if there are validation errors
+        @if($errors->any())
+            document.getElementById('email-login-section').classList.remove('hidden');
+            document.getElementById('toggle-icon-down').classList.add('hidden');
+            document.getElementById('toggle-icon-up').classList.remove('hidden');
+            document.getElementById('toggle-text').textContent = 'Hide Email Login';
+        @endif
+
+        function toggleEmailLogin() {
+            const emailSection = document.getElementById('email-login-section');
+            const toggleIconDown = document.getElementById('toggle-icon-down');
+            const toggleIconUp = document.getElementById('toggle-icon-up');
+            const toggleText = document.getElementById('toggle-text');
+            
+            if (emailSection.classList.contains('hidden')) {
+                emailSection.classList.remove('hidden');
+                toggleIconDown.classList.add('hidden');
+                toggleIconUp.classList.remove('hidden');
+                toggleText.textContent = 'Hide Email Login';
+                document.getElementById('email').focus();
+            } else {
+                emailSection.classList.add('hidden');
+                toggleIconDown.classList.remove('hidden');
+                toggleIconUp.classList.add('hidden');
+                toggleText.textContent = 'Sign in with Email';
+            }
+        }
+
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const eyeOpen = document.getElementById('eye-open');
@@ -145,4 +179,21 @@
             }
         }
     </script>
+
+    <!-- Admin Login Link -->
+    <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-100 dark:border-gray-700"></div>
+        </div>
+        <div class="relative flex justify-center">
+            <span class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] uppercase tracking-wider">
+                Admin?
+            </span>
+        </div>
+    </div>
+    <div class="text-center">
+        <a href="{{ route('admin.login') }}" class="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors font-semibold">
+            Go to Admin Login →
+        </a>
+    </div>
 </x-guest-layout>

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminNotification;
+use App\Models\BranchSession;
+use App\Models\StaffAttendance;
 use App\Models\User;
 use App\Models\UserActivityLog;
 use Illuminate\Http\Request;
@@ -82,6 +85,31 @@ class QrAuthController extends Controller
                 $request->userAgent() . ' (QR Scan)'
             );
 
+            // Auto clock-in for cashiers/employees
+            if ($user->role === 'cashier' && !StaffAttendance::isUserClockedIn($user->id)) {
+                StaffAttendance::recordAttendance(
+                    $user,
+                    'clock_in',
+                    null,
+                    $request->ip(),
+                    null,
+                    null,
+                    'Auto clock-in on QR login'
+                );
+            }
+
+            // Start branch session
+            if ($user->branch_id && $user->role === 'cashier' && !BranchSession::hasActiveSession($user->id)) {
+                $session = BranchSession::startSession($user->branch_id, $user->id);
+                $roleLabel = $session->is_cashier ? 'Cashier' : 'Crew';
+                AdminNotification::create([
+                    'type' => 'branch_session',
+                    'title' => "Employee Logged In ({$roleLabel}) via QR",
+                    'message' => "{$user->name} logged in as {$roleLabel} at " . ($user->branch->name ?? 'branch') . " on " . \Carbon\Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
+                    'triggered_by' => $user->id,
+                ]);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Welcome, ' . $user->name . '! You have been logged in successfully.',
@@ -113,6 +141,39 @@ class QrAuthController extends Controller
                 $request->ip(),
                 $request->userAgent() . ' (QR Scan)'
             );
+
+            // Auto clock-out for cashiers/employees
+            if ($user->role === 'cashier' && StaffAttendance::isUserClockedIn($user->id)) {
+                StaffAttendance::recordAttendance(
+                    $user,
+                    'clock_out',
+                    null,
+                    $request->ip(),
+                    null,
+                    null,
+                    'Auto clock-out on QR logout'
+                );
+            }
+
+            // End branch session
+            if ($user->branch_id && $user->role === 'cashier') {
+                $branchSession = BranchSession::getActiveSessionForUser($user->id);
+                if ($branchSession) {
+                    if ($branchSession->is_cashier && !BranchSession::canCashierLogout($user->branch_id)) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'You are the cashier. Other employees must log out first before you can log out.',
+                        ], 403);
+                    }
+                    $branchSession->endSession();
+                    AdminNotification::create([
+                        'type' => 'branch_session',
+                        'title' => 'Employee Logged Out via QR',
+                        'message' => "{$user->name} logged out from " . ($user->branch->name ?? 'branch') . " on " . \Carbon\Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
+                        'triggered_by' => $user->id,
+                    ]);
+                }
+            }
 
             // If the scanned user is the current authenticated user, log them out
             if (Auth::check() && Auth::id() === $user->id) {
@@ -150,10 +211,18 @@ class QrAuthController extends Controller
 
     /**
      * Generate a new QR code for the user.
+     * Only admins can regenerate QR codes.
      */
     public function regenerateQrCode()
     {
         $user = Auth::user();
+        
+        // Only admins can regenerate their own QR code
+        if (!$user->isAdmin()) {
+            return redirect()->route('qr.my-qrcode')
+                ->with('error', 'Only administrators can regenerate QR codes. Please contact your admin.');
+        }
+        
         $user->generateQrToken();
 
         return redirect()->route('qr.my-qrcode')->with('success', 'Your QR code has been regenerated successfully.');
@@ -208,5 +277,72 @@ class QrAuthController extends Controller
         $user->generateQrToken();
 
         return redirect()->route('qr.user-qrcode', $user)->with('success', 'QR code has been regenerated for ' . $user->name);
+    }
+
+    /**
+     * Switch the current POS user via QR code scan.
+     */
+    public function switchByQr(Request $request)
+    {
+        $request->validate([
+            'qr_token' => 'required|string',
+        ]);
+
+        $targetUser = User::where('qr_token', $request->qr_token)->first();
+
+        if (!$targetUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid QR code. Please try again.',
+            ], 404);
+        }
+
+        $currentUser = Auth::user();
+
+        // Must be same branch
+        if ($targetUser->branch_id !== $currentUser->branch_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This employee belongs to a different branch.',
+            ], 403);
+        }
+
+        // Must be active
+        if (!$targetUser->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This account has been deactivated.',
+            ], 403);
+        }
+
+        // Already the active user
+        if ($targetUser->id === $currentUser->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are already the active user.',
+            ], 400);
+        }
+
+        // Log the switch
+        UserActivityLog::logActivity(
+            $targetUser,
+            'login',
+            $request->ip(),
+            $request->userAgent() . ' (QR Switch from ' . $currentUser->name . ')'
+        );
+
+        // Switch session
+        Auth::login($targetUser);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Switched to ' . $targetUser->name,
+            'user' => [
+                'id' => $targetUser->id,
+                'name' => $targetUser->name,
+                'role' => ucfirst($targetUser->role),
+            ],
+        ]);
     }
 }

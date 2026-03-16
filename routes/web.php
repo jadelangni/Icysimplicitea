@@ -16,6 +16,10 @@ use App\Http\Controllers\PermissionOverrideController;
 use App\Http\Controllers\ProductInventoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\PasswordChangeController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\CrewSessionController;
+use App\Http\Controllers\EmployeeInventoryController;
 
 // Redirect root to login
 Route::get('/', function () {
@@ -26,12 +30,11 @@ Route::get('/', function () {
 Route::get('/qr-scanner', [QrAuthController::class, 'scanner'])->name('qr.scanner');
 Route::post('/qr-scanner/process', [QrAuthController::class, 'process'])->name('qr.process');
 
-// PIN Quick Login (public access for cashier switching)
-Route::get('/pin-login', [PinAuthController::class, 'showPinLogin'])->name('pin.login');
-Route::post('/pin-login/authenticate', [PinAuthController::class, 'authenticatePin'])->name('pin.authenticate');
+// PIN Quick Login removed - employees now log in independently with branch sessions
+// Route::get('/pin-login', [PinAuthController::class, 'showPinLogin'])->name('pin.login');
+// Route::post('/pin-login/authenticate', [PinAuthController::class, 'authenticatePin'])->name('pin.authenticate');
 
-// Attendance Terminal (public access for kiosk mode)
-Route::get('/attendance-terminal', [AttendanceController::class, 'terminal'])->name('attendance.terminal');
+
 Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clock-in');
 Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clock-out');
 Route::get('/attendance/status', [AttendanceController::class, 'getStatus'])->name('attendance.status');
@@ -40,13 +43,20 @@ Route::get('/attendance/users', [AttendanceController::class, 'getUsers'])->name
 // Authentication routes
 require __DIR__.'/auth.php';
 
+// Password Change (for first login)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/change-password', [PasswordChangeController::class, 'show'])->name('password.change');
+    Route::post('/change-password', [PasswordChangeController::class, 'update'])->name('password.change.update');
+});
+
 // Protected routes
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange::class])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/recent-sales', [DashboardController::class, 'getRecentSales'])->name('dashboard.recent-sales');
     Route::get('/dashboard/data', [DashboardController::class, 'getDashboardData'])->name('dashboard.data');
     Route::get('/dashboard/live-sales', [DashboardController::class, 'getLiveSales'])->name('dashboard.live-sales');
+    Route::get('/dashboard/cashier-data', [DashboardController::class, 'getCashierDashboardData'])->name('dashboard.cashier-data');
     
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -58,6 +68,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/setup-pin', [PinAuthController::class, 'savePin'])->name('pin.save');
     Route::delete('/remove-pin', [PinAuthController::class, 'removePin'])->name('pin.remove');
 
+    // Employee Inventory Overview (read-only)
+    Route::get('/employee-inventory', [EmployeeInventoryController::class, 'index'])->name('employee-inventory.index');
+
     // My Attendance
     Route::get('/my-attendance', [AttendanceController::class, 'myAttendance'])->name('attendance.my-attendance');
     Route::get('/attendance/selfie/{attendance}', [AttendanceController::class, 'viewSelfie'])->name('attendance.selfie');
@@ -66,13 +79,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-qrcode', [QrAuthController::class, 'showMyQrCode'])->name('qr.my-qrcode');
     Route::get('/my-qrcode/regenerate', [QrAuthController::class, 'regenerateQrCode'])->name('qr.regenerate');
     Route::get('/my-qrcode/image', [QrAuthController::class, 'getQrCodeImage'])->name('qr.image');
+
+    // QR Switch User removed - employees now log in independently with branch sessions
+    // Route::post('/switch-user/qr', [QrAuthController::class, 'switchByQr'])->name('switch-user.qr');
     
     // POS System
     Route::prefix('pos')->name('pos.')->group(function () {
         Route::get('/', [POSController::class, 'index'])->name('index');
+        Route::get('/live-data', [POSController::class, 'liveData'])->name('live-data');
         Route::post('/process-sale', [POSController::class, 'processSale'])->name('process-sale');
         Route::get('/receipt/{sale}', [POSController::class, 'showReceipt'])->name('receipt');
+        Route::get('/receipt/{sale}/print', [POSController::class, 'printReceipt'])->name('receipt.print');
+        Route::get('/receipt/{sale}/direct-print', [POSController::class, 'directPrintReceipt'])->name('receipt.direct-print');
+        Route::get('/receipt/{sale}/raw', [POSController::class, 'getRawReceiptData'])->name('receipt.raw');
         Route::post('/void/{sale}', [POSController::class, 'voidSale'])->name('void');
+    });
+
+    // Cashier Daily Report (accessible by all authenticated users for logout flow)
+    Route::get('/reports/daily/print', [ReportController::class, 'printDailyReceipt'])->name('reports.daily.print');
+    Route::get('/reports/cashier-logout-report', [ReportController::class, 'cashierLogoutReport'])->name('reports.cashier-logout-report');
+
+    // Crew Session Management (check-in/out on shared device)
+    Route::prefix('crew-session')->name('crew-session.')->group(function () {
+        Route::post('/check-in', [CrewSessionController::class, 'checkIn'])->name('check-in');
+        Route::post('/check-out', [CrewSessionController::class, 'checkOut'])->name('check-out');
+        Route::get('/active', [CrewSessionController::class, 'activeCrew'])->name('active');
     });
 
     // Permission Override Requests
@@ -113,8 +144,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Product Inventory Management (Global prices + Branch stocks)
         Route::prefix('product-inventory')->name('product-inventory.')->group(function () {
             Route::get('/', [ProductInventoryController::class, 'index'])->name('index');
+            Route::get('/export', [ProductInventoryController::class, 'exportToExcel'])->name('export');
             Route::get('/low-stock-alerts', [ProductInventoryController::class, 'getLowStockAlerts'])->name('low-stock-alerts');
             Route::get('/sync-status', [ProductInventoryController::class, 'getSyncStatus'])->name('sync-status');
+            Route::get('/live-data', [ProductInventoryController::class, 'liveData'])->name('live-data');
             Route::get('/{product}', [ProductInventoryController::class, 'show'])->name('show');
             Route::post('/{product}/price', [ProductInventoryController::class, 'updatePrice'])->name('update-price');
             Route::post('/{product}/stock', [ProductInventoryController::class, 'updateStock'])->name('update-stock');
@@ -128,6 +161,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
             Route::get('/daily', [ReportController::class, 'daily'])->name('daily');
             Route::get('/monthly', [ReportController::class, 'monthly'])->name('monthly');
+            
+            // Export routes
+            Route::get('/export/sales', [ReportController::class, 'exportSales'])->name('export.sales');
+            Route::get('/export/inventory', [ReportController::class, 'exportInventory'])->name('export.inventory');
+            Route::get('/export/daily', [ReportController::class, 'exportDaily'])->name('export.daily');
+            Route::get('/export/monthly', [ReportController::class, 'exportMonthly'])->name('export.monthly');
         });
 
         // Activity Logs (Admin only)
@@ -153,5 +192,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Admin PIN Management (Admin only)
         Route::post('/user/{user}/set-pin', [PinAuthController::class, 'adminSetPin'])->name('pin.admin-set');
+
+        // Notifications (Admin only)
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('mark-read');
+            Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
+        });
     });
 });

@@ -8,11 +8,9 @@ use App\Models\Product;
 use App\Models\Ingredient;
 use App\Models\Inventory;
 use App\Models\IngredientInventory;
-use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Auth;
 
 class InventorySyncService
 {
@@ -50,7 +48,7 @@ class InventorySyncService
 
                     if ($product->product_type === 'direct') {
                         // Direct product (finished goods): Deduct from product inventory
-                        $deduction = $this->deductProductInventory($product, $branchId, $quantity, $sale);
+                        $deduction = $this->deductProductInventory($product, $branchId, $quantity);
                         if ($deduction['success']) {
                             $result['deductions'][] = $deduction;
                             if ($deduction['is_low_stock']) {
@@ -67,7 +65,7 @@ class InventorySyncService
                         }
                     } else {
                         // Composite product (milk tea): Deduct from ingredients
-                        $ingredientDeductions = $this->deductIngredients($product, $branchId, $quantity, $sale);
+                        $ingredientDeductions = $this->deductIngredients($product, $branchId, $quantity);
                         foreach ($ingredientDeductions as $deduction) {
                             if ($deduction['success']) {
                                 $result['deductions'][] = $deduction;
@@ -111,9 +109,8 @@ class InventorySyncService
     /**
      * Deduct from product inventory (for direct/finished goods).
      * Uses pessimistic locking to prevent race conditions.
-     * Records stock movement for audit trail.
      */
-    private function deductProductInventory(Product $product, int $branchId, int $quantity, ?Sale $sale = null): array
+    private function deductProductInventory(Product $product, int $branchId, int $quantity): array
     {
         $inventory = Inventory::where('product_id', $product->id)
             ->where('branch_id', $branchId)
@@ -127,25 +124,9 @@ class InventorySyncService
             ];
         }
 
-        $quantityBefore = $inventory->quantity;
         $newQuantity = max(0, $inventory->quantity - $quantity);
         $inventory->quantity = $newQuantity;
         $inventory->save();
-
-        // Record stock movement for audit trail
-        StockMovement::record([
-            'branch_id' => $branchId,
-            'inventory_type' => StockMovement::INVENTORY_PRODUCT,
-            'product_id' => $product->id,
-            'movement_type' => StockMovement::TYPE_SALE,
-            'quantity_before' => $quantityBefore,
-            'quantity_change' => -$quantity,
-            'quantity_after' => $newQuantity,
-            'unit' => 'pcs',
-            'reference_type' => $sale ? Sale::class : null,
-            'reference_id' => $sale?->id,
-            'user_id' => Auth::id(),
-        ]);
 
         return [
             'success' => true,
@@ -161,9 +142,8 @@ class InventorySyncService
     /**
      * Deduct from ingredients based on product recipe (BOM).
      * Uses pessimistic locking to prevent race conditions.
-     * Records stock movements for audit trail.
      */
-    private function deductIngredients(Product $product, int $branchId, int $productQuantity, ?Sale $sale = null): array
+    private function deductIngredients(Product $product, int $branchId, int $productQuantity): array
     {
         $deductions = [];
         
@@ -194,25 +174,9 @@ class InventorySyncService
             }
 
             $amountToDeduct = $ingredientPivot->pivot->quantity_required * $productQuantity;
-            $quantityBefore = $ingredientInventory->quantity;
             $newQuantity = max(0, $ingredientInventory->quantity - $amountToDeduct);
             $ingredientInventory->quantity = $newQuantity;
             $ingredientInventory->save();
-
-            // Record stock movement for audit trail
-            StockMovement::record([
-                'branch_id' => $branchId,
-                'inventory_type' => StockMovement::INVENTORY_INGREDIENT,
-                'ingredient_id' => $ingredientPivot->id,
-                'movement_type' => StockMovement::TYPE_SALE,
-                'quantity_before' => $quantityBefore,
-                'quantity_change' => -$amountToDeduct,
-                'quantity_after' => $newQuantity,
-                'unit' => $ingredientPivot->unit,
-                'reference_type' => $sale ? Sale::class : null,
-                'reference_id' => $sale?->id,
-                'user_id' => Auth::id(),
-            ]);
 
             $deductions[] = [
                 'success' => true,
@@ -259,11 +223,11 @@ class InventorySyncService
 
                     if ($product->product_type === 'direct') {
                         // Restore product inventory
-                        $restoration = $this->restoreProductInventory($product, $branchId, $quantity, $sale);
+                        $restoration = $this->restoreProductInventory($product, $branchId, $quantity);
                         $result['restorations'][] = $restoration;
                     } else {
                         // Restore ingredients
-                        $ingredientRestorations = $this->restoreIngredients($product, $branchId, $quantity, $sale);
+                        $ingredientRestorations = $this->restoreIngredients($product, $branchId, $quantity);
                         $result['restorations'] = array_merge($result['restorations'], $ingredientRestorations);
                     }
                 }
@@ -286,9 +250,8 @@ class InventorySyncService
 
     /**
      * Restore product inventory (add back units).
-     * Records stock movement for audit trail.
      */
-    private function restoreProductInventory(Product $product, int $branchId, int $quantity, ?Sale $sale = null): array
+    private function restoreProductInventory(Product $product, int $branchId, int $quantity): array
     {
         $inventory = Inventory::where('product_id', $product->id)
             ->where('branch_id', $branchId)
@@ -302,25 +265,8 @@ class InventorySyncService
             ];
         }
 
-        $quantityBefore = $inventory->quantity;
         $inventory->quantity += $quantity;
         $inventory->save();
-
-        // Record stock movement for audit trail
-        StockMovement::record([
-            'branch_id' => $branchId,
-            'inventory_type' => StockMovement::INVENTORY_PRODUCT,
-            'product_id' => $product->id,
-            'movement_type' => StockMovement::TYPE_VOID,
-            'quantity_before' => $quantityBefore,
-            'quantity_change' => $quantity,
-            'quantity_after' => $inventory->quantity,
-            'unit' => 'pcs',
-            'reference_type' => $sale ? Sale::class : null,
-            'reference_id' => $sale?->id,
-            'notes' => 'Restored from voided sale',
-            'user_id' => Auth::id(),
-        ]);
 
         return [
             'success' => true,
@@ -333,9 +279,8 @@ class InventorySyncService
 
     /**
      * Restore ingredients based on product recipe (add back amounts).
-     * Records stock movements for audit trail.
      */
-    private function restoreIngredients(Product $product, int $branchId, int $productQuantity, ?Sale $sale = null): array
+    private function restoreIngredients(Product $product, int $branchId, int $productQuantity): array
     {
         $restorations = [];
         $recipe = $product->ingredients;
@@ -356,28 +301,11 @@ class InventorySyncService
             }
 
             $amountToRestore = $ingredientPivot->pivot->quantity_required * $productQuantity;
-            $quantityBefore = $ingredientInventory->quantity;
             $ingredientInventory->quantity += $amountToRestore;
             $ingredientInventory->save();
 
             // Get ingredient for unit info
             $ingredient = Ingredient::find($ingredientPivot->id);
-
-            // Record stock movement for audit trail
-            StockMovement::record([
-                'branch_id' => $branchId,
-                'inventory_type' => StockMovement::INVENTORY_INGREDIENT,
-                'ingredient_id' => $ingredientPivot->id,
-                'movement_type' => StockMovement::TYPE_VOID,
-                'quantity_before' => $quantityBefore,
-                'quantity_change' => $amountToRestore,
-                'quantity_after' => $ingredientInventory->quantity,
-                'unit' => $ingredient?->unit ?? '',
-                'reference_type' => $sale ? Sale::class : null,
-                'reference_id' => $sale?->id,
-                'notes' => 'Restored from voided sale',
-                'user_id' => Auth::id(),
-            ]);
 
             $restorations[] = [
                 'success' => true,

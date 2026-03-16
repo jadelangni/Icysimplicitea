@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="py-6">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
@@ -9,13 +7,6 @@
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Staff Attendance</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Monitor staff clock-in and clock-out records</p>
             </div>
-            <a href="{{ route('attendance.terminal') }}" target="_blank"
-                class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-white rounded-lg transition-colors">
-                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Open Kiosk Terminal
-            </a>
         </div>
 
         <!-- Filters -->
@@ -135,4 +126,11 @@
         </div>
     </div>
 </div>
-@endsection
+
+<!-- Live polling: auto-refresh attendance records every 30 seconds -->
+<script>
+    setInterval(() => {
+        window.location.reload();
+    }, 30000);
+</script>
+</x-app-layout>

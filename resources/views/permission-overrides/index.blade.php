@@ -250,5 +250,23 @@
             alert('An error occurred');
         }
     }
+
+    // Live polling: auto-refresh when pending count changes
+    let lastPendingCount = {{ $pendingCount }};
+    setInterval(async () => {
+        try {
+            const response = await fetch('/permission-overrides/pending', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+            if (!response.ok) return;
+            const data = await response.json();
+            if (data.count !== undefined && data.count !== lastPendingCount) {
+                window.location.reload();
+            }
+        } catch (e) {}
+    }, 10000);
 </script>
 @endsection

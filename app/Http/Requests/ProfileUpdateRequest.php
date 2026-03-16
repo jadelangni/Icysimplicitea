@@ -25,6 +25,13 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'alert_email' => [
+                'nullable',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+            ],
         ];
     }
 }

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminNotification;
+use App\Models\BranchSession;
+use App\Models\StaffAttendance;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,9 +69,23 @@ class PinAuthController extends Controller
             ], 401);
         }
 
-        // Log out current user if any
+        // Log out current user if any and auto clock-out
         if (Auth::check()) {
-            UserActivityLog::logActivity(Auth::user(), 'logout_pin_switch', $request->ip(), $request->userAgent());
+            $previousUser = Auth::user();
+            UserActivityLog::logActivity($previousUser, 'logout_pin_switch', $request->ip(), $request->userAgent());
+
+            // Auto clock-out previous cashier/employee
+            if ($previousUser->role === 'cashier' && StaffAttendance::isUserClockedIn($previousUser->id)) {
+                StaffAttendance::recordAttendance(
+                    $previousUser,
+                    'clock_out',
+                    null,
+                    $request->ip(),
+                    null,
+                    null,
+                    'Auto clock-out on PIN switch'
+                );
+            }
         }
 
         // Login the user
@@ -77,6 +94,31 @@ class PinAuthController extends Controller
 
         // Log the activity
         UserActivityLog::logActivity($user, 'login_pin', $request->ip(), $request->userAgent());
+
+        // Auto clock-in for cashiers/employees
+        if ($user->role === 'cashier' && !StaffAttendance::isUserClockedIn($user->id)) {
+            StaffAttendance::recordAttendance(
+                $user,
+                'clock_in',
+                null,
+                $request->ip(),
+                null,
+                null,
+                'Auto clock-in on PIN login'
+            );
+        }
+
+        // Start branch session
+        if ($user->branch_id && $user->role === 'cashier' && !BranchSession::hasActiveSession($user->id)) {
+            $session = BranchSession::startSession($user->branch_id, $user->id);
+            $roleLabel = $session->is_cashier ? 'Cashier' : 'Crew';
+            AdminNotification::create([
+                'type' => 'branch_session',
+                'title' => "Employee Logged In ({$roleLabel}) via PIN",
+                'message' => "{$user->name} logged in as {$roleLabel} at " . ($user->branch->name ?? 'branch') . " on " . \Carbon\Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
+                'triggered_by' => $user->id,
+            ]);
+        }
 
         // Store branch ID in session
         session(['last_branch_id' => $user->branch_id]);

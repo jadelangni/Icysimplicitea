@@ -5,20 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\StaffAttendance;
 use App\Models\User;
 use App\Models\UserActivityLog;
+use App\Models\DutySchedule;
+use App\Models\AdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
-    /**
-     * Display the attendance terminal/kiosk view.
-     */
-    public function terminal()
-    {
-        return view('attendance.terminal');
-    }
+
 
     /**
      * Show attendance records for the authenticated user.
@@ -29,15 +26,52 @@ class AttendanceController extends Controller
         $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->format('Y-m-d'));
 
-        $attendance = StaffAttendance::where('user_id', $user->id)
+        // Get all attendance records for the period
+        $rawAttendance = StaffAttendance::where('user_id', $user->id)
             ->whereBetween('recorded_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-            ->orderBy('recorded_at', 'desc')
-            ->paginate(20);
+            ->orderBy('recorded_at', 'asc')
+            ->get();
+
+        // Group into sessions (clock_in + clock_out pairs)
+        $sessions = [];
+        $currentSession = null;
+        
+        foreach ($rawAttendance as $record) {
+            if ($record->type === 'clock_in') {
+                // Start a new session
+                $currentSession = [
+                    'date' => $record->recorded_at->format('Y-m-d'),
+                    'clock_in' => $record->recorded_at,
+                    'clock_out' => null,
+                    'hours_worked' => null,
+                    'is_running' => true,
+                ];
+            } elseif ($record->type === 'clock_out' && $currentSession) {
+                // Close the current session
+                $currentSession['clock_out'] = $record->recorded_at;
+                $currentSession['is_running'] = false;
+                $currentSession['hours_worked'] = $currentSession['clock_in']->diffInMinutes($record->recorded_at) / 60;
+                $sessions[] = $currentSession;
+                $currentSession = null;
+            }
+        }
+        
+        // If there's an unclosed session (still clocked in), add it
+        if ($currentSession) {
+            $currentSession['hours_worked'] = $currentSession['clock_in']->diffInMinutes(now()) / 60;
+            $sessions[] = $currentSession;
+        }
+        
+        // Reverse to show most recent first
+        $sessions = array_reverse($sessions);
+        
+        // Calculate total hours
+        $totalHours = array_sum(array_column($sessions, 'hours_worked'));
 
         $isClockedIn = StaffAttendance::isUserClockedIn($user->id);
         $todayHours = StaffAttendance::calculateHoursWorked($user->id, today());
 
-        return view('attendance.my-attendance', compact('attendance', 'isClockedIn', 'todayHours', 'startDate', 'endDate'));
+        return view('attendance.my-attendance', compact('sessions', 'isClockedIn', 'todayHours', 'totalHours', 'startDate', 'endDate'));
     }
 
     /**
@@ -49,14 +83,15 @@ class AttendanceController extends Controller
         
         // Only admins can view all attendance
         if (!$user->isAdmin()) {
-            return redirect()->route('attendance.my-attendance');
+            return redirect()->route('dashboard');
         }
 
-        $branchId = $request->get('branch_id', $user->branch_id);
+        $branchId = $request->get('branch_id', '');
         $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->format('Y-m-d'));
         $userId = $request->get('user_id');
 
+        // Get attendance records
         $query = StaffAttendance::with(['user', 'branch'])
             ->whereBetween('recorded_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
 
@@ -70,17 +105,63 @@ class AttendanceController extends Controller
 
         $attendance = $query->orderBy('recorded_at', 'desc')->paginate(30);
 
-        // Get staff list for filter
-        $staff = User::where('branch_id', $branchId)
-            ->where('is_active', true)
-            ->get();
+        // Get staff list for filter — show ALL active staff regardless of branch
+        $staffQuery = User::where('is_active', true);
+        if ($branchId) {
+            $staffQuery->where('branch_id', $branchId);
+        }
+        $staff = $staffQuery->get();
+
+        // Build employee attendance summaries for the selected period
+        $employeeSummaries = [];
+        foreach ($staff as $member) {
+            $memberRecords = StaffAttendance::where('user_id', $member->id)
+                ->whereBetween('recorded_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->orderBy('recorded_at')
+                ->get();
+
+            // Count days present (unique dates with clock_in)
+            $daysPresent = $memberRecords->where('type', 'clock_in')
+                ->map(fn($r) => $r->recorded_at->format('Y-m-d'))
+                ->unique()
+                ->count();
+
+            // Count late check-ins
+            $lateCount = $memberRecords->where('type', 'clock_in')->where('is_late', true)->count();
+
+            // Calculate total hours worked
+            $totalMinutes = 0;
+            $clockInTime = null;
+            foreach ($memberRecords as $record) {
+                if ($record->type === 'clock_in') {
+                    $clockInTime = $record->recorded_at;
+                } elseif ($record->type === 'clock_out' && $clockInTime) {
+                    $totalMinutes += $clockInTime->diffInMinutes($record->recorded_at);
+                    $clockInTime = null;
+                }
+            }
+
+            // Check current clock-in status
+            $isClockedIn = StaffAttendance::isUserClockedIn($member->id);
+
+            $employeeSummaries[] = [
+                'user' => $member,
+                'days_present' => $daysPresent,
+                'late_count' => $lateCount,
+                'total_hours' => round($totalMinutes / 60, 1),
+                'is_clocked_in' => $isClockedIn,
+                'record_count' => $memberRecords->count(),
+                'last_clock_in' => $memberRecords->where('type', 'clock_in')->last()?->recorded_at,
+                'last_clock_out' => $memberRecords->where('type', 'clock_out')->last()?->recorded_at,
+            ];
+        }
 
         // Get branches for filter (admins only)
         $branches = $user->isAdmin() 
             ? \App\Models\Branch::where('is_active', true)->get() 
             : collect();
 
-        return view('attendance.index', compact('attendance', 'staff', 'branches', 'branchId', 'startDate', 'endDate', 'userId'));
+        return view('attendance.index', compact('attendance', 'staff', 'branches', 'branchId', 'startDate', 'endDate', 'userId', 'employeeSummaries'));
     }
 
     /**
@@ -114,6 +195,15 @@ class AttendanceController extends Controller
             ], 401);
         }
 
+        // Check if within allowed clock-in hours (8:00 AM - 8:00 PM PH time)
+        if (!StaffAttendance::isWithinAllowedClockInHours()) {
+            $phNow = Carbon::now('Asia/Manila');
+            return response()->json([
+                'success' => false,
+                'message' => 'Clock-in is only allowed between 6:00 AM and 8:00 PM (Philippine Time). Current PH time: ' . $phNow->format('h:i A'),
+            ], 400);
+        }
+
         // Check if already clocked in
         if (StaffAttendance::isUserClockedIn($user->id)) {
             return response()->json([
@@ -128,7 +218,7 @@ class AttendanceController extends Controller
             $selfiePath = $this->saveSelfie($request->selfie, $user->id, 'clock_in');
         }
 
-        // Record attendance
+        // Record attendance (is_late is automatically determined in the model)
         $attendance = StaffAttendance::recordAttendance(
             $user,
             'clock_in',
@@ -141,9 +231,32 @@ class AttendanceController extends Controller
         // Log activity
         UserActivityLog::logActivity($user, 'clock_in', $request->ip(), $request->userAgent());
 
+        // Check duty schedule and notify admin if off-schedule (skip for admin users)
+        if (!$user->isAdmin()) {
+            $phNow = Carbon::now('Asia/Manila');
+            $scheduleStatus = DutySchedule::checkScheduleStatus($user->id, $phNow);
+            $schedule = DutySchedule::getScheduleForDay($user->id, $phNow->dayOfWeek);
+
+            if (in_array($scheduleStatus, ['off_schedule', 'day_off', 'no_schedule'])) {
+                AdminNotification::notifyOffScheduleClockIn($user, $scheduleStatus, $schedule);
+            }
+        }
+
+        // Notify admin if late
+        if ($attendance->is_late) {
+            AdminNotification::notifyLateClockIn($user);
+        }
+
+        // Build response message
+        $message = 'Clocked in successfully at ' . $attendance->recorded_at->setTimezone('Asia/Manila')->format('h:i A');
+        if ($attendance->is_late) {
+            $message .= ' (LATE - after 8:00 AM)';
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Clocked in successfully at ' . $attendance->recorded_at->format('h:i A'),
+            'message' => $message,
+            'is_late' => $attendance->is_late,
             'attendance' => $attendance,
         ]);
     }
@@ -213,7 +326,7 @@ class AttendanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Clocked out successfully at ' . $attendance->recorded_at->format('h:i A'),
+            'message' => 'Clocked out successfully at ' . $attendance->recorded_at->setTimezone('Asia/Manila')->format('h:i A'),
             'hours_worked' => $hoursWorked,
             'attendance' => $attendance,
         ]);
@@ -238,11 +351,17 @@ class AttendanceController extends Controller
         $lastRecord = StaffAttendance::getLastRecord($user->id);
         $todayHours = StaffAttendance::calculateHoursWorked($user->id, today());
 
+        // Check if clock-in is currently allowed
+        $isClockInAllowed = StaffAttendance::isWithinAllowedClockInHours();
+        $phNow = Carbon::now('Asia/Manila');
+
         return response()->json([
             'success' => true,
             'is_clocked_in' => $isClockedIn,
             'last_record' => $lastRecord,
             'today_hours' => $todayHours,
+            'clock_in_allowed' => $isClockInAllowed,
+            'current_ph_time' => $phNow->format('h:i A'),
         ]);
     }
 
@@ -262,9 +381,15 @@ class AttendanceController extends Controller
                 return $user;
             });
 
+        // Check if clock-in is currently allowed
+        $isClockInAllowed = StaffAttendance::isWithinAllowedClockInHours();
+        $phNow = Carbon::now('Asia/Manila');
+
         return response()->json([
             'success' => true,
             'users' => $users,
+            'clock_in_allowed' => $isClockInAllowed,
+            'current_ph_time' => $phNow->format('h:i A'),
         ]);
     }
 
@@ -316,5 +441,91 @@ class AttendanceController extends Controller
         }
 
         return response()->file(Storage::disk('public')->path($attendance->selfie_path));
+    }
+
+    /**
+     * Show duty schedule for a user.
+     */
+    public function showSchedule(User $user)
+    {
+        $schedules = DutySchedule::where('user_id', $user->id)
+            ->orderBy('day_of_week')
+            ->get()
+            ->keyBy('day_of_week');
+
+        return view('attendance.schedule', compact('user', 'schedules'));
+    }
+
+    /**
+     * Update duty schedule for a user.
+     */
+    public function updateSchedule(Request $request, User $user)
+    {
+        $request->validate([
+            'schedules' => 'required|array',
+            'schedules.*.day_of_week' => 'required|integer|min:0|max:6',
+            'schedules.*.start_time' => 'nullable|date_format:H:i',
+            'schedules.*.end_time' => 'nullable|date_format:H:i',
+            'schedules.*.is_day_off' => 'nullable|boolean',
+        ]);
+
+        foreach ($request->schedules as $scheduleData) {
+            DutySchedule::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'day_of_week' => $scheduleData['day_of_week'],
+                ],
+                [
+                    'start_time' => $scheduleData['is_day_off'] ?? false ? '00:00' : ($scheduleData['start_time'] ?? '06:00'),
+                    'end_time' => $scheduleData['is_day_off'] ?? false ? '00:00' : ($scheduleData['end_time'] ?? '14:00'),
+                    'is_day_off' => $scheduleData['is_day_off'] ?? false,
+                ]
+            );
+        }
+
+        return redirect()->route('duty-schedules.show', $user)
+            ->with('success', "Duty schedule for {$user->name} updated successfully.");
+    }
+
+    /**
+     * Show admin notifications page.
+     */
+    public function notifications()
+    {
+        $notifications = AdminNotification::with('triggeredByUser')
+            ->orderBy('created_at', 'desc')
+            ->paginate(30);
+
+        return view('attendance.notifications', compact('notifications'));
+    }
+
+    /**
+     * Mark a notification as read.
+     */
+    public function markNotificationRead(AdminNotification $notification)
+    {
+        $notification->markAsRead();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Mark all notifications as read.
+     */
+    public function markAllNotificationsRead()
+    {
+        AdminNotification::markAllAsRead();
+
+        return redirect()->back()->with('success', 'All notifications marked as read.');
+    }
+
+    /**
+     * Get unread notification count (API).
+     */
+    public function unreadNotificationCount()
+    {
+        return response()->json([
+            'count' => AdminNotification::unreadCount(),
+        ]);
     }
 }

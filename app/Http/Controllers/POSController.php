@@ -11,7 +11,6 @@ use App\Events\SaleCompleted;
 use App\Services\InventorySyncService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -26,6 +25,10 @@ class POSController extends Controller
 
     public function index()
     {
+        if (Auth::user()->isAdmin()) {
+            abort(403, 'Admin users do not have access to the POS system.');
+        }
+
         $categories = Category::where('is_active', true)->with('products')->get();
         $branchId = Auth::user()->branch_id;
         
@@ -35,6 +38,23 @@ class POSController extends Controller
                 $query->where('branch_id', $branchId);
             }, 'ingredients'])
             ->get();
+
+        // Pre-compute availability for each product
+        foreach ($products as $product) {
+            if ($product->product_type === 'composite') {
+                // Composite products: check ingredient availability
+                $availability = $this->inventorySyncService->checkProductAvailability($product, $branchId, 1);
+                $product->is_available = $availability['available'];
+                $product->missing_ingredients = $availability['missing_ingredients'] ?? [];
+                $product->stock_display = $availability['available'] ? 'In Stock' : 'Missing Ingredients';
+            } else {
+                // Direct products: check product inventory stock
+                $qty = $product->inventory->first()->quantity ?? 0;
+                $product->is_available = $qty > 0;
+                $product->direct_stock = $qty;
+                $product->stock_display = $qty > 0 ? $qty . 'pcs' : 'Out of Stock';
+            }
+        }
 
         return view('pos.index', compact('categories', 'products'));
     }
@@ -55,23 +75,7 @@ class POSController extends Controller
             'items.*.options' => 'nullable|array',
             'payment_method' => 'required|in:cash,card,gcash',
             'amount_paid' => 'required|numeric|min:0',
-            'idempotency_key' => 'nullable|string|max:64',
         ]);
-
-        // Idempotency check - prevent duplicate submissions
-        if ($request->filled('idempotency_key')) {
-            $existingSale = Sale::where('idempotency_key', $request->idempotency_key)->first();
-            if ($existingSale) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Sale already processed (duplicate request)',
-                    'redirect_url' => route('pos.receipt', $existingSale->id),
-                    'low_stock_alerts' => [],
-                    'inventory_synced' => $existingSale->inventory_synced,
-                    'is_duplicate' => true
-                ]);
-            }
-        }
 
         if ($validator->fails()) {
             return response()->json([
@@ -138,56 +142,42 @@ class POSController extends Controller
             ], 400);
         }
 
-        // Wrap sale creation, items, and inventory sync in a database transaction
-        // This ensures atomicity - all or nothing
-        $result = DB::transaction(function () use ($branchId, $subtotal, $taxAmount, $discountAmount, $totalAmount, $request, $changeAmount, $items) {
-            // Create the sale with idempotency key
-            $sale = Sale::create([
-                'branch_id' => $branchId,
-                'user_id' => Auth::id(),
-                'subtotal' => $subtotal,
-                'tax_amount' => $taxAmount,
-                'discount_amount' => $discountAmount,
-                'total_amount' => $totalAmount,
-                'amount_paid' => $request->amount_paid,
-                'change_amount' => $changeAmount,
-                'payment_method' => $request->payment_method,
-                'status' => 'completed',
-                'receipt_number' => $this->generateReceiptNumber($branchId),
-                'inventory_synced' => false,
-                'idempotency_key' => $request->idempotency_key,
+        // Create the sale
+        $sale = Sale::create([
+            'branch_id' => $branchId,
+            'user_id' => Auth::id(),
+            'subtotal' => $subtotal,
+            'tax_amount' => $taxAmount,
+            'discount_amount' => $discountAmount,
+            'total_amount' => $totalAmount,
+            'amount_paid' => $request->amount_paid,
+            'change_amount' => $changeAmount,
+            'payment_method' => $request->payment_method,
+            'status' => 'completed',
+            'receipt_number' => $this->generateReceiptNumber($branchId),
+            'inventory_synced' => false
+        ]);
+
+        // Create sale items
+        foreach ($items as $item) {
+            SalesItem::create([
+                'sale_id' => $sale->id,
+                'product_id' => $item['product']->id,
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
+                'total_price' => $item['total_price'],
+                'options' => $item['options'] ?? null,
             ]);
+        }
 
-            // Create sale items
-            foreach ($items as $item) {
-                SalesItem::create([
-                    'sale_id' => $sale->id,
-                    'product_id' => $item['product']->id,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total_price' => $item['total_price'],
-                    'options' => $item['options'] ?? null,
-                ]);
-            }
-
-            // *** REAL-TIME INVENTORY SYNC ***
-            // Deduct inventory immediately upon payment confirmation
-            // This also records stock movements for audit trail
-            $syncResult = $this->inventorySyncService->processSaleDeductions($sale);
-            
-            if (!$syncResult['success']) {
-                // Log but don't fail the sale - inventory sync errors are logged
-                Log::warning('Inventory sync had issues for sale #' . $sale->id, $syncResult['errors']);
-            }
-
-            return [
-                'sale' => $sale,
-                'syncResult' => $syncResult,
-            ];
-        });
-
-        $sale = $result['sale'];
-        $syncResult = $result['syncResult'];
+        // *** REAL-TIME INVENTORY SYNC ***
+        // Deduct inventory immediately upon payment confirmation
+        $syncResult = $this->inventorySyncService->processSaleDeductions($sale);
+        
+        if (!$syncResult['success']) {
+            // Log but don't fail the sale - inventory sync errors are logged
+            Log::warning('Inventory sync had issues for sale #' . $sale->id, $syncResult['errors']);
+        }
 
         // Include low stock alerts in response for frontend notification
         $lowStockAlerts = $syncResult['low_stock_alerts'] ?? [];
@@ -203,7 +193,10 @@ class POSController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sale completed successfully!',
+            'sale_id' => $sale->id,
             'redirect_url' => route('pos.receipt', $sale->id),
+            'print_url' => route('pos.receipt.print', $sale->id),
+            'direct_print_url' => route('pos.receipt.direct-print', $sale->id),
             'low_stock_alerts' => $lowStockAlerts,
             'inventory_synced' => $syncResult['success']
         ]);
@@ -264,6 +257,72 @@ class POSController extends Controller
     {
         $sale->load(['salesItems.product', 'user', 'branch']);
         return view('pos.receipt', compact('sale'));
+    }
+
+    /**
+     * Show printable receipt in a standalone page (opens in new tab).
+     */
+    public function printReceipt(Sale $sale)
+    {
+        $sale->load(['salesItems.product', 'user', 'branch']);
+        return view('pos.receipt-print', compact('sale'));
+    }
+
+    /**
+     * Direct print receipt - returns receipt HTML optimized for silent/direct printing
+     * to thermal receipt printers (iframe-based printing without dialog).
+     */
+    public function directPrintReceipt(Sale $sale)
+    {
+        $sale->load(['salesItems.product', 'user', 'branch']);
+        return view('pos.receipt-direct-print', compact('sale'));
+    }
+
+    /**
+     * Get raw ESC/POS receipt data for direct thermal printer communication.
+     * Returns structured data that can be used with ESC/POS JavaScript libraries.
+     */
+    public function getRawReceiptData(Sale $sale)
+    {
+        $sale->load(['salesItems.product', 'user', 'branch']);
+        
+        $items = $sale->salesItems->map(function ($item) {
+            $options = '';
+            if (!empty($item->options) && is_array($item->options)) {
+                $optParts = [];
+                foreach ($item->options as $name => $value) {
+                    $optParts[] = "{$name}: {$value}";
+                }
+                $options = implode(', ', $optParts);
+            }
+            
+            return [
+                'name' => $item->product->name ?? 'Product',
+                'options' => $options,
+                'quantity' => $item->quantity,
+                'unit_price' => $item->unit_price,
+                'total_price' => $item->total_price,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'receipt' => [
+                'store_name' => config('app.name'),
+                'branch_name' => $sale->branch->name ?? 'Main Branch',
+                'receipt_number' => $sale->receipt_number,
+                'date' => $sale->created_at->format('M d, Y h:i A'),
+                'items' => $items,
+                'subtotal' => $sale->subtotal,
+                'tax_amount' => $sale->tax_amount,
+                'discount_amount' => $sale->discount_amount,
+                'total_amount' => $sale->total_amount,
+                'payment_method' => ucfirst($sale->payment_method),
+                'amount_paid' => $sale->amount_paid,
+                'change_amount' => $sale->change_amount,
+                'cashier' => $sale->user->name ?? 'Staff',
+            ]
+        ]);
     }
 
     /**
@@ -343,5 +402,48 @@ class POSController extends Controller
             ->count() + 1;
         
         return $branchCode . '-' . $date . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Get live product availability data for POS polling
+     */
+    public function liveData()
+    {
+        $branchId = Auth::user()->branch_id;
+        
+        $products = Product::where('is_active', true)
+            ->with(['inventory' => function($query) use ($branchId) {
+                $query->where('branch_id', $branchId);
+            }, 'ingredients'])
+            ->get();
+
+        $productData = [];
+        foreach ($products as $product) {
+            if ($product->product_type === 'composite') {
+                $availability = $this->inventorySyncService->checkProductAvailability($product, $branchId, 1);
+                $productData[$product->id] = [
+                    'product_type' => 'composite',
+                    'is_available' => $availability['available'],
+                    'stock' => $availability['available'] ? 9999 : 0,
+                    'stock_display' => $availability['available'] ? 'Available' : 'Unavailable',
+                    'missing_ingredients' => $availability['missing_ingredients'] ?? [],
+                ];
+            } else {
+                $qty = $product->inventory->first()->quantity ?? 0;
+                $productData[$product->id] = [
+                    'product_type' => 'direct',
+                    'is_available' => $qty > 0,
+                    'stock' => (int) $qty,
+                    'stock_display' => $qty > 0 ? $qty . 'pcs' : 'Out of Stock',
+                    'missing_ingredients' => [],
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'products' => $productData,
+            'timestamp' => now()->toIso8601String(),
+        ]);
     }
 }

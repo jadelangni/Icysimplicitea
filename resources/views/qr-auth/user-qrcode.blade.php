@@ -101,8 +101,8 @@
                 @endforelse
 
                 @if($recentLogs->count() > 0)
-                    <a href="{{ route('activity-logs.user', $user) }}" class="text-simplicitea-600 hover:text-simplicitea-700 text-sm mt-4 inline-block">
-                        View full activity history →
+                    <a href="{{ route('activity-logs.index') }}" class="text-simplicitea-600 hover:text-simplicitea-700 text-sm mt-4 inline-block">
+                        View cashier sales →
                     </a>
                 @endif
             </div>

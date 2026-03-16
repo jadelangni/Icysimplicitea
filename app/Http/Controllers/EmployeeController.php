@@ -69,17 +69,21 @@ class EmployeeController extends Controller
             'branch_id' => ['required', 'exists:branches,id'],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'branch_id' => $validated['branch_id'],
             'is_active' => true,
+            'must_change_password' => true,
         ]);
 
+        // Generate unique QR code for the new user
+        $user->generateQrToken();
+
         return redirect()->route('employees.index')
-            ->with('success', 'Employee created successfully!');
+            ->with('success', 'Employee created successfully! They will be prompted to change their password on first login.');
     }
 
     /**

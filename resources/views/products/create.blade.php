@@ -54,8 +54,15 @@
                             </label>
 
             <label class="block">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Image (optional)</span>
-                <input type="file" name="image" class="mt-1 block w-full dark:text-gray-300">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Product Image (optional)</span>
+                <div class="mt-2">
+                    <div id="image-preview-container" class="hidden mb-3">
+                        <img id="image-preview" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600">
+                        <button type="button" id="remove-image" class="mt-2 text-sm text-red-600 hover:text-red-800">Remove image</button>
+                    </div>
+                    <input type="file" name="image" id="image-input" accept="image/*" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-simplicitea-50 file:text-simplicitea-700 hover:file:bg-simplicitea-100 dark:file:bg-gray-700 dark:file:text-gray-300">
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG up to 2MB</p>
+                </div>
             </label>                            <!-- Options (variants) -->
                             <label class="block">
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Options / Variants (e.g. Size, Temperature)</span>
@@ -222,6 +229,35 @@
                                     customCategoryInput.value = '';
                                     this.name = 'category_id'; // Restore name for submission
                                 }
+                            });
+                        })();
+
+                        // Image preview handler
+                        (function() {
+                            const imageInput = document.getElementById('image-input');
+                            const previewContainer = document.getElementById('image-preview-container');
+                            const previewImg = document.getElementById('image-preview');
+                            const removeBtn = document.getElementById('remove-image');
+
+                            imageInput.addEventListener('change', function(e) {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        previewImg.src = e.target.result;
+                                        previewContainer.classList.remove('hidden');
+                                    };
+                                    reader.readAsDataURL(file);
+                                } else {
+                                    previewContainer.classList.add('hidden');
+                                    previewImg.src = '';
+                                }
+                            });
+
+                            removeBtn.addEventListener('click', function() {
+                                imageInput.value = '';
+                                previewContainer.classList.add('hidden');
+                                previewImg.src = '';
                             });
                         })();
                     </script>

@@ -5,7 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("Update your account's profile information and email address.") }}
+            {{ __("Update your account's profile information.") }}
         </p>
     </header>
 
@@ -24,9 +24,10 @@
         </div>
 
         <div>
-            <x-input-label for="email" :value="__('Email')" />
+            <x-input-label for="email" :value="__('Username (Login Email)')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">This email is used to log in to the system.</p>
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div>
@@ -47,6 +48,15 @@
             @endif
         </div>
 
+        @if(auth()->user()->isAdmin())
+        <div>
+            <x-input-label for="alert_email" :value="__('Notification Email (Low Stock Alerts)')" />
+            <x-text-input id="alert_email" name="alert_email" type="email" class="mt-1 block w-full" :value="old('alert_email', $user->alert_email)" placeholder="Enter email for stock alerts" autocomplete="email" />
+            <x-input-error class="mt-2" :messages="$errors->get('alert_email')" />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Low stock alert emails will be sent to this address. Leave blank to use your login email.</p>
+        </div>
+        @endif
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
@@ -56,7 +66,7 @@
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
+                    class="text-sm text-gray-600 dark:text-gray-400"
                 >{{ __('Saved.') }}</p>
             @endif
         </div>

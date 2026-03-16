@@ -48,9 +48,13 @@
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                                         <td class="py-4 px-4">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-100 to-simplicitea-200 dark:from-gray-600 dark:to-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                    <span class="text-lg">🧋</span>
-                                                </div>
+                                                @if($product->image)
+                                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
+                                                @else
+                                                    <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-100 to-simplicitea-200 dark:from-gray-600 dark:to-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                        <span class="text-lg">🧋</span>
+                                                    </div>
+                                                @endif
                                                 <span class="font-medium text-gray-900 dark:text-white">{{ $product->name }}</span>
                                             </div>
                                         </td>

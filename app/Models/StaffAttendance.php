@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Carbon\Carbon;
 
 class StaffAttendance extends Model
 {
@@ -25,6 +26,7 @@ class StaffAttendance extends Model
         'latitude',
         'longitude',
         'recorded_at',
+        'is_late',
     ];
 
     /**
@@ -36,6 +38,7 @@ class StaffAttendance extends Model
             'recorded_at' => 'datetime',
             'latitude' => 'decimal:8',
             'longitude' => 'decimal:8',
+            'is_late' => 'boolean',
         ];
     }
 
@@ -119,6 +122,29 @@ class StaffAttendance extends Model
     }
 
     /**
+     * Check if the current PH time is within allowed clock-in hours (6:00 AM - 8:00 PM).
+     */
+    public static function isWithinAllowedClockInHours(): bool
+    {
+        $phNow = Carbon::now('Asia/Manila');
+        $startTime = Carbon::createFromTime(6, 0, 0, 'Asia/Manila');
+        $endTime = Carbon::createFromTime(20, 0, 0, 'Asia/Manila');
+
+        return $phNow->between($startTime, $endTime);
+    }
+
+    /**
+     * Check if a clock-in at the current PH time is considered late (after 8:00 AM).
+     */
+    public static function isLateClockIn(): bool
+    {
+        $phNow = Carbon::now('Asia/Manila');
+        $lateThreshold = Carbon::createFromTime(8, 0, 0, 'Asia/Manila');
+
+        return $phNow->greaterThan($lateThreshold);
+    }
+
+    /**
      * Record a clock-in or clock-out.
      */
     public static function recordAttendance(
@@ -130,6 +156,13 @@ class StaffAttendance extends Model
         ?float $longitude = null,
         ?string $notes = null
     ): self {
+        $isLate = false;
+
+        // Check if this is a clock-in and determine if it's late
+        if ($type === 'clock_in') {
+            $isLate = self::isLateClockIn();
+        }
+
         return self::create([
             'user_id' => $user->id,
             'branch_id' => $user->branch_id,
@@ -140,6 +173,7 @@ class StaffAttendance extends Model
             'longitude' => $longitude,
             'notes' => $notes,
             'recorded_at' => now(),
+            'is_late' => $isLate,
         ]);
     }
 

@@ -2,58 +2,13 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-white leading-tight">
-                {{ __('User Activity Logs') }}
+                {{ __('Cashier Sales List') }}
             </h2>
         </div>
     </x-slot>
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Today's Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Today's Logins</p>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $todayStats['logins'] }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Today's Logouts</p>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $todayStats['logouts'] }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Active Sessions</p>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $todayStats['active_users'] }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Filters -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -61,27 +16,6 @@
                 </div>
                 <form method="GET" action="{{ route('activity-logs.index') }}" class="p-4">
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div>
-                            <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">User</label>
-                            <select name="user_id" id="user_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
-                                <option value="">All Users</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }} ({{ ucfirst($user->role) }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="action" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Action</label>
-                            <select name="action" id="action" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
-                                <option value="">All Actions</option>
-                                <option value="login" {{ request('action') == 'login' ? 'selected' : '' }}>Login</option>
-                                <option value="logout" {{ request('action') == 'logout' ? 'selected' : '' }}>Logout</option>
-                            </select>
-                        </div>
-
                         <div>
                             <label for="branch_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Branch</label>
                             <select name="branch_id" id="branch_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
@@ -95,49 +29,57 @@
                         </div>
 
                         <div>
-                            <label for="date_from" class="block text-sm font-medium text-gray-700 dark:text-gray-300">From Date</label>
-                            <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}" 
+                            <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
+                            <select name="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
+                                <option value="">All Roles</option>
+                                <option value="cashier" {{ request('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
+                                <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+                            <input type="date" name="start_date" id="start_date" 
+                                value="{{ request('start_date', now()->setTimezone('Asia/Manila')->format('Y-m-d')) }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
                         </div>
 
                         <div>
-                            <label for="date_to" class="block text-sm font-medium text-gray-700 dark:text-gray-300">To Date</label>
-                            <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}" 
+                            <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
+                            <input type="date" name="end_date" id="end_date" 
+                                value="{{ request('end_date', now()->setTimezone('Asia/Manila')->format('Y-m-d')) }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
                         </div>
-                    </div>
 
-                    <div class="mt-4 flex items-center gap-2">
-                        <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-md hover:bg-simplicitea-700 focus:outline-none focus:ring-2 focus:ring-simplicitea-500 text-sm">
-                            Apply Filters
-                        </button>
-                        <a href="{{ route('activity-logs.index') }}" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-sm">
-                            Clear
-                        </a>
+                        <div class="flex items-end gap-2">
+                            <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-md hover:bg-simplicitea-700 focus:outline-none focus:ring-2 focus:ring-simplicitea-500 text-sm">
+                                Apply Filters
+                            </button>
+                            <a href="{{ route('activity-logs.index') }}" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-sm">
+                                Clear
+                            </a>
+                        </div>
                     </div>
                 </form>
             </div>
 
-            <!-- Activity Logs Table -->
+            <!-- Cashier List Table -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    User
+                                    User Name
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Action
+                                    Role
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Branch
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    IP Address
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Date & Time
+                                    Date Range
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Actions
@@ -145,79 +87,59 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            @forelse($logs as $log)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            @forelse($cashiers as $cashier)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
                                                 <div class="h-10 w-10 rounded-full bg-simplicitea-100 dark:bg-simplicitea-900 flex items-center justify-center">
                                                     <span class="text-simplicitea-600 dark:text-simplicitea-400 font-medium">
-                                                        {{ strtoupper(substr($log->user->name ?? 'U', 0, 1)) }}
+                                                        {{ strtoupper(substr($cashier->name, 0, 1)) }}
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {{ $log->user->name ?? 'Unknown User' }}
+                                                    {{ $cashier->name }}
                                                 </div>
                                                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                    {{ ucfirst($log->user->role ?? 'N/A') }}
+                                                    {{ $cashier->email }}
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($log->action === 'login')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                                                </svg>
-                                                Login
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                                </svg>
-                                                Logout
-                                            </span>
-                                        @endif
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {{ $cashier->role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' }}">
+                                            {{ ucfirst($cashier->role) }}
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $log->branch->name ?? 'N/A' }}
+                                        {{ $cashier->branch->name ?? 'N/A' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $log->ip_address ?? 'N/A' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        <div>{{ $log->created_at->format('M d, Y') }}</div>
-                                        <div class="text-xs text-gray-400 dark:text-gray-500">{{ $log->created_at->format('h:i:s A') }}</div>
+                                        {{ $startDate }} - {{ $endDate }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <div class="flex items-center space-x-3">
-                                            <a href="{{ route('activity-logs.user', $log->user) }}" 
-                                               class="text-simplicitea-600 hover:text-simplicitea-900 dark:text-simplicitea-400 dark:hover:text-simplicitea-300">
-                                                History
-                                            </a>
-                                            @if($log->user && $log->user->isCashier())
-                                            <a href="{{ route('qr.user-qrcode', $log->user) }}" 
-                                               class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300" title="View QR Code">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                                                </svg>
-                                            </a>
-                                            @endif
-                                        </div>
+                                        <button type="button"
+                                            onclick="openDetailsModal({{ $cashier->id }}, '{{ addslashes($cashier->name) }}')"
+                                            class="inline-flex items-center px-3 py-1.5 bg-simplicitea-600 hover:bg-simplicitea-700 text-white text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-simplicitea-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            Details
+                                        </button>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center">
+                                    <td colspan="5" class="px-6 py-12 text-center">
                                         <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
-                                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No activity logs</h3>
-                                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No activity has been recorded yet.</p>
+                                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No cashiers found</h3>
+                                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No active staff members match the current filters.</p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -226,12 +148,260 @@
                 </div>
 
                 <!-- Pagination -->
-                @if($logs->hasPages())
+                @if($cashiers->hasPages())
                     <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-                        {{ $logs->links() }}
+                        {{ $cashiers->links() }}
                     </div>
                 @endif
             </div>
         </div>
     </div>
+
+    <!-- Sales Details Modal -->
+    <div id="salesDetailsModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-80 transition-opacity" onclick="closeDetailsModal()"></div>
+
+            <!-- Modal Panel -->
+            <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-4xl w-full mx-4 overflow-hidden transform transition-all">
+                <!-- Modal Header -->
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-simplicitea-600 to-simplicitea-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 id="modalTitle" class="text-lg font-semibold text-white">Cashier Sales Details</h3>
+                            <p id="modalSubtitle" class="text-sm text-simplicitea-100 mt-0.5"></p>
+                        </div>
+                        <button type="button" onclick="closeDetailsModal()" class="text-white hover:text-gray-200 transition-colors">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Date Filter -->
+                <div class="px-6 py-3 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Filter by Date:</label>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="modalStartDate"
+                                class="block w-40 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm"
+                                onchange="fetchSalesDetails()">
+                            <span class="text-gray-500 dark:text-gray-400">to</span>
+                            <input type="date" id="modalEndDate"
+                                class="block w-40 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm"
+                                onchange="fetchSalesDetails()">
+                        </div>
+                        <button type="button" onclick="resetDateFilter()" class="text-sm text-simplicitea-600 hover:text-simplicitea-800 dark:text-simplicitea-400 dark:hover:text-simplicitea-300 whitespace-nowrap">
+                            Reset to Today
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="px-6 py-4 max-h-[60vh] overflow-y-auto">
+                    <!-- Loading State -->
+                    <div id="modalLoading" class="hidden py-12 text-center">
+                        <svg class="animate-spin h-10 w-10 mx-auto text-simplicitea-500" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Loading sales data...</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="modalError" class="hidden py-12 text-center">
+                        <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <p id="modalErrorText" class="mt-3 text-sm text-red-500"></p>
+                    </div>
+
+                    <!-- Sales Items Table -->
+                    <div id="modalContent" class="hidden">
+                        <!-- Summary Cards -->
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3">
+                                <p class="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase">Total Transactions</p>
+                                <p id="totalTransactions" class="text-xl font-bold text-blue-700 dark:text-blue-300 mt-1">0</p>
+                            </div>
+                            <div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-3">
+                                <p class="text-xs font-medium text-green-600 dark:text-green-400 uppercase">Grand Total</p>
+                                <p id="grandTotal" class="text-xl font-bold text-green-700 dark:text-green-300 mt-1">₱0.00</p>
+                            </div>
+                        </div>
+
+                        <div id="salesGroupedBody">
+                            <!-- Populated via JavaScript -->
+                        </div>
+
+                        <!-- Empty State (inside content) -->
+                        <div id="noSalesMessage" class="hidden py-8 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <h4 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No sales found</h4>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This cashier has no sales in the selected date range.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="px-6 py-3 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+                    <button type="button" onclick="closeDetailsModal()"
+                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 text-sm transition-colors">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+        let currentUserName = '';
+        const pageStartDate = '{{ $filterStartDate }}';
+        const pageEndDate = '{{ $filterEndDate }}';
+
+        function openDetailsModal(userId, userName) {
+            currentUserId = userId;
+            currentUserName = userName;
+
+            // Use the page-level date filter values
+            document.getElementById('modalStartDate').value = pageStartDate;
+            document.getElementById('modalEndDate').value = pageEndDate;
+            document.getElementById('modalTitle').textContent = `Sales Details - ${userName}`;
+
+            // Show modal
+            document.getElementById('salesDetailsModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Fetch data
+            fetchSalesDetails();
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('salesDetailsModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            currentUserId = null;
+        }
+
+        function resetDateFilter() {
+            const phNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+            const today = phNow.getFullYear() + '-' +
+                String(phNow.getMonth() + 1).padStart(2, '0') + '-' +
+                String(phNow.getDate()).padStart(2, '0');
+            document.getElementById('modalStartDate').value = today;
+            document.getElementById('modalEndDate').value = today;
+            fetchSalesDetails();
+        }
+
+        async function fetchSalesDetails() {
+            if (!currentUserId) return;
+
+            const startDate = document.getElementById('modalStartDate').value;
+            const endDate = document.getElementById('modalEndDate').value;
+
+            // Show loading
+            document.getElementById('modalLoading').classList.remove('hidden');
+            document.getElementById('modalContent').classList.add('hidden');
+            document.getElementById('modalError').classList.add('hidden');
+
+            try {
+                const response = await fetch(`/activity-logs/user/${currentUserId}?start_date=${startDate}&end_date=${endDate}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderSalesData(data);
+                } else {
+                    showModalError('Failed to load sales data.');
+                }
+            } catch (error) {
+                console.error('Error fetching sales details:', error);
+                showModalError('Network error. Please try again.');
+            }
+        }
+
+        function renderSalesData(data) {
+            document.getElementById('modalLoading').classList.add('hidden');
+            document.getElementById('modalContent').classList.remove('hidden');
+
+            // Update subtitle
+            document.getElementById('modalSubtitle').textContent = `${data.user.role} at ${data.user.branch} — ${data.date}`;
+
+            // Update summary cards
+            document.getElementById('totalTransactions').textContent = data.total_sales;
+            document.getElementById('grandTotal').textContent = `₱${data.grand_total}`;
+
+            const container = document.getElementById('salesGroupedBody');
+            const noSalesMsg = document.getElementById('noSalesMessage');
+
+            if (!data.receipts || data.receipts.length === 0) {
+                container.innerHTML = '';
+                noSalesMsg.classList.remove('hidden');
+                container.classList.add('hidden');
+                return;
+            }
+
+            noSalesMsg.classList.add('hidden');
+            container.classList.remove('hidden');
+
+            container.innerHTML = data.receipts.map((receipt, index) => `
+                <div class="mb-3 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="px-4 py-2.5 bg-gray-50 dark:bg-gray-700 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-simplicitea-100 text-simplicitea-800 dark:bg-simplicitea-900/40 dark:text-simplicitea-300">
+                                Receipt #${receipt.receipt_number}
+                            </span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">${receipt.time}</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white">₱${receipt.subtotal}</span>
+                    </div>
+                    <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
+                        <thead>
+                            <tr class="bg-white dark:bg-gray-800">
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Product</th>
+                                <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Qty</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Unit Price</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
+                            ${receipt.items.map(item => `
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                    <td class="px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white">${item.product_name}</td>
+                                    <td class="px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400 text-center">${item.quantity}</td>
+                                    <td class="px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400 text-right">₱${item.unit_price}</td>
+                                    <td class="px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white text-right">₱${item.total_price}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `).join('');
+        }
+
+        function showModalError(message) {
+            document.getElementById('modalLoading').classList.add('hidden');
+            document.getElementById('modalContent').classList.add('hidden');
+            document.getElementById('modalError').classList.remove('hidden');
+            document.getElementById('modalErrorText').textContent = message;
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !document.getElementById('salesDetailsModal').classList.contains('hidden')) {
+                closeDetailsModal();
+            }
+        });
+
+        // Live polling: auto-refresh activity logs every 30 seconds
+        setInterval(() => {
+            // Only reload if the modal is not open
+            if (document.getElementById('salesDetailsModal').classList.contains('hidden')) {
+                window.location.reload();
+            }
+        }, 30000);
+    </script>
 </x-app-layout>

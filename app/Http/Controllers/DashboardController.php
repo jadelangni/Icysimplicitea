@@ -19,24 +19,34 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Admin can select any branch, cashier only sees their own branch
+        // Admin can select any branch or view all branches, cashier only sees their own branch
         $branches = collect();
         if ($user->isAdmin()) {
             $branches = Branch::where('is_active', true)->get();
-            $branchId = $request->get('branch_id', $user->branch_id);
+            $branchId = $request->get('branch_id', 'all'); // Default to "all" for admin
         } else {
             $branchId = $user->branch_id;
         }
         
-        $selectedBranch = Branch::find($branchId);
+        // Determine if viewing all branches
+        $isAllBranches = $user->isAdmin() && ($branchId === 'all' || $branchId === null);
+        $selectedBranch = $isAllBranches ? null : Branch::find($branchId);
 
-        // Get today's sales for the selected branch
-        $todaysSales = Sale::where('branch_id', $branchId)
+        // Helper function to apply branch filter
+        $applyBranchFilter = function($query) use ($isAllBranches, $branchId) {
+            if (!$isAllBranches) {
+                $query->where('branch_id', $branchId);
+            }
+            return $query;
+        };
+
+        // Get today's sales
+        $todaysSales = $applyBranchFilter(Sale::query())
             ->whereDate('created_at', Carbon::today())
             ->sum('total_amount');
 
         // Get yesterday's sales for comparison
-        $yesterdaySales = Sale::where('branch_id', $branchId)
+        $yesterdaySales = $applyBranchFilter(Sale::query())
             ->whereDate('created_at', Carbon::yesterday())
             ->sum('total_amount');
 
@@ -46,12 +56,12 @@ class DashboardController extends Controller
             : ($todaysSales > 0 ? 100 : 0);
 
         // Get today's transaction count
-        $todaysTransactions = Sale::where('branch_id', $branchId)
+        $todaysTransactions = $applyBranchFilter(Sale::query())
             ->whereDate('created_at', Carbon::today())
             ->count();
 
         // Get yesterday's transactions for comparison
-        $yesterdayTransactions = Sale::where('branch_id', $branchId)
+        $yesterdayTransactions = $applyBranchFilter(Sale::query())
             ->whereDate('created_at', Carbon::yesterday())
             ->count();
 
@@ -60,20 +70,22 @@ class DashboardController extends Controller
             : ($todaysTransactions > 0 ? 100 : 0);
 
         // Get low stock items count
-        $lowStockCount = Inventory::where('branch_id', $branchId)
-            ->whereRaw('quantity <= min_stock_level')
-            ->count();
+        $lowStockQuery = Inventory::query()->whereRaw('quantity <= min_stock_level');
+        if (!$isAllBranches) {
+            $lowStockQuery->where('branch_id', $branchId);
+        }
+        $lowStockCount = $lowStockQuery->count();
 
         // Get active products count
         $activeProducts = Product::where('is_active', true)->count();
 
         // Get this week's total revenue
-        $weeklyRevenue = Sale::where('branch_id', $branchId)
+        $weeklyRevenue = $applyBranchFilter(Sale::query())
             ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->sum('total_amount');
 
         // Get last week's revenue for comparison
-        $lastWeekRevenue = Sale::where('branch_id', $branchId)
+        $lastWeekRevenue = $applyBranchFilter(Sale::query())
             ->whereBetween('created_at', [Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek()])
             ->sum('total_amount');
 
@@ -82,11 +94,13 @@ class DashboardController extends Controller
             : ($weeklyRevenue > 0 ? 100 : 0);
 
         // Get recent sales with items
-        $recentSales = Sale::where('branch_id', $branchId)
-            ->with(['user', 'salesItems.product'])
+        $recentSalesQuery = Sale::with(['user', 'salesItems.product', 'branch'])
             ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
+            ->limit(5);
+        if (!$isAllBranches) {
+            $recentSalesQuery->where('branch_id', $branchId);
+        }
+        $recentSales = $recentSalesQuery->get();
 
         // Get daily sales for the past 7 days for chart
         $dailySales = [];
@@ -94,7 +108,7 @@ class DashboardController extends Controller
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
             $dailyLabels[] = $date->format('M d');
-            $dailySales[] = Sale::where('branch_id', $branchId)
+            $dailySales[] = $applyBranchFilter(Sale::query())
                 ->whereDate('created_at', $date)
                 ->sum('total_amount');
         }
@@ -103,9 +117,11 @@ class DashboardController extends Controller
         $categories = Category::all();
         $categorySales = [];
         foreach ($categories as $category) {
-            $totalSales = SalesItem::whereHas('sale', function($q) use ($branchId) {
-                    $q->where('branch_id', $branchId)
-                      ->whereDate('created_at', Carbon::today());
+            $totalSales = SalesItem::whereHas('sale', function($q) use ($isAllBranches, $branchId) {
+                    if (!$isAllBranches) {
+                        $q->where('branch_id', $branchId);
+                    }
+                    $q->whereDate('created_at', Carbon::today());
                 })
                 ->whereHas('product', function($q) use ($category) {
                     $q->where('category_id', $category->id);
@@ -117,9 +133,11 @@ class DashboardController extends Controller
 
         // Get top selling products
         $topProducts = SalesItem::select('product_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(total_price) as total_sales'))
-            ->whereHas('sale', function($q) use ($branchId) {
-                $q->where('branch_id', $branchId)
-                  ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+            ->whereHas('sale', function($q) use ($isAllBranches, $branchId) {
+                if (!$isAllBranches) {
+                    $q->where('branch_id', $branchId);
+                }
+                $q->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
             })
             ->groupBy('product_id')
             ->orderByDesc('total_qty')
@@ -128,10 +146,13 @@ class DashboardController extends Controller
             ->get();
 
         // Calculate performance score (based on targets)
-        $dailyTarget = 5000; // Example daily target
-        $performanceScore = min(100, round(($todaysSales / $dailyTarget) * 100));
+        $dailyTarget = $isAllBranches ? 15000 : 5000; // Higher target for all branches
+        $performanceScore = min(100, round(($todaysSales / max($dailyTarget, 1)) * 100));
 
-        return view('dashboard', compact(
+        // Use cashier-specific dashboard for cashiers
+        $viewName = $user->isCashier() ? 'dashboard-cashier' : 'dashboard';
+
+        return view($viewName, compact(
             'todaysSales',
             'salesChange',
             'todaysTransactions',
@@ -278,6 +299,113 @@ class DashboardController extends Controller
             'dailyLabels' => $dailyLabels,
             'topProducts' => $topProducts,
             'recentSales' => $recentSales
+        ]);
+    }
+
+    /**
+     * Get cashier dashboard data via AJAX for real-time updates
+     */
+    public function getCashierDashboardData()
+    {
+        $user = Auth::user();
+        $branchId = $user->branch_id;
+
+        $todaysSales = Sale::where('branch_id', $branchId)
+            ->whereDate('created_at', Carbon::today())
+            ->sum('total_amount');
+
+        $yesterdaySales = Sale::where('branch_id', $branchId)
+            ->whereDate('created_at', Carbon::yesterday())
+            ->sum('total_amount');
+
+        $salesChange = $yesterdaySales > 0 
+            ? round((($todaysSales - $yesterdaySales) / $yesterdaySales) * 100, 1) 
+            : ($todaysSales > 0 ? 100 : 0);
+
+        $todaysTransactions = Sale::where('branch_id', $branchId)
+            ->whereDate('created_at', Carbon::today())
+            ->count();
+
+        $yesterdayTransactions = Sale::where('branch_id', $branchId)
+            ->whereDate('created_at', Carbon::yesterday())
+            ->count();
+
+        $transactionsChange = $yesterdayTransactions > 0 
+            ? round((($todaysTransactions - $yesterdayTransactions) / $yesterdayTransactions) * 100, 1) 
+            : ($todaysTransactions > 0 ? 100 : 0);
+
+        $weeklyRevenue = Sale::where('branch_id', $branchId)
+            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->sum('total_amount');
+
+        $lastWeekRevenue = Sale::where('branch_id', $branchId)
+            ->whereBetween('created_at', [Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek()])
+            ->sum('total_amount');
+
+        $weeklyChange = $lastWeekRevenue > 0 
+            ? round((($weeklyRevenue - $lastWeekRevenue) / $lastWeekRevenue) * 100, 1) 
+            : ($weeklyRevenue > 0 ? 100 : 0);
+
+        $dailyTarget = 5000;
+        $performanceScore = min(100, round(($todaysSales / max($dailyTarget, 1)) * 100));
+
+        $recentSales = Sale::where('branch_id', $branchId)
+            ->with(['salesItems.product'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($sale) {
+                return [
+                    'id' => $sale->id,
+                    'receipt_number' => $sale->receipt_number,
+                    'total_amount' => $sale->total_amount,
+                    'payment_method' => $sale->payment_method ?? 'Cash',
+                    'items_count' => $sale->salesItems->count(),
+                    'created_at' => $sale->created_at->format('M d, Y'),
+                    'created_time' => $sale->created_at->format('h:i A'),
+                ];
+            });
+
+        $topProducts = SalesItem::select('product_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(total_price) as total_sales'))
+            ->whereHas('sale', function($q) use ($branchId) {
+                $q->where('branch_id', $branchId)
+                  ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+            })
+            ->groupBy('product_id')
+            ->orderByDesc('total_qty')
+            ->limit(5)
+            ->with('product')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'name' => $item->product->name ?? 'Unknown',
+                    'total_qty' => $item->total_qty,
+                    'total_sales' => $item->total_sales,
+                ];
+            });
+
+        $dailySales = [];
+        $dailyLabels = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $dailyLabels[] = $date->format('M d');
+            $dailySales[] = Sale::where('branch_id', $branchId)
+                ->whereDate('created_at', $date)
+                ->sum('total_amount');
+        }
+
+        return response()->json([
+            'todaysSales' => $todaysSales,
+            'salesChange' => $salesChange,
+            'todaysTransactions' => $todaysTransactions,
+            'transactionsChange' => $transactionsChange,
+            'weeklyRevenue' => $weeklyRevenue,
+            'weeklyChange' => $weeklyChange,
+            'performanceScore' => $performanceScore,
+            'recentSales' => $recentSales,
+            'topProducts' => $topProducts,
+            'dailySales' => $dailySales,
+            'dailyLabels' => $dailyLabels,
         ]);
     }
 

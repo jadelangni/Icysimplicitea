@@ -10,6 +10,9 @@ use App\Models\Ingredient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProductInventoryExport;
+use App\Exports\IngredientInventoryExport;
 
 class ProductInventoryController extends Controller
 {
@@ -22,8 +25,8 @@ class ProductInventoryController extends Controller
         $branches = Branch::where('is_active', true)->get();
         $categories = Category::where('is_active', true)->get();
         
-        // Get products with inventory for all branches
-        $products = Product::with(['category', 'inventory.branch'])
+        // Get products with inventory for all branches and their ingredients
+        $products = Product::with(['category', 'inventory.branch', 'ingredients.inventories'])
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
@@ -307,6 +310,9 @@ class ProductInventoryController extends Controller
             $query->where('branch_id', $user->branch_id);
         }
         
+        // Get total count first (without limit)
+        $totalCount = (clone $query)->count();
+        
         $alerts = $query->limit(10)->get()->map(function ($inventory) {
             return [
                 'id' => $inventory->id,
@@ -322,7 +328,7 @@ class ProductInventoryController extends Controller
         return response()->json([
             'success' => true,
             'alerts' => $alerts,
-            'count' => $alerts->count(),
+            'count' => $totalCount,
         ]);
     }
 
@@ -362,5 +368,71 @@ class ProductInventoryController extends Controller
             'success' => true,
             'products' => $products,
         ]);
+    }
+
+    /**
+     * Get live stock data for polling updates
+     */
+    public function liveData()
+    {
+        $branches = Branch::where('is_active', true)->get();
+        
+        // Product stock per branch
+        $productStocks = Inventory::with(['product', 'branch'])
+            ->get()
+            ->map(function ($inv) {
+                return [
+                    'product_id' => $inv->product_id,
+                    'product_name' => $inv->product->name ?? 'Unknown',
+                    'branch_id' => $inv->branch_id,
+                    'branch_name' => $inv->branch->name ?? 'Unknown',
+                    'quantity' => $inv->quantity,
+                    'min_stock_level' => $inv->min_stock_level,
+                    'is_low' => $inv->quantity <= $inv->min_stock_level,
+                    'is_out' => $inv->quantity <= 0,
+                ];
+            });
+
+        // Ingredient stock per branch
+        $ingredientStocks = \App\Models\IngredientInventory::with(['ingredient', 'branch'])
+            ->get()
+            ->map(function ($inv) {
+                return [
+                    'ingredient_id' => $inv->ingredient_id,
+                    'ingredient_name' => $inv->ingredient->name ?? 'Unknown',
+                    'branch_id' => $inv->branch_id,
+                    'branch_name' => $inv->branch->name ?? 'Unknown',
+                    'quantity' => $inv->quantity,
+                    'min_stock_level' => $inv->min_stock_level,
+                    'is_low' => $inv->quantity <= $inv->min_stock_level,
+                    'is_out' => $inv->quantity <= 0,
+                ];
+            });
+
+        $lowStockCount = Inventory::whereRaw('quantity <= min_stock_level')->count();
+
+        return response()->json([
+            'success' => true,
+            'product_stocks' => $productStocks,
+            'ingredient_stocks' => $ingredientStocks,
+            'low_stock_count' => $lowStockCount,
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
+     * Export inventory to Excel
+     */
+    public function exportToExcel(Request $request)
+    {
+        $type = $request->get('type', 'products'); // products or ingredients
+        
+        if ($type === 'products') {
+            $filename = 'product_inventory_' . now()->format('Y-m-d_His') . '.xlsx';
+            return Excel::download(new ProductInventoryExport(), $filename);
+        } else {
+            $filename = 'ingredient_inventory_' . now()->format('Y-m-d_His') . '.xlsx';
+            return Excel::download(new IngredientInventoryExport(), $filename);
+        }
     }
 }

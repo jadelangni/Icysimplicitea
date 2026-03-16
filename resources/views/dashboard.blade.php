@@ -13,7 +13,7 @@
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome back! 👋</h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">
-                        Here's what's happening at <span id="branchNameDisplay" class="font-semibold text-simplicitea-600 dark:text-simplicitea-400">{{ $selectedBranch->name ?? 'your branch' }}</span> today.
+                        Here's what's happening at <span id="branchNameDisplay" class="font-semibold text-simplicitea-600 dark:text-simplicitea-400">{{ $selectedBranch->name ?? 'All Branches' }}</span> today.
                     </p>
                 </div>
                 <div class="flex items-center gap-4">
@@ -32,6 +32,7 @@
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Select Branch</label>
                         <div class="relative">
                             <select id="branchSelector" class="appearance-none bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-4 pr-10 py-2.5 text-sm font-medium text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer min-w-[180px]">
+                                <option value="all" {{ $branchId == 'all' ? 'selected' : '' }}>🏪 All Branches</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ $branchId == $branch->id ? 'selected' : '' }}>
                                         📍 {{ $branch->name }}
@@ -167,51 +168,7 @@
                 </div>
             </div>
 
-            <!-- Performance Score - 1 column -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">⭐ Daily Score</h3>
-                </div>
-                <div class="p-6 flex flex-col items-center justify-center">
-                    <!-- Circular Progress -->
-                    <div class="relative w-40 h-40">
-                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="8" fill="none" class="text-gray-200 dark:text-gray-700"/>
-                            <circle id="performanceCircle" cx="50" cy="50" r="45" stroke="currentColor" stroke-width="8" fill="none" 
-                                class="{{ ($performanceScore ?? 0) >= 80 ? 'text-green-500' : (($performanceScore ?? 0) >= 50 ? 'text-yellow-500' : 'text-red-500') }}"
-                                stroke-linecap="round"
-                                stroke-dasharray="{{ ($performanceScore ?? 0) * 2.83 }} 283"
-                                style="transition: stroke-dasharray 1s ease-in-out"/>
-                        </svg>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span id="performanceScoreDisplay" class="text-4xl font-bold text-gray-900 dark:text-white">{{ $performanceScore ?? 0 }}</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">of 100</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6 w-full space-y-3">
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                            <div class="flex items-center gap-2">
-                                <span class="text-lg">🎯</span>
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Daily Target</span>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">₱5,000</span>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                            <div class="flex items-center gap-2">
-                                <span class="text-lg">📈</span>
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Achieved</span>
-                            </div>
-                            <span id="achievedAmount" class="text-sm font-semibold text-gray-900 dark:text-white">₱{{ number_format($todaysSales ?? 0, 0) }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Second Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Top Products -->
+            <!-- Top Products - 1 column -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">🏆 Top Products</h3>
@@ -245,9 +202,11 @@
                     @endif
                 </div>
             </div>
+        </div>
 
-            <!-- Recent Transactions - Takes 2 columns -->
-            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <!-- Recent Transactions -->
+        <div class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <div>
@@ -604,15 +563,6 @@
         salesChart.data.datasets[0].data = data.dailySales;
         salesChart.update('none');
 
-        // Update Performance Score Circle
-        updatePerformanceCircle(score);
-
-        // Update Achieved Amount
-        const achievedEl = document.querySelector('#achievedAmount');
-        if (achievedEl) {
-            achievedEl.textContent = '₱' + data.todaysSales.toLocaleString();
-        }
-
         // Update Top Products
         updateTopProducts(data.topProducts);
 
@@ -636,28 +586,6 @@
             badge.className = 'text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400';
         } else {
             badge.className = 'text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400';
-        }
-    }
-
-    function updatePerformanceCircle(score) {
-        const circle = document.querySelector('#performanceCircle');
-        if (circle) {
-            const dashArray = (score * 2.83) + ' 283';
-            circle.style.strokeDasharray = dashArray;
-            
-            // Update color based on score
-            let colorClass = 'text-red-500';
-            if (score >= 80) colorClass = 'text-green-500';
-            else if (score >= 50) colorClass = 'text-yellow-500';
-            
-            // Use getAttribute/setAttribute for SVG elements (className is SVGAnimatedString)
-            const currentClass = circle.getAttribute('class') || '';
-            circle.setAttribute('class', currentClass.replace(/text-\w+-500/g, colorClass));
-        }
-        
-        const scoreDisplay = document.getElementById('performanceScoreDisplay');
-        if (scoreDisplay) {
-            scoreDisplay.textContent = score;
         }
     }
 
@@ -991,17 +919,6 @@
             addPulseEffect(ordersEl.closest('.bg-white, .dark\\:bg-gray-800'));
         }
         
-        // Update Achieved Amount
-        const achievedEl = document.getElementById('achievedAmount');
-        if (achievedEl) {
-            const currentValue = parseCurrencyValue(achievedEl);
-            const newValue = currentValue + sale.amount;
-            animateCountUp(achievedEl, currentValue, newValue, 1000, '₱');
-        }
-        
-        // Update Performance Score
-        updatePerformanceAfterSale(sale.amount);
-        
         // Refresh the chart smoothly
         if (typeof salesChart !== 'undefined') {
             const todayIndex = salesChart.data.labels.length - 1;
@@ -1028,21 +945,6 @@
             parent.appendChild(pulseIndicator);
             
             setTimeout(() => pulseIndicator.remove(), 3000);
-        }
-    }
-    
-    function updatePerformanceAfterSale(amount) {
-        const dailyTarget = 5000;
-        const todaysSalesEl = document.getElementById('todaysSalesValue');
-        const currentSales = parseCurrencyValue(todaysSalesEl) || 0;
-        const newScore = Math.min(100, Math.round((currentSales / dailyTarget) * 100));
-        
-        updatePerformanceCircle(newScore);
-        
-        const perfEl = document.getElementById('performanceValue');
-        if (perfEl) {
-            perfEl.textContent = newScore >= 80 ? 'Great' : (newScore >= 50 ? 'Good' : 'Low');
-            perfEl.className = `text-2xl font-bold mt-1 ${newScore >= 80 ? 'text-green-600 dark:text-green-400' : (newScore >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400')}`;
         }
     }
     

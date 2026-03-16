@@ -34,6 +34,7 @@ class RecipeController extends Controller
     public function show(Product $product)
     {
         $product->load('ingredients');
+        $branchId = auth()->user()->branch_id;
 
         return response()->json([
             'success' => true,
@@ -43,14 +44,14 @@ class RecipeController extends Controller
                 'product_type' => $product->product_type,
                 'category' => $product->category->name ?? 'Uncategorized'
             ],
-            'recipe' => $product->ingredients->map(function ($ingredient) {
+            'recipe' => $product->ingredients->map(function ($ingredient) use ($branchId) {
                 return [
                     'ingredient_id' => $ingredient->id,
                     'name' => $ingredient->name,
                     'quantity_required' => $ingredient->pivot->quantity_required,
                     'unit' => $ingredient->pivot->unit ?? $ingredient->unit,
-                    'available_quantity' => $ingredient->quantity,
-                    'is_low_stock' => $ingredient->isLowStock()
+                    'available_quantity' => $ingredient->getQuantityForBranch($branchId),
+                    'is_low_stock' => $ingredient->isLowStockForBranch($branchId)
                 ];
             })
         ]);
@@ -193,6 +194,7 @@ class RecipeController extends Controller
     public function getServingEstimates(Product $product)
     {
         $product->load('ingredients');
+        $branchId = auth()->user()->branch_id;
 
         if ($product->product_type === 'direct') {
             return response()->json([
@@ -214,8 +216,9 @@ class RecipeController extends Controller
 
         foreach ($product->ingredients as $ingredient) {
             $required = $ingredient->pivot->quantity_required;
+            $available = $ingredient->getQuantityForBranch($branchId);
             if ($required > 0) {
-                $possibleServings = floor($ingredient->quantity / $required);
+                $possibleServings = floor($available / $required);
                 if ($possibleServings < $maxServings) {
                     $maxServings = $possibleServings;
                     $limitingIngredient = $ingredient->name;
@@ -228,13 +231,15 @@ class RecipeController extends Controller
             'product_type' => 'composite',
             'max_servings' => $maxServings === PHP_INT_MAX ? 0 : $maxServings,
             'limiting_ingredient' => $limitingIngredient,
-            'ingredients' => $product->ingredients->map(function ($ing) {
+            'ingredients' => $product->ingredients->map(function ($ing) use ($branchId) {
+                $available = $ing->getQuantityForBranch($branchId);
+                $required = $ing->pivot->quantity_required;
                 return [
                     'name' => $ing->name,
-                    'available' => $ing->quantity,
-                    'required_per_unit' => $ing->pivot->quantity_required,
+                    'available' => $available,
+                    'required_per_unit' => $required,
                     'unit' => $ing->unit,
-                    'possible_servings' => floor($ing->quantity / $ing->pivot->quantity_required)
+                    'possible_servings' => $required > 0 ? floor($available / $required) : 0
                 ];
             })
         ]);

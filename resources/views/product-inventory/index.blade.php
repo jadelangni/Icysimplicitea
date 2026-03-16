@@ -21,7 +21,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Inventory Type Tabs (Segmented Control) -->
-            <div class="mb-6">
+            <div class="mb-6 flex items-center justify-between">
                 <div class="inline-flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                     <button onclick="switchTab('products')" id="tab-products"
                         class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'products' ? 'bg-white dark:bg-gray-700 text-simplicitea-700 dark:text-simplicitea-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}">
@@ -38,6 +38,33 @@
                         <span class="ml-1 px-2 py-0.5 text-xs rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300">{{ $lowStockIngredients }} low</span>
                         @endif
                     </button>
+                </div>
+                
+                <!-- Export Button -->
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" type="button"
+                        class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Export
+                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="open" @click.away="open = false" x-cloak
+                        class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                        <a href="{{ route('product-inventory.export', ['type' => 'products']) }}"
+                            class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="text-lg">🧋</span>
+                            Export Products
+                        </a>
+                        <a href="{{ route('product-inventory.export', ['type' => 'ingredients']) }}"
+                            class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-t border-gray-100 dark:border-gray-700">
+                            <span class="text-lg">🧪</span>
+                            Export Ingredients
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -73,9 +100,6 @@
                                     <span class="text-sm text-gray-500 dark:text-gray-400">@ {{ $alert->branch->name ?? 'Unknown' }}</span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <span class="text-sm font-bold {{ $alert->quantity <= 0 ? 'text-red-600' : 'text-yellow-600' }}">
-                                        {{ $alert->quantity }} / {{ $alert->min_stock_level }} min
-                                    </span>
                                     <button onclick="openRestockModal({{ $alert->product_id }}, {{ $alert->branch_id }})" 
                                         class="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition">
                                         Restock
@@ -191,7 +215,33 @@
                                 $syncedBranches = $product->inventory->count();
                                 $totalBranches = $branches->count();
                                 $isSynced = $syncedBranches >= $totalBranches;
-                                $hasLowStock = $product->inventory->filter(fn($inv) => $inv->isLowStock())->count() > 0;
+                                
+                                // Check if product has ingredients (composite product)
+                                $hasIngredients = $product->ingredients->count() > 0;
+                                $isDirectProduct = !$hasIngredients;
+                                
+                                // For direct products: check product inventory stock
+                                $hasLowProductStock = $product->inventory->filter(fn($inv) => $inv->isLowStock())->count() > 0;
+                                
+                                // For composite products: check ingredient stock per branch
+                                $hasLowIngredientStock = false;
+                                $lowIngredientBranches = [];
+                                if ($hasIngredients) {
+                                    foreach ($branches as $branch) {
+                                        foreach ($product->ingredients as $ingredient) {
+                                            $ingInv = $ingredient->inventories->where('branch_id', $branch->id)->first();
+                                            $ingQty = $ingInv ? (float)$ingInv->quantity : 0;
+                                            $ingMinStock = $ingInv ? (float)$ingInv->min_stock_level : 10;
+                                            if ($ingQty <= $ingMinStock) {
+                                                $hasLowIngredientStock = true;
+                                                $lowIngredientBranches[$branch->id] = true;
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                // Determine overall low stock status
+                                $hasLowStock = $isDirectProduct ? $hasLowProductStock : $hasLowIngredientStock;
                             @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150 product-row" data-name="{{ strtolower($product->name) }}">
                                 <td class="px-5 py-4">
@@ -201,7 +251,14 @@
                                         </div>
                                         <div>
                                             <p class="font-medium text-gray-900 dark:text-white">{{ $product->name }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">ID: {{ $product->id }}</p>
+                                            <div class="flex items-center gap-2">
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">ID: {{ $product->id }}</p>
+                                                @if($isDirectProduct)
+                                                    <span class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300" title="Raw/Direct product - stock tracked directly">Raw</span>
+                                                @else
+                                                    <span class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300" title="Composite product - requires ingredients">Recipe</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -220,6 +277,13 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                             </svg>
                                             Synced
+                                        </span>
+                                    @elseif($hasLowStock && $hasIngredients)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 animate-pulse" title="Low ingredient stock in some branches">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                            </svg>
+                                            Low Ingredients
                                         </span>
                                     @elseif($hasLowStock)
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 animate-pulse" title="Low stock in some branches">
@@ -243,16 +307,41 @@
                                     $qty = $inv ? $inv->quantity : 0;
                                     $minQty = $inv ? $inv->min_stock_level : 10;
                                     $isLow = $inv ? $inv->isLowStock() : false;
+                                    
+                                    // For composite products, check ingredient stock for this branch
+                                    $branchHasLowIngredients = isset($lowIngredientBranches[$branch->id]);
                                 @endphp
-                                <td class="px-5 py-4 text-center">
-                                    <div class="inline-flex flex-col items-center">
-                                        <span class="text-sm font-bold {{ $qty <= 0 ? 'text-red-600' : ($isLow ? 'text-yellow-600' : 'text-gray-900 dark:text-white') }}">
-                                            {{ $qty }}
-                                        </span>
-                                        @if($isLow)
-                                            <span class="w-2 h-2 bg-red-500 rounded-full animate-ping mt-1" title="Low Stock"></span>
-                                        @endif
-                                    </div>
+                                <td class="px-5 py-4 text-center" data-product-branch-stock="{{ $product->id }}-{{ $branch->id }}">
+                                    @if($isDirectProduct)
+                                        {{-- Direct product: show product inventory stock --}}
+                                        <div class="inline-flex flex-col items-center">
+                                            <span class="stock-value text-sm font-bold {{ $qty <= 0 ? 'text-red-600' : ($isLow ? 'text-yellow-600' : 'text-gray-900 dark:text-white') }}">
+                                                {{ $qty }}
+                                            </span>
+                                            @if($isLow)
+                                                <span class="w-2 h-2 bg-red-500 rounded-full animate-ping mt-1" title="Low Stock"></span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        {{-- Composite product: show ingredient status --}}
+                                        <div class="inline-flex flex-col items-center">
+                                            @if($branchHasLowIngredients)
+                                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                                    </svg>
+                                                    Low Ing.
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                    </svg>
+                                                    OK
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </td>
                                 @endforeach
                                 <td class="px-5 py-4 text-center">
@@ -391,7 +480,6 @@
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Unit</th>
-                                    <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Min Stock</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Updated</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -449,9 +537,6 @@
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                                             {{ $ingredient->unit }}
                                         </span>
-                                    </td>
-                                    <td class="px-5 py-4 text-center">
-                                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ number_format($ingredient->min_stock_level, 1) }} {{ $ingredient->unit }}</span>
                                     </td>
                                     <td class="px-5 py-4 text-center">
                                         <span class="text-sm text-gray-500 dark:text-gray-400">{{ $ingredient->updated_at->format('M d, Y') }}</span>
@@ -879,7 +964,6 @@
                                 </div>
                                 <div class="flex items-center justify-between mt-1">
                                     <span class="text-xs text-gray-400">0</span>
-                                    <span class="text-xs text-gray-400">Min: ${inv.min_stock_level}</span>
                                 </div>
                             </div>
                             
@@ -1262,5 +1346,75 @@
             
             document.getElementById('editIngredientModal').classList.remove('hidden');
         }
+
+        // ==================== LIVE INVENTORY POLLING ====================
+        // Refresh stock data every 15 seconds
+        setInterval(async () => {
+            try {
+                const response = await fetch('/product-inventory/live-data', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                if (!response.ok) return;
+                const data = await response.json();
+                if (!data.success) return;
+
+                // Update low stock count badge
+                const lowStockEl = document.getElementById('lowStockCount');
+                if (lowStockEl) lowStockEl.textContent = data.low_stock_count;
+
+                // Update product stock cells in the table
+                document.querySelectorAll('[data-product-branch-stock]').forEach(el => {
+                    const key = el.dataset.productBranchStock; // format: "productId-branchId"
+                    const [productId, branchId] = key.split('-');
+                    const stockItem = data.product_stocks.find(s => 
+                        String(s.product_id) === productId && String(s.branch_id) === branchId
+                    );
+                    if (stockItem) {
+                        const stockSpan = el.querySelector('.stock-value');
+                        if (stockSpan) {
+                            const oldVal = stockSpan.textContent.trim();
+                            const newVal = String(Math.floor(stockItem.quantity));
+                            if (oldVal !== newVal) {
+                                stockSpan.textContent = newVal;
+                                stockSpan.className = 'stock-value text-sm font-bold ' + 
+                                    (stockItem.is_out ? 'text-red-600' : (stockItem.is_low ? 'text-yellow-600' : 'text-gray-900 dark:text-white'));
+                                el.style.transition = 'background-color 0.3s';
+                                el.style.backgroundColor = 'rgba(34,197,94,0.1)';
+                                setTimeout(() => { el.style.backgroundColor = ''; }, 2000);
+                            }
+                        }
+                    }
+                });
+
+                // Update ingredient stock cells
+                document.querySelectorAll('[data-ingredient-branch-stock]').forEach(el => {
+                    const key = el.dataset.ingredientBranchStock; // format: "ingredientId-branchId"
+                    const [ingredientId, branchId] = key.split('-');
+                    const stockItem = data.ingredient_stocks.find(s => 
+                        String(s.ingredient_id) === ingredientId && String(s.branch_id) === branchId
+                    );
+                    if (stockItem) {
+                        const stockSpan = el.querySelector('.stock-value');
+                        if (stockSpan) {
+                            const oldVal = stockSpan.textContent.trim();
+                            const newVal = Number(stockItem.quantity).toFixed(2);
+                            if (oldVal !== newVal) {
+                                stockSpan.textContent = newVal;
+                                stockSpan.className = 'stock-value text-sm font-bold ' + 
+                                    (stockItem.is_out ? 'text-red-600' : (stockItem.is_low ? 'text-yellow-600' : 'text-gray-900 dark:text-white'));
+                                el.style.transition = 'background-color 0.3s';
+                                el.style.backgroundColor = 'rgba(34,197,94,0.1)';
+                                setTimeout(() => { el.style.backgroundColor = ''; }, 2000);
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Inventory live data error:', error);
+            }
+        }, 15000);
     </script>
 </x-app-layout>

@@ -21,12 +21,14 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'alert_email',
         'password',
         'pin',
         'last_pin_login_at',
         'role',
         'branch_id',
         'is_active',
+        'must_change_password',
         'qr_token',
         'qr_token_generated_at',
     ];
