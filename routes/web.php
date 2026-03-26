@@ -17,7 +17,6 @@ use App\Http\Controllers\ProductInventoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\PasswordChangeController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CrewSessionController;
 use App\Http\Controllers\EmployeeInventoryController;
 
@@ -87,6 +86,8 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
     Route::prefix('pos')->name('pos.')->group(function () {
         Route::get('/', [POSController::class, 'index'])->name('index');
         Route::get('/live-data', [POSController::class, 'liveData'])->name('live-data');
+        Route::post('/gcash/create-qr', [POSController::class, 'createGcashQr'])->name('gcash.create-qr');
+        Route::post('/gcash/check-status', [POSController::class, 'checkGcashStatus'])->name('gcash.check-status');
         Route::post('/process-sale', [POSController::class, 'processSale'])->name('process-sale');
         Route::get('/receipt/{sale}', [POSController::class, 'showReceipt'])->name('receipt');
         Route::get('/receipt/{sale}/print', [POSController::class, 'printReceipt'])->name('receipt.print');
@@ -192,13 +193,5 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
 
         // Admin PIN Management (Admin only)
         Route::post('/user/{user}/set-pin', [PinAuthController::class, 'adminSetPin'])->name('pin.admin-set');
-
-        // Notifications (Admin only)
-        Route::prefix('notifications')->name('notifications.')->group(function () {
-            Route::get('/', [NotificationController::class, 'index'])->name('index');
-            Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('mark-read');
-            Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-            Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
-        });
     });
 });

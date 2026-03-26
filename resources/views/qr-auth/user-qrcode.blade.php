@@ -25,7 +25,7 @@
 
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
                 <!-- Header -->
-                <div class="bg-gradient-to-r from-simplicitea-500 to-simplicitea-600 px-6 py-8 text-center text-white">
+                <div class="bg-gradient-to-r from-simplicitea-500 to-simplicitea-600 px-6 py-8 text-center text-black">
                     <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-3xl font-bold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
                     </div>
@@ -59,7 +59,7 @@
                     <div class="flex flex-col sm:flex-row gap-3 justify-center">
                         <a href="{{ route('qr.user-regenerate', $user) }}" 
                            onclick="return confirm('Are you sure you want to regenerate the QR code for {{ $user->name }}? Their old QR code will no longer work.')"
-                           class="inline-flex items-center justify-center px-4 py-2 bg-simplicitea-600 text-white rounded-lg hover:bg-simplicitea-700 transition-colors">
+                           class="inline-flex items-center justify-center px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700 transition-colors">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
@@ -67,7 +67,7 @@
                         </a>
 
                         <button onclick="window.print()" 
-                                class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                                class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-black rounded-lg hover:bg-gray-700 transition-colors">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>

@@ -93,12 +93,12 @@
                         <a href="{{ route('product-inventory.index', ['tab' => 'ingredients']) }}" class="px-4 py-2 text-gray-600 hover:text-gray-800">← Back to Inventory</a>
                         
                         <div class="flex space-x-3">
-                            <a href="{{ route('inventory.edit', $ingredient) }}" class="px-4 py-2 bg-simplicitea-600 text-white rounded-lg hover:bg-simplicitea-700">Edit Ingredient</a>
+                            <a href="{{ route('inventory.edit', $ingredient) }}" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700">Edit Ingredient</a>
                             
                             <form action="{{ route('inventory.destroy', $ingredient) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" onclick="return confirm('Are you sure you want to delete this ingredient?')">Delete</button>
+                                <button type="submit" class="px-4 py-2 bg-red-600 text-black rounded-lg hover:bg-red-700" onclick="return confirm('Are you sure you want to delete this ingredient?')">Delete</button>
                             </form>
                         </div>
                     </div>

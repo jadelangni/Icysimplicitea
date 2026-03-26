@@ -24,7 +24,7 @@
                     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors duration-200">
                         <div class="p-6">
                             <div class="mb-4 flex items-center justify-between gap-4">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Products</h3>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-black whitespace-nowrap">Products</h3>
                                 <!-- Search Bar -->
                                 <div class="relative w-56">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -33,7 +33,7 @@
                                         </svg>
                                     </div>
                                     <input type="text" id="product-search" placeholder="Search products..." 
-                                           class="w-full pl-9 pr-9 py-2 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm transition-colors">
+                                           class="w-full pl-9 pr-9 py-2 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm transition-colors">
                                     <button type="button" id="clear-search-btn" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
                                         <svg class="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -47,9 +47,9 @@
                             
                             <!-- Category Tabs (Grouped) -->
                             <div class="mb-6">
-                                <h4 class="font-medium text-gray-900 dark:text-white mb-3">Product Categories</h4>
+                                <h4 class="font-medium text-gray-900 dark:text-black mb-3">Product Categories</h4>
                                 <div class="flex flex-wrap gap-2">
-                                    <button class="category-tab active px-4 py-2 bg-simplicitea-600 text-white rounded-lg font-medium text-sm hover:bg-simplicitea-700 transition-colors" data-category="all">
+                                    <button class="category-tab active px-4 py-2 bg-simplicitea-600 text-black rounded-lg font-medium text-sm hover:bg-simplicitea-700 transition-colors" data-category="all">
                                         🔍 All Products
                                     </button>
                                     @php
@@ -179,7 +179,7 @@
                                     <!-- Category Header -->
                                     <div class="flex items-center gap-3 mb-4 pb-2 border-b-2 border-simplicitea-200 dark:border-simplicitea-700">
                                         <span class="text-2xl">{{ getGroupEmoji($groupName) }}</span>
-                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white">{{ $groupName }}</h4>
+                                        <h4 class="text-lg font-bold text-gray-800 dark:text-black">{{ $groupName }}</h4>
                                         <span class="ml-auto text-sm text-gray-500 dark:text-gray-400">{{ $groupData['products']->count() }} items</span>
                                     </div>
                                     
@@ -208,7 +208,7 @@
                                             @endif
                                             
                                             {{-- Product Name --}}
-                                            <h4 class="font-semibold text-sm text-gray-900 dark:text-white mb-2 line-clamp-2">
+                                            <h4 class="font-semibold text-sm text-gray-900 dark:text-black mb-2 line-clamp-2">
                                                 {{ $product->name }}
                                             </h4>
                                             
@@ -244,7 +244,7 @@
                 <div class="w-full lg:flex-[1]">
                     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors duration-200">
                         <div class="p-6">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Customer's Order</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Customer's Order</h3>
                             
                             <!-- Cart Items -->
                             <div id="cart-items" class="space-y-2 mb-6 min-h-[300px] max-h-[400px] overflow-y-auto bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -259,11 +259,11 @@
 
                             <!-- Order Summary -->
                             <div class="bg-simplicitea-50 dark:bg-simplicitea-900/30 rounded-lg p-4 mb-6">
-                                <h4 class="font-medium text-gray-900 dark:text-white mb-3">Order Summary</h4>
+                                <h4 class="font-medium text-gray-900 dark:text-black mb-3">Order Summary</h4>
                                 <div class="space-y-2">
                                     <div class="flex justify-between text-sm">
                                         <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
-                                        <span id="subtotal" class="font-medium dark:text-white">₱0.00</span>
+                                        <span id="subtotal" class="font-medium dark:text-black">₱0.00</span>
                                     </div>
                                     <div class="border-t border-gray-200 dark:border-gray-600 pt-2">
                                         <div class="flex justify-between text-lg font-bold text-simplicitea-700 dark:text-simplicitea-400">
@@ -278,12 +278,12 @@
                             <form id="checkout-form" class="space-y-4">
                                 @csrf
                                 <div class="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3">Payment Details</h4>
+                                    <h4 class="font-medium text-gray-900 dark:text-black mb-3">Payment Details</h4>
                                     
                                     <div class="space-y-3">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Method</label>
-                                            <select name="payment_method" class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
+                                            <select name="payment_method" class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-black rounded-lg shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
                                                 <option value="cash">💵 Cash</option>
                                                 <option value="card">💳 Card</option>
                                                 <option value="gcash">📱 GCash</option>
@@ -294,18 +294,18 @@
                                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amount Paid</label>
                                             <div class="relative">
                                                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">₱</span>
-                                                <input type="number" name="amount_paid" step="0.01" min="0" placeholder="0.00" class="w-full pl-8 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
+                                                <input type="number" name="amount_paid" step="0.01" min="0" placeholder="0.00" class="w-full pl-8 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-black rounded-lg shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="space-y-3">
-                                    <button type="submit" id="process-sale-btn" class="w-full bg-simplicitea-600 text-white py-3 px-4 rounded-lg hover:bg-simplicitea-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors" disabled>
+                                    <button type="submit" id="process-sale-btn" class="w-full bg-simplicitea-600 text-black py-3 px-4 rounded-lg hover:bg-simplicitea-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors" disabled>
                                         🛒 Process Sale
                                     </button>
                                     
-                                    <button type="button" id="clear-cart-btn" class="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">
+                                    <button type="button" id="clear-cart-btn" class="w-full bg-gray-500 text-black py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">
                                         🗑️ Clear Cart
                                     </button>
                                 </div>
@@ -323,7 +323,7 @@
             <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-auto overflow-hidden transform transition-all">
                 <!-- Modal Header -->
                 <div class="bg-simplicitea-600 px-6 py-4">
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-black flex items-center gap-2">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
@@ -346,7 +346,7 @@
                     <div class="space-y-2">
                         <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                             <span>Subtotal</span>
-                            <span id="confirm-subtotal" class="font-medium text-gray-900 dark:text-white">₱0.00</span>
+                            <span id="confirm-subtotal" class="font-medium text-gray-900 dark:text-black">₱0.00</span>
                         </div>
                         <div class="flex justify-between text-lg font-bold text-simplicitea-700 dark:text-simplicitea-400 pt-1">
                             <span>Total</span>
@@ -358,11 +358,11 @@
                     <div class="mt-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 space-y-2">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500 dark:text-gray-400">Payment Method</span>
-                            <span id="confirm-payment-method" class="font-medium text-gray-900 dark:text-white">Cash</span>
+                            <span id="confirm-payment-method" class="font-medium text-gray-900 dark:text-black">Cash</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500 dark:text-gray-400">Amount Paid</span>
-                            <span id="confirm-amount-paid" class="font-medium text-gray-900 dark:text-white">₱0.00</span>
+                            <span id="confirm-amount-paid" class="font-medium text-gray-900 dark:text-black">₱0.00</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500 dark:text-gray-400">Change</span>
@@ -376,7 +376,7 @@
                     <button type="button" id="cancel-order-btn" class="flex-1 px-4 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
                         Cancel
                     </button>
-                    <button type="button" id="confirm-order-btn" class="flex-1 px-4 py-2.5 bg-simplicitea-600 text-white rounded-xl font-medium hover:bg-simplicitea-700 transition-colors flex items-center justify-center gap-2">
+                    <button type="button" id="confirm-order-btn" class="flex-1 px-4 py-2.5 bg-simplicitea-600 text-black rounded-xl font-medium hover:bg-simplicitea-700 transition-colors flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
@@ -394,7 +394,7 @@
         <div id="product-options-backdrop" class="absolute inset-0 bg-black/60 z-40"></div>
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl relative z-50 w-full max-w-md mx-4 overflow-hidden">
             {{-- Modal Header --}}
-            <div class="bg-simplicitea-600 text-white px-6 py-4">
+            <div class="bg-simplicitea-600 text-black px-6 py-4">
                 <h3 id="modal-product-name" class="text-xl font-bold">Select Size</h3>
                 <p class="text-simplicitea-100 text-sm mt-1">Choose your preferred size</p>
             </div>
@@ -408,7 +408,7 @@
                     <button type="button" id="modal-cancel-btn" class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                         Cancel
                     </button>
-                    <button type="button" id="modal-add-btn" class="flex-1 px-4 py-3 bg-simplicitea-600 text-white rounded-xl font-medium hover:bg-simplicitea-700 transition-colors flex items-center justify-center gap-2">
+                    <button type="button" id="modal-add-btn" class="flex-1 px-4 py-3 bg-simplicitea-600 text-black rounded-xl font-medium hover:bg-simplicitea-700 transition-colors flex items-center justify-center gap-2">
                         <span>🛒</span>
                         <span>Add to Cart</span>
                     </button>
@@ -548,10 +548,10 @@
             tab.addEventListener('click', function() {
                 // Update active tab
                 document.querySelectorAll('.category-tab').forEach(t => {
-                    t.classList.remove('active', 'bg-simplicitea-600', 'text-white');
+                    t.classList.remove('active', 'bg-simplicitea-600', 'text-black');
                     t.classList.add('bg-gray-100', 'text-gray-700');
                 });
-                this.classList.add('active', 'bg-simplicitea-600', 'text-white');
+                this.classList.add('active', 'bg-simplicitea-600', 'text-black');
                 this.classList.remove('bg-gray-100', 'text-gray-700');
 
                 // Update current category (may be comma-separated group)
@@ -673,7 +673,7 @@
                     btn.dataset.optionName = opt.name || `Option ${idx+1}`;
                     
                     btn.innerHTML = `
-                        <div class="font-bold text-gray-900 dark:text-white text-lg">${labelValue}</div>
+                        <div class="font-bold text-gray-900 dark:text-black text-lg">${labelValue}</div>
                         <div class="text-simplicitea-600 dark:text-simplicitea-400 font-semibold mt-1">₱${priceVal > 0 ? priceVal.toFixed(0) : parseFloat(product.productPrice).toFixed(0)}</div>
                     `;
                     
@@ -904,10 +904,10 @@
                 return `
                     <div class="flex justify-between items-center py-1.5">
                         <div class="flex-1 min-w-0">
-                            <span class="text-sm font-medium text-gray-900 dark:text-white">${item.name}</span>${optionLabel}
+                            <span class="text-sm font-medium text-gray-900 dark:text-black">${item.name}</span>${optionLabel}
                             <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">x${item.quantity}</span>
                         </div>
-                        <span class="text-sm font-semibold text-gray-900 dark:text-white ml-3">₱${(item.price * item.quantity).toFixed(2)}</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-black ml-3">₱${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                 `;
             }).join('');
@@ -1006,7 +1006,7 @@
         // Success toast notification
         function showSuccessToast(message) {
             const toast = document.createElement('div');
-            toast.className = 'fixed top-6 right-6 z-[100] bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-slide-in';
+            toast.className = 'fixed top-6 right-6 z-[100] bg-green-600 text-black px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-slide-in';
             toast.innerHTML = `
                 <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>

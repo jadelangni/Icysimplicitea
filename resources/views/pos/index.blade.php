@@ -11,13 +11,56 @@
     <link rel="icon" type="image/png" href="{{ asset('images/simplicitea-logo.png') }}">
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; overflow: hidden; }
+        :root {
+            --cashier-mint-100: #98ff98;
+            --cashier-mint-500: #00b140;
+            --cashier-mint-300: #b2e8d8;
+            --cashier-mint-050: #e0fff4;
+            --cashier-mint-900: #005b5c;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(180deg, #92aea1 0%, #839f92 52%, #749185 100%);
+        }
         .pos-wrapper { display: flex; height: 100vh; width: 100vw; }
-        .sidebar { width: 240px; background: #1a1a2e; display: flex; flex-direction: column; color: white; }
-        .main-content { flex: 1; display: flex; background: #f8f9fa; overflow: hidden; transition: background-color 0.3s; }
-        .products-panel { flex: 1; display: flex; flex-direction: column; padding: 24px; overflow: hidden; }
-        .cart-panel { width: 300px; background: white; display: flex; flex-direction: column; border-left: 1px solid #e5e7eb; transition: background-color 0.3s, border-color 0.3s; }
-        .products-grid { flex: 1; overflow-y: auto; padding-right: 8px; -ms-overflow-style: none; scrollbar-width: none; }
+        .sidebar { width: 240px; background: #1a1a2e; display: flex; flex-direction: column; color: black; flex-shrink: 0; }
+        .main-content {
+            flex: 1;
+            display: flex;
+            background:
+                linear-gradient(120deg, rgba(0, 91, 92, 0.26) 0%, rgba(0, 91, 92, 0.16) 38%, rgba(0, 91, 92, 0.09) 72%),
+                linear-gradient(180deg, #8ba79a 0%, #7c9789 54%, #6d877a 100%);
+            padding: 10px 10px 0 10px;
+            gap: 10px;
+            overflow: hidden;
+            transition: background-color 0.3s;
+        }
+        .products-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 24px 0 24px;
+            overflow: hidden;
+            background: rgba(146, 180, 161, 0.99);
+            border: 1px solid rgba(0, 91, 92, 0.46);
+            border-bottom: none;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 10px 20px rgba(0, 91, 92, 0.18);
+        }
+        .cart-panel {
+            width: 300px;
+            background: rgba(142, 180, 162, 0.99);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0, 91, 92, 0.5);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 14px 28px rgba(0, 91, 92, 0.24);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .products-grid { flex: 1; overflow-y: auto; padding-right: 8px; padding-bottom: 24px; -ms-overflow-style: none; scrollbar-width: none; }
         .products-grid::-webkit-scrollbar { display: none; }
         .product-card { display: flex; flex-direction: column; height: 100%; }
         .product-card .product-image-container { height: 160px; flex-shrink: 0; }
@@ -28,11 +71,147 @@
         .cart-items-scroll::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .category-tab.active { background: #1a1a2e !important; color: white !important; border-color: #1a1a2e !important; }
+        .category-tab.active { background: var(--cashier-mint-900) !important; color: black !important; border-color: var(--cashier-mint-900) !important; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #9ca3af; }
-        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
-        .nav-item.active { background: #166534; color: white; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: black; }
+        .nav-item.active { background: var(--cashier-mint-500); color: black; }
         .sidebar-section-title { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 16px 8px; display: flex; align-items: center; justify-content: space-between; }
+        .pos-modal-header {
+            background: linear-gradient(180deg, #0b6d6e 0%, #055b5c 55%, #024647 100%);
+            color: #000000;
+        }
+        .pos-modal-header-subtitle {
+            color: #d3f3e8;
+        }
+        .pos-sidebar-toggle { display: none; }
+        .pos-sidebar-overlay { display: none; }
+        .mobile-sidebar-safe-start { padding-left: 0; }
+
+        body.cashier-mint-theme #ordered-count,
+        body.cashier-mint-theme #cart-count-badge {
+            background: var(--cashier-mint-900) !important;
+            color: #000000 !important;
+        }
+
+        body.cashier-mint-theme .product-card:hover {
+            border-color: var(--cashier-mint-500) !important;
+        }
+
+        body.cashier-mint-theme .product-card {
+            background: rgba(150, 185, 167, 0.98) !important;
+            border-color: rgba(0, 91, 92, 0.42) !important;
+            box-shadow: 0 8px 16px rgba(0, 91, 92, 0.14) !important;
+        }
+
+        body.cashier-mint-theme .product-card .product-image-container {
+            background: rgba(134, 170, 153, 0.95) !important;
+        }
+
+        /* Improve readability in light mode by replacing low-contrast gray text */
+        html:not(.dark) body.cashier-mint-theme .text-gray-400,
+        html:not(.dark) body.cashier-mint-theme .text-gray-500,
+        html:not(.dark) body.cashier-mint-theme .text-gray-600,
+        html:not(.dark) body.cashier-mint-theme .text-gray-700,
+        html:not(.dark) body.cashier-mint-theme .text-gray-800,
+        html:not(.dark) body.cashier-mint-theme .text-gray-900 {
+            color: #111111 !important;
+        }
+
+        /* Lightly darken all white containers in POS */
+        body.cashier-mint-theme .bg-white {
+            background-color: rgba(188, 213, 200, 0.94) !important;
+            border-color: rgba(0, 91, 92, 0.24) !important;
+        }
+
+        body.cashier-mint-theme .payment-method-btn.border-green-600,
+        body.cashier-mint-theme .payment-method-btn.text-green-600 {
+            border-color: var(--cashier-mint-500) !important;
+            color: var(--cashier-mint-900) !important;
+            background: rgba(224, 255, 244, 0.72) !important;
+        }
+
+        body.cashier-mint-theme .size-option-btn.border-green-500,
+        body.cashier-mint-theme .bg-green-50 {
+            background-color: var(--cashier-mint-050) !important;
+        }
+
+        body.cashier-mint-theme .text-green-600,
+        body.cashier-mint-theme .text-green-700,
+        body.cashier-mint-theme .text-green-800 {
+            color: var(--cashier-mint-900) !important;
+        }
+
+        body.cashier-mint-theme .bg-green-500,
+        body.cashier-mint-theme .bg-green-600,
+        body.cashier-mint-theme .hover\:bg-green-600:hover,
+        body.cashier-mint-theme .hover\:bg-green-700:hover {
+            background-color: var(--cashier-mint-500) !important;
+        }
+
+        body.cashier-mint-theme .border-green-500,
+        body.cashier-mint-theme .border-green-600 {
+            border-color: var(--cashier-mint-500) !important;
+        }
+
+        @media (max-width: 1023px) {
+            .sidebar.pos-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: min(86vw, 280px);
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                box-shadow: 0 24px 48px rgba(15, 23, 42, 0.32);
+                z-index: 60;
+            }
+
+            .sidebar.pos-sidebar.open {
+                transform: translateX(0);
+            }
+
+            .pos-sidebar-toggle {
+                position: fixed;
+                top: 0.75rem;
+                left: 0.75rem;
+                z-index: 65;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .pos-sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(17, 24, 39, 0.6);
+                backdrop-filter: blur(1px);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.25s ease;
+                z-index: 55;
+                display: block;
+            }
+
+            .pos-sidebar-overlay.show {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            body.pos-sidebar-open {
+                overflow: hidden;
+            }
+
+            .mobile-sidebar-safe-start {
+                padding-left: 3.75rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .pos-sidebar-toggle,
+            .pos-sidebar-overlay {
+                display: none !important;
+            }
+        }
         @keyframes fade-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .animate-fade-in { animation: fade-in 0.2s ease forwards; }
         
@@ -44,7 +223,7 @@
         
         /* Product Cards */
         html.dark .product-card { background: #374151 !important; border-color: #4b5563 !important; }
-        html.dark .product-card:hover { border-color: #22c55e !important; }
+        html.dark .product-card:hover { border-color: var(--cashier-mint-500) !important; }
         html.dark .product-card h4, html.dark .product-card h3 { color: #f3f4f6 !important; }
         html.dark .product-card span { color: #d1d5db !important; }
         html.dark .product-card p { color: #9ca3af !important; }
@@ -64,7 +243,7 @@
         /* Category Tabs */
         html.dark .category-tab { background: #374151 !important; border-color: #4b5563 !important; color: #d1d5db !important; }
         html.dark .category-tab:hover { background: #4b5563 !important; }
-        html.dark .category-tab.active { background: #166534 !important; border-color: #166534 !important; color: white !important; }
+        html.dark .category-tab.active { background: var(--cashier-mint-900) !important; border-color: var(--cashier-mint-900) !important; color: black !important; }
         
         /* Search & Filter */
         html.dark #product-search { background: #374151 !important; border-color: #4b5563 !important; color: #f3f4f6 !important; }
@@ -137,223 +316,66 @@
         html.dark textarea { background: #374151 !important; border-color: #4b5563 !important; color: #f3f4f6 !important; }
         html.dark ::placeholder { color: #9ca3af !important; }
         
-        /* Size/Add-on selection boxes */
-        html.dark .product-card .flex.items-center.justify-between { color: #d1d5db !important; }
-        html.dark .size-option, html.dark .addon-option { background: #4b5563 !important; color: #d1d5db !important; border-color: #6b7280 !important; }
-        html.dark .size-option:hover, html.dark .addon-option:hover { background: #6b7280 !important; }
-        html.dark .size-option.selected, html.dark .addon-option.selected { background: #166534 !important; color: white !important; }
+        /* Size option buttons in modal */
+        html.dark .size-option-btn {
+            background: #374151 !important;
+            border-color: #4b5563 !important;
+        }
+        html.dark .size-option-btn div {
+            color: #e5e7eb !important;
+        }
+        html.dark .size-option-btn.border-green-500 {
+            background: #0b3f40 !important;
+            border-color: var(--cashier-mint-500) !important;
+        }
+        html.dark .size-option-btn.border-green-500 div {
+            color: #f0fdf4 !important;
+        }
+        html.dark .size-option-btn.border-green-500 .text-green-600 {
+            color: #bbf7d0 !important;
+        }
+
+        /* POS control contrast fixes in dark mode */
+        html.dark #modal-qty-minus {
+            background: #4b5563 !important;
+            color: #f3f4f6 !important;
+            border: 1px solid #6b7280 !important;
+        }
+        html.dark #modal-qty-minus:hover {
+            background: #6b7280 !important;
+            color: #000000 !important;
+        }
+        html.dark #modal-qty-plus {
+            background: var(--cashier-mint-900) !important;
+            color: #f0fdf4 !important;
+            border: 1px solid var(--cashier-mint-500) !important;
+        }
+        html.dark #modal-qty-plus:hover {
+            background: var(--cashier-mint-500) !important;
+            color: #000000 !important;
+        }
+        html.dark #pay-btn {
+            background: var(--cashier-mint-500) !important;
+            color: #f8fafc !important;
+        }
+        html.dark #pay-btn:disabled {
+            background: #374151 !important;
+            color: #d1d5db !important;
+            border: 1px solid #4b5563 !important;
+            opacity: 1 !important;
+        }
     </style>
-    <script>
-        // Initialize dark mode before page renders to prevent flash
-        (function() {
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.documentElement.classList.add('dark');
-            }
-        })();
-    </script>
 </head>
-<body class="font-sans antialiased h-full bg-gray-100">
+<body class="cashier-mint-theme font-sans antialiased h-full">
     <div class="pos-wrapper">
-        <!-- LEFT SIDEBAR -->
-        <div class="sidebar">
-            <!-- User Profile -->
-            <div class="p-4 border-b border-gray-700">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center overflow-hidden">
-                        <span class="text-white font-bold text-lg">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-white text-sm truncate">{{ Auth::user()->name }}</p>
-                        @php
-                            $branchSession = \App\Models\BranchSession::getActiveSessionForUser(Auth::id());
-                            $sessionRole = $branchSession ? ($branchSession->is_cashier ? 'Cashier' : 'Crew') : (Auth::user()->role === 'admin' ? 'Admin' : 'Cashier');
-                            $activeCrew = Auth::user()->branch_id ? \App\Models\BranchSession::getActiveCrew(Auth::user()->branch_id) : collect();
-                        @endphp
-                        <p class="text-xs text-gray-400">
-                            {{ $sessionRole }}
-                            @if($branchSession && $branchSession->is_cashier && $activeCrew->count() > 0)
-                                <span class="text-yellow-400 ml-1">({{ $activeCrew->count() }} crew online)</span>
-                            @endif
-                        </p>
-                    </div>
-                    <!-- Dark Mode Toggle -->
-                    <button type="button" id="darkModeToggle" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                        <svg id="darkModeIconMoon" class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                        </svg>
-                        <svg id="darkModeIconSun" class="w-5 h-5 text-yellow-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </button>
-                </div>
-
-                {{-- Crew Check-In Button (visible to cashier) --}}
-                @if(isset($branchSession) && $branchSession && $branchSession->is_cashier)
-                <div class="mt-3">
-                    <button type="button" onclick="openCrewCheckInModal()" class="w-full px-3 py-2 bg-green-700 hover:bg-green-600 text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                        </svg>
-                        Crew Check-In
-                    </button>
-                </div>
-                @endif
-            </div>
-
-            <!-- Navigation -->
-            <nav class="flex-1 px-3 overflow-y-auto hide-scrollbar">
-                <!-- Dashboard -->
-                <a href="{{ route('dashboard') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5v4m4-4v4m4-4v4"/>
-                    </svg>
-                    <span class="flex-1">Dashboard</span>
-                </a>
-
-                <!-- Point of Sale (Active) -->
-                <div class="nav-item active">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h7.5m-7.5 0H4"/>
-                    </svg>
-                    <span class="flex-1">Point of Sale</span>
-                    <span id="nav-cart-count" class="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full">0</span>
-                </div>
-
-                @if(Auth::user()->role === 'admin')
-                <!-- Products -->
-                <a href="{{ route('products.index') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                    </svg>
-                    <span class="flex-1">Products</span>
-                </a>
-
-                <!-- Recipes -->
-                <a href="{{ route('recipes.index') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                    </svg>
-                    <span class="flex-1">Recipes</span>
-                </a>
-
-                <!-- Inventory -->
-                <a href="{{ route('product-inventory.index') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
-                    </svg>
-                    <span class="flex-1">Inventory</span>
-                </a>
-
-                <!-- Reports -->
-                <a href="{{ route('reports.index') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                    <span class="flex-1">Reports</span>
-                </a>
-
-                <!-- Employees -->
-                <a href="{{ route('employees.index') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                    <span class="flex-1">Employees</span>
-                </a>
-
-                <!-- Cashier Sales -->
-                <a href="{{ route('activity-logs.index') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                    </svg>
-                    <span class="flex-1">Cashier Sales</span>
-                </a>
-
-                <!-- Staff Attendance -->
-                <a href="{{ route('attendance.index') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                    <span class="flex-1">Staff Attendance</span>
-                </a>
-                @endif
-
-                <!-- Divider -->
-                <div class="my-3 border-t border-gray-700"></div>
-
-                @if(Auth::user()->role === 'cashier')
-                <!-- My Attendance (for cashiers) -->
-                <a href="{{ route('attendance.my-attendance') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span class="flex-1">My Attendance</span>
-                </a>
-
-                <!-- My QR Code (for cashiers) -->
-                <a href="{{ route('qr.my-qrcode') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                    </svg>
-                    <span class="flex-1">My QR Code</span>
-                </a>
-                @endif
-
-                <!-- Settings -->
-                <a href="{{ route('profile.edit') }}" class="nav-item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <span class="flex-1">Settings</span>
-                </a>
-            </nav>
-
-            <!-- Footer -->
-            <div class="p-4 border-t border-gray-700">
-                @if(session('error'))
-                <div class="mb-3 p-2 bg-red-900/40 border border-red-500/50 rounded-lg text-red-300 text-xs">
-                    {{ session('error') }}
-                </div>
-                @endif
-
-                {{-- Show active crew members if current user is cashier --}}
-                <div id="crewListContainer">
-                @if(isset($branchSession) && $branchSession && $branchSession->is_cashier && $activeCrew->count() > 0)
-                <div class="mb-3 p-2 bg-yellow-900/30 border border-yellow-500/30 rounded-lg">
-                    <p class="text-yellow-300 text-xs font-semibold mb-1">Active Crew Members:</p>
-                    @foreach($activeCrew as $crew)
-                    <div class="flex items-center justify-between py-1">
-                        <p class="text-yellow-200 text-xs">• {{ $crew->user->name }}</p>
-                        <button type="button" onclick="handleCrewCheckOut({{ $crew->id }})" class="text-red-400 hover:text-red-300 text-xs underline">Check Out</button>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
-                </div>
-
-                <a href="{{ route('logout.prepare') }}" class="nav-item w-full text-red-400 hover:text-red-300 hover:bg-red-900/20" onclick="return confirm('Are you sure you want to logout?')">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                    <span class="flex-1 text-left">Logout</span>
-                </a>
-                <div class="mt-4 text-center">
-                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">Powered by</p>
-                    <p class="text-sm font-semibold text-white flex items-center justify-center gap-2 mt-1">
-                        <span class="w-5 h-5 bg-green-600 rounded flex items-center justify-center text-xs font-bold">S</span>
-                        Simplicitea
-                    </p>
-                </div>
-            </div>
-        </div>
+        @include('partials.cashier-sidebar')
 
         <!-- MAIN CONTENT -->
         <div class="main-content">
             <!-- PRODUCTS PANEL -->
             <div class="products-panel">
                 <!-- Header -->
-                <div class="mb-6">
+                <div class="mb-6 mobile-sidebar-safe-start">
                     <h1 class="text-2xl font-bold text-gray-900">My Stuff -</h1>
                     <p class="text-gray-500 text-sm">Let's Choose Your Option To Sale!</p>
                 </div>
@@ -370,13 +392,13 @@
                     <!-- Ordered button -->
                     <button type="button" id="show-ordered-btn" class="ml-auto px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                         Ordered
-                        <span id="ordered-count" class="bg-gray-800 text-white text-xs px-2 py-0.5 rounded-full min-w-[24px] text-center">0</span>
+                        <span id="ordered-count" class="bg-gray-800 text-black text-xs px-2 py-0.5 rounded-full min-w-[24px] text-center">0</span>
                     </button>
                 </div>
 
                 <!-- Category Tabs -->
                 <div class="flex items-center gap-2 mb-5 overflow-x-auto pb-1">
-                    <button class="category-tab active px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium whitespace-nowrap transition-all" data-category="all">
+                    <button class="category-tab active px-5 py-2 bg-gray-900 text-black rounded-xl text-sm font-medium whitespace-nowrap transition-all" data-category="all">
                         All Items
                     </button>
                     @php
@@ -451,9 +473,9 @@
                                 @if(!$product->is_available)
                                 <div class="stock-overlay absolute inset-0 bg-black/40 flex items-center justify-center">
                                     @if($isComposite)
-                                    <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-lg">Missing Ingredients</span>
+                                    <span class="bg-orange-500 text-black text-xs px-2 py-1 rounded-lg">Missing Ingredients</span>
                                     @else
-                                    <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-lg">Out of Stock</span>
+                                    <span class="bg-red-500 text-black text-xs px-2 py-1 rounded-lg">Out of Stock</span>
                                     @endif
                                 </div>
                                 @endif
@@ -463,7 +485,6 @@
                             <div class="product-info p-3">
                                 <h4 class="font-semibold text-xs text-gray-900 mb-0.5">{{ $product->name }}</h4>
                                 <div class="flex items-center gap-3 text-[10px] text-gray-500 mb-2">
-                                    <span>Sold <span class="text-green-600 font-medium">{{ $soldCount }}pcs</span></span>
                                     @if($isComposite)
                                         @if($product->is_available)
                                         <span>Status <span class="text-green-600 font-medium">Available</span></span>
@@ -568,7 +589,7 @@
                 <div class="px-3 py-2 flex items-center justify-between border-b border-gray-100">
                     <div class="flex items-center gap-2">
                         <span class="font-semibold text-gray-900 text-sm">List Order Product</span>
-                        <span id="cart-count-badge" class="bg-green-600 text-white text-xs px-1.5 py-0.5 rounded-full">0</span>
+                        <span id="cart-count-badge" class="bg-green-600 text-black text-xs px-1.5 py-0.5 rounded-full">0</span>
                     </div>
                     <button type="button" id="clear-cart-btn" class="text-xs text-gray-400 hover:text-red-500 transition-colors">
                         Clear All
@@ -593,17 +614,6 @@
 
                 <!-- Payment Section -->
                 <div class="p-3 border-t border-gray-100 bg-white">
-                    <!-- Detail Payment -->
-                    <div class="mb-3">
-                        <h4 class="font-semibold text-gray-900 text-sm mb-2">Detail Payment</h4>
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-xs">
-                                <span class="text-gray-500">Subtotal</span>
-                                <span id="subtotal" class="font-medium text-gray-900">₱0</span>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Total -->
                     <div class="flex justify-between items-center py-2 border-y border-gray-100 mb-3">
                         <span class="font-semibold text-gray-900 text-sm">Total Amount</span>
@@ -615,16 +625,13 @@
                         <button type="button" class="payment-method-btn flex-1 py-2 border-2 border-green-600 text-green-600 rounded-lg text-xs font-semibold hover:bg-green-50 transition-colors" data-method="cash">
                             Cash
                         </button>
-                        <button type="button" class="payment-method-btn flex-1 py-2 border border-gray-200 text-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-50 transition-colors" data-method="card">
-                            Credit
-                        </button>
-                        <button type="button" class="payment-method-btn flex-1 py-2 border border-gray-200 text-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-50 transition-colors" data-method="gcash">
-                            Qris
+                        <button type="button" id="gcash-method-btn" class="payment-method-btn flex-1 py-2 border border-gray-200 text-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-50 transition-colors {{ ($paymongoConfigured ?? false) ? '' : 'opacity-50 cursor-not-allowed' }}" data-method="gcash" data-configured="{{ ($paymongoConfigured ?? false) ? 'true' : 'false' }}" {{ ($paymongoConfigured ?? false) ? '' : 'title=GCash is not configured in this device yet' }}>
+                            GCash
                         </button>
                     </div>
 
                     <!-- Pay Button -->
-                    <button type="button" id="pay-btn" disabled class="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white rounded-lg font-bold text-sm transition-colors">
+                    <button type="button" id="pay-btn" disabled class="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-black rounded-lg font-bold text-sm transition-colors">
                         Pay
                     </button>
                 </div>
@@ -635,19 +642,19 @@
     <!-- Product Options Modal -->
     <div id="product-options-modal" class="fixed inset-0 z-50 hidden">
         <div id="product-options-backdrop" class="absolute inset-0 bg-black/60"></div>
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-4 overflow-hidden animate-fade-in">
-                <div class="bg-green-600 text-white px-6 py-4">
+        <div class="flex items-center justify-center min-h-screen p-3 sm:p-4">
+            <div class="bg-white rounded-2xl shadow-2xl relative z-10 w-full max-w-md sm:max-w-lg md:max-w-2xl mx-2 sm:mx-4 overflow-hidden animate-fade-in max-h-[90vh] md:max-h-[95vh] flex flex-col">
+                <div class="pos-modal-header px-4 sm:px-6 py-4">
                     <h3 id="modal-product-name" class="text-xl font-bold">Select Size</h3>
-                    <p class="text-green-100 text-sm mt-1">Choose your preferred size</p>
+                    <p class="pos-modal-header-subtitle text-sm mt-1">Choose your preferred size</p>
                 </div>
                 
-                <form id="product-options-form" class="p-6">
-                    <div id="options-container" class="space-y-4"></div>
+                <form id="product-options-form" class="p-4 sm:p-6 flex flex-col min-h-0">
+                    <div id="options-container" class="space-y-4 overflow-y-auto max-h-[32vh] sm:max-h-[38vh] md:max-h-none md:overflow-visible pr-1"></div>
                     
                     <!-- Quantity Selector -->
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Quantity</label>
+                    <div class="mt-3 pt-3 border-t border-gray-200">
+                        <label for="modal-qty-input" class="block text-sm font-semibold text-gray-700 mb-2">Quantity</label>
                         <div class="flex items-center justify-center gap-4">
                             <button type="button" id="modal-qty-minus" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xl flex items-center justify-center transition-colors">−</button>
                             <input type="number" id="modal-qty-input" value="1" min="1" class="w-16 text-center text-xl font-bold border border-gray-200 rounded-lg py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500" readonly>
@@ -655,11 +662,13 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-3 mt-6 pt-4 border-t border-gray-200">
+                    <div id="modal-total-price-hint" class="text-center text-lg sm:text-xl font-bold text-green-600 mt-3 px-3 bg-green-50 rounded-xl h-12 sm:h-[60px] flex items-center justify-center invisible">Total: ₱0.00</div>
+
+                    <div class="flex gap-3 mt-3 pt-3 border-t border-gray-200 bg-white">
                         <button type="button" id="modal-cancel-btn" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
                             Cancel
                         </button>
-                        <button type="button" id="modal-add-btn" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors">
+                        <button type="button" id="modal-add-btn" class="flex-1 px-4 py-3 bg-green-600 text-black rounded-xl font-medium hover:bg-green-700 transition-colors">
                             Add to Cart
                         </button>
                     </div>
@@ -673,14 +682,14 @@
         <div class="absolute inset-0 bg-black/60" onclick="document.getElementById('amount-modal').classList.add('hidden')"></div>
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-4 overflow-hidden animate-fade-in">
-                <div class="bg-green-600 text-white px-6 py-4">
+                <div class="pos-modal-header px-6 py-4">
                     <h3 class="text-xl font-bold">Enter Amount Paid</h3>
-                    <p class="text-green-100 text-sm mt-1">Total: <span id="modal-total-display">₱0</span></p>
+                    <p class="pos-modal-header-subtitle text-sm mt-1">Total: <span id="modal-total-display">₱0</span></p>
                 </div>
                 
                 <div class="p-6">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Amount Paid</label>
+                        <label for="amount-paid-input" class="block text-sm font-medium text-gray-700 mb-2">Amount Paid</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg font-medium">₱</span>
                             <input type="number" id="amount-paid-input" step="0.01" min="0" placeholder="0.00" 
@@ -707,7 +716,7 @@
                         <button type="button" onclick="document.getElementById('amount-modal').classList.add('hidden')" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
                             Cancel
                         </button>
-                        <button type="button" id="confirm-payment-btn" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors">
+                        <button type="button" id="confirm-payment-btn" class="flex-1 px-4 py-3 bg-green-600 text-black rounded-xl font-medium hover:bg-green-700 transition-colors">
                             Confirm Payment
                         </button>
                     </div>
@@ -721,14 +730,14 @@
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" id="modal-backdrop"></div>
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto overflow-hidden animate-fade-in">
-                <div class="bg-green-600 px-6 py-4">
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <div class="pos-modal-header px-6 py-4">
+                    <h3 class="text-lg font-bold text-black flex items-center gap-2">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
                         Confirm Order
                     </h3>
-                    <p class="text-green-100 text-sm mt-1">Please review before processing</p>
+                    <p class="pos-modal-header-subtitle text-sm mt-1">Please review before processing</p>
                 </div>
 
                 <div class="px-6 py-4 max-h-[50vh] overflow-y-auto">
@@ -764,7 +773,7 @@
                     <button type="button" id="cancel-order-btn" class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors">
                         Cancel
                     </button>
-                    <button type="button" id="confirm-order-btn" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                    <button type="button" id="confirm-order-btn" class="flex-1 px-4 py-3 bg-green-600 text-black rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
@@ -775,49 +784,105 @@
         </div>
     </div>
 
+    <!-- GCash QR Modal -->
+    <div id="gcash-qr-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60" id="gcash-modal-backdrop"></div>
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-4 overflow-hidden animate-fade-in">
+                <div class="bg-green-600 text-black px-6 py-4">
+                    <h3 class="text-xl font-bold">GCash Payment</h3>
+                    <p class="text-green-100 text-sm mt-1">Scan to pay before processing receipt</p>
+                </div>
+
+                <div class="p-6">
+                    <div class="text-center mb-4">
+                        <img id="gcash-qr-image" alt="GCash QR" class="w-64 h-64 mx-auto rounded-xl border border-gray-200 p-2 bg-white">
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-4 mb-4 text-sm">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-500">Amount</span>
+                            <span id="gcash-amount-display" class="font-semibold text-gray-900">₱0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Status</span>
+                            <span id="gcash-status-display" class="font-semibold text-amber-600">Waiting for payment...</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="button" id="gcash-cancel-btn" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="button" id="gcash-check-btn" class="flex-1 px-4 py-3 bg-green-600 text-black rounded-xl font-medium hover:bg-green-700 transition-colors">
+                            I've Paid, Check
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Dark mode handling
-        function toggleDarkMode() {
-            const isDark = localStorage.getItem('darkMode') === 'true';
-            const newMode = !isDark;
-            localStorage.setItem('darkMode', newMode);
-            updateDarkModeUI(newMode);
-            
-            // Apply dark mode to document
-            if (newMode) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
+        function setPosSidebar(open) {
+            const sidebar = document.getElementById('posSidebar');
+            const overlay = document.getElementById('posSidebarOverlay');
+            const toggle = document.getElementById('posSidebarToggle');
+            const isMobile = window.innerWidth < 1024;
+
+            if (!sidebar || !overlay || !toggle || !isMobile) return;
+
+            sidebar.classList.toggle('open', open);
+            overlay.classList.toggle('show', open);
+            document.body.classList.toggle('pos-sidebar-open', open);
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         }
 
-        function updateDarkModeUI(isDark) {
-            const moonIcon = document.getElementById('darkModeIconMoon');
-            const sunIcon = document.getElementById('darkModeIconSun');
-            const text = document.getElementById('darkModeText');
-            
-            if (moonIcon && sunIcon) {
-                if (isDark) {
-                    moonIcon.classList.add('hidden');
-                    sunIcon.classList.remove('hidden');
-                    if (text) text.textContent = 'Light Mode';
-                } else {
-                    moonIcon.classList.remove('hidden');
-                    sunIcon.classList.add('hidden');
-                    if (text) text.textContent = 'Dark Mode';
+        function closePosSidebar() {
+            setPosSidebar(false);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('posSidebarToggle');
+            const overlay = document.getElementById('posSidebarOverlay');
+            const nav = document.getElementById('posSidebarNav');
+
+            if (toggle) {
+                toggle.addEventListener('click', function() {
+                    const sidebar = document.getElementById('posSidebar');
+                    const isOpen = sidebar ? sidebar.classList.contains('open') : false;
+                    setPosSidebar(!isOpen);
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', closePosSidebar);
+            }
+
+            if (nav) {
+                nav.addEventListener('click', function(event) {
+                    if (window.innerWidth < 1024 && event.target.closest('a.nav-item')) {
+                        closePosSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024) {
+                    const sidebar = document.getElementById('posSidebar');
+                    const overlayEl = document.getElementById('posSidebarOverlay');
+                    if (sidebar) sidebar.classList.remove('open');
+                    if (overlayEl) overlayEl.classList.remove('show');
+                    document.body.classList.remove('pos-sidebar-open');
                 }
-            }
-        }
+            });
 
-        // Initialize dark mode state on page load
-        (function() {
-            const isDark = localStorage.getItem('darkMode') === 'true';
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-            }
-            // Update UI after DOM is ready
-            setTimeout(() => updateDarkModeUI(isDark), 0);
-        })();
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closePosSidebar();
+                }
+            });
+        });
 
         // Cart state
         let cart = [];
@@ -830,6 +895,8 @@
         let currentCategory = 'all';
         let currentSearchQuery = '';
         let selectedPaymentMethod = 'cash';
+        let gcashContext = null;
+        let gcashPollingTimer = null;
 
         const searchInput = document.getElementById('product-search');
 
@@ -861,10 +928,10 @@
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.category-tab').forEach(t => {
-                    t.classList.remove('active', 'bg-gray-900', 'text-white');
+                    t.classList.remove('active', 'bg-gray-900', 'text-black');
                     t.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-200');
                 });
-                this.classList.add('active', 'bg-gray-900', 'text-white');
+                this.classList.add('active', 'bg-gray-900', 'text-black');
                 this.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-200');
                 currentCategory = this.dataset.category;
                 filterProducts();
@@ -957,12 +1024,12 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = 'space-y-3';
 
-                const label = document.createElement('label');
+                const label = document.createElement('p');
                 label.className = 'block text-sm font-semibold text-gray-700 mb-2';
                 label.textContent = opt.name || 'Select Size';
 
                 const buttonsDiv = document.createElement('div');
-                buttonsDiv.className = 'grid grid-cols-2 gap-3';
+                buttonsDiv.className = 'grid grid-cols-2 md:grid-cols-3 gap-3';
                 buttonsDiv.setAttribute('data-option-name', opt.name || `Option ${idx+1}`);
 
                 values.forEach((v, vIdx) => {
@@ -1022,17 +1089,13 @@
                     if (priceVal > 0) computed = priceVal;
                 }
                 const qty = parseInt(document.getElementById('modal-qty-input').value) || 1;
-                let totalHint = container.querySelector('.total-price-hint');
-                if (!totalHint) {
-                    totalHint = document.createElement('div');
-                    totalHint.className = 'total-price-hint text-center text-xl font-bold text-green-600 mt-4 p-3 bg-green-50 rounded-xl';
-                    container.appendChild(totalHint);
-                }
+                const totalHint = document.getElementById('modal-total-price-hint');
                 if (qty > 1) {
                     totalHint.textContent = `Total: ₱${(computed * qty).toFixed(2)}`;
-                    totalHint.style.display = '';
+                    totalHint.classList.remove('invisible');
                 } else {
-                    totalHint.style.display = 'none';
+                    totalHint.textContent = 'Total: ₱0.00';
+                    totalHint.classList.add('invisible');
                 }
                 modal.dataset.computedPrice = computed;
             };
@@ -1055,13 +1118,14 @@
             const product = modal.dataset.currentProduct ? JSON.parse(modal.dataset.currentProduct) : null;
             if (!product) return;
             const computed = parseFloat(modal.dataset.computedPrice) || parseFloat(product.productPrice);
-            const totalHint = container.querySelector('.total-price-hint');
+            const totalHint = document.getElementById('modal-total-price-hint');
             if (totalHint) {
                 if (qty > 1) {
                     totalHint.textContent = `Total: ₱${(computed * qty).toFixed(2)}`;
-                    totalHint.style.display = '';
+                    totalHint.classList.remove('invisible');
                 } else {
-                    totalHint.style.display = 'none';
+                    totalHint.textContent = 'Total: ₱0.00';
+                    totalHint.classList.add('invisible');
                 }
             }
         }
@@ -1170,11 +1234,13 @@
             }
 
             const total = subtotal;
-            document.getElementById('subtotal').textContent = '₱' + subtotal.toFixed(0);
+            const subtotalEl = document.getElementById('subtotal');
+            if (subtotalEl) subtotalEl.textContent = '₱' + subtotal.toFixed(0);
             document.getElementById('total').textContent = '₱' + total.toFixed(1);
             document.getElementById('cart-count-badge').textContent = cart.length;
             document.getElementById('ordered-count').textContent = cart.length;
-            document.getElementById('nav-cart-count').textContent = cart.length;
+            const navCartCount = document.getElementById('nav-cart-count');
+            if (navCartCount) navCartCount.textContent = cart.length;
             document.getElementById('pay-btn').disabled = cart.length === 0;
         }
 
@@ -1206,6 +1272,11 @@
         // Payment method buttons
         document.querySelectorAll('.payment-method-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+                if (this.dataset.method === 'gcash' && this.dataset.configured === 'false') {
+                    alert('GCash is not configured yet on this device. Add PAYMONGO_SECRET_KEY in .env and run php artisan config:clear.');
+                    return;
+                }
+
                 document.querySelectorAll('.payment-method-btn').forEach(b => {
                     b.classList.remove('border-green-600', 'text-green-600', 'border-2');
                     b.classList.add('border-gray-200', 'text-gray-600');
@@ -1221,8 +1292,13 @@
             if (cart.length === 0) return;
             const total = subtotal;
             document.getElementById('modal-total-display').textContent = '₱' + total.toFixed(2);
-            document.getElementById('amount-paid-input').value = '';
-            document.getElementById('change-display').textContent = '₱0.00';
+            if (selectedPaymentMethod === 'gcash') {
+                document.getElementById('amount-paid-input').value = '0.00';
+                document.getElementById('change-display').textContent = '₱0.00';
+            } else {
+                document.getElementById('amount-paid-input').value = '0.00';
+                document.getElementById('change-display').textContent = '₱0.00';
+            }
             document.getElementById('amount-modal').classList.remove('hidden');
         });
 
@@ -1283,7 +1359,7 @@
             document.getElementById('confirm-subtotal').textContent = '₱' + total.toFixed(2);
             document.getElementById('confirm-total').textContent = '₱' + total.toFixed(2);
             
-            const methodLabels = { cash: 'Cash', card: 'Credit', gcash: 'Qris/GCash' };
+            const methodLabels = { cash: 'Cash', gcash: 'GCash' };
             document.getElementById('confirm-payment-method').textContent = methodLabels[selectedPaymentMethod] || selectedPaymentMethod;
             document.getElementById('confirm-amount-paid').textContent = '₱' + amountPaid.toFixed(2);
             document.getElementById('confirm-change').textContent = '₱' + (amountPaid - total).toFixed(2);
@@ -1301,57 +1377,219 @@
         });
 
         // Process sale
-        document.getElementById('confirm-order-btn').addEventListener('click', function() {
+        document.getElementById('confirm-order-btn').addEventListener('click', async function() {
             document.getElementById('order-confirmation-modal').classList.add('hidden');
 
             const confirmBtn = this;
             const payBtn = document.getElementById('pay-btn');
+            const amountPaid = parseFloat(document.getElementById('amount-paid-input').value) || 0;
+
             confirmBtn.disabled = true;
             payBtn.disabled = true;
             payBtn.innerHTML = '<svg class="animate-spin h-5 w-5 inline mr-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Processing...';
 
-            const formData = new FormData();
-            formData.append('_token', '{{ csrf_token() }}');
-            formData.append('payment_method', selectedPaymentMethod);
-            formData.append('amount_paid', document.getElementById('amount-paid-input').value);
-            formData.append('items', JSON.stringify(cart.map(item => ({
+            if (selectedPaymentMethod === 'gcash') {
+                await startGcashFlow(amountPaid, confirmBtn, payBtn);
+                return;
+            }
+
+            await processSaleRequest({
+                paymentMethod: selectedPaymentMethod,
+                amountPaid,
+                confirmBtn,
+                payBtn,
+            });
+        });
+
+        function getCartPayload() {
+            return cart.map(item => ({
                 product_id: item.productId,
                 quantity: item.quantity,
                 options: item.options || null
-            }))));
+            }));
+        }
 
-            fetch('{{ route("pos.process-sale") }}', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
+        async function processSaleRequest({ paymentMethod, amountPaid, confirmBtn, payBtn }) {
+            const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('payment_method', paymentMethod);
+            formData.append('amount_paid', amountPaid);
+            formData.append('items', JSON.stringify(getCartPayload()));
+
+            try {
+                const response = await fetch('{{ route("pos.process-sale") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (!data.success) {
+                    alert(data.error || data.message || 'An error occurred');
+                    return;
+                }
+
+                window.open(data.direct_print_url, '_blank');
+                cart = [];
+                localStorage.removeItem('pos_cart');
+                updateCart();
+                showSuccessToast('Sale completed! Receipt opened in new tab.');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
+                confirmBtn.disabled = false;
+                payBtn.disabled = cart.length === 0;
+                payBtn.innerHTML = 'Pay';
+            }
+        }
+
+        async function startGcashFlow(amountPaid, confirmBtn, payBtn) {
+            const createForm = new FormData();
+            createForm.append('_token', '{{ csrf_token() }}');
+            createForm.append('items', JSON.stringify(getCartPayload()));
+
+            try {
+                const createResp = await fetch('{{ route("pos.gcash.create-qr") }}', {
+                    method: 'POST',
+                    body: createForm,
+                });
+                const createData = await createResp.json();
+                if (!createData.success) {
+                    alert(createData.error || createData.message || 'Failed to generate GCash QR code.');
+                    confirmBtn.disabled = false;
+                    payBtn.disabled = cart.length === 0;
+                    payBtn.innerHTML = 'Pay';
+                    return;
+                }
+
+                gcashContext = {
+                    sourceId: createData.source_id,
+                    amountPaid,
+                };
+
+                const qrImg = document.getElementById('gcash-qr-image');
+                const qrData = encodeURIComponent(createData.checkout_url);
+                qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=' + qrData;
+                document.getElementById('gcash-amount-display').textContent = '₱' + Number(createData.amount || subtotal).toFixed(2);
+                document.getElementById('gcash-status-display').textContent = 'Waiting for payment...';
+                document.getElementById('gcash-status-display').className = 'font-semibold text-amber-600';
+                document.getElementById('gcash-qr-modal').classList.remove('hidden');
+
+                startGcashPolling(confirmBtn, payBtn);
+            } catch (error) {
+                console.error(error);
+                alert('Failed to generate GCash QR code. Please try again.');
+                confirmBtn.disabled = false;
+                payBtn.disabled = cart.length === 0;
+                payBtn.innerHTML = 'Pay';
+            }
+        }
+
+        function startGcashPolling(confirmBtn, payBtn) {
+            stopGcashPolling();
+            gcashPollingTimer = setInterval(() => {
+                checkGcashStatus(confirmBtn, payBtn, false);
+            }, 4000);
+        }
+
+        function stopGcashPolling() {
+            if (gcashPollingTimer) {
+                clearInterval(gcashPollingTimer);
+                gcashPollingTimer = null;
+            }
+        }
+
+        async function checkGcashStatus(confirmBtn, payBtn, manualCheck) {
+            if (!gcashContext || !gcashContext.sourceId) return;
+
+            const checkForm = new FormData();
+            checkForm.append('_token', '{{ csrf_token() }}');
+            checkForm.append('source_id', gcashContext.sourceId);
+            checkForm.append('items', JSON.stringify(getCartPayload()));
+
+            try {
+                const response = await fetch('{{ route("pos.gcash.check-status") }}', {
+                    method: 'POST',
+                    body: checkForm,
+                });
+                const data = await response.json();
+
                 if (data.success) {
-                    // Open receipt in new tab with auto-print
+                    stopGcashPolling();
+                    document.getElementById('gcash-status-display').textContent = 'Paid';
+                    document.getElementById('gcash-status-display').className = 'font-semibold text-green-600';
+                    setTimeout(() => {
+                        document.getElementById('gcash-qr-modal').classList.add('hidden');
+                    }, 400);
+
                     window.open(data.direct_print_url, '_blank');
                     cart = [];
                     localStorage.removeItem('pos_cart');
                     updateCart();
-                    showSuccessToast('Sale completed! Receipt opened in new tab.');
-                } else {
-                    alert(data.error || data.message || 'An error occurred');
+                    showSuccessToast('GCash payment completed! Receipt opened in new tab.');
+
+                    confirmBtn.disabled = false;
+                    payBtn.disabled = cart.length === 0;
+                    payBtn.innerHTML = 'Pay';
+                    gcashContext = null;
+                    return;
                 }
-                confirmBtn.disabled = false;
-                payBtn.disabled = cart.length === 0;
-                payBtn.innerHTML = 'Pay';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-                confirmBtn.disabled = false;
-                payBtn.disabled = cart.length === 0;
-                payBtn.innerHTML = 'Pay';
-            });
+
+                if (data.status === 'pending' || data.status === 'processing') {
+                    document.getElementById('gcash-status-display').textContent = data.message || 'Waiting for payment...';
+                    document.getElementById('gcash-status-display').className = 'font-semibold text-amber-600';
+                    return;
+                }
+
+                if (data.status) {
+                    stopGcashPolling();
+                    alert(data.error || data.message || 'GCash payment was not completed. Please try again.');
+                    closeGcashModal(confirmBtn, payBtn);
+                    return;
+                }
+
+                if (manualCheck) {
+                    alert(data.error || data.message || 'Payment is not completed yet.');
+                }
+            } catch (error) {
+                console.error(error);
+                if (manualCheck) {
+                    alert('Unable to check payment status right now. Please try again.');
+                }
+            }
+        }
+
+        function closeGcashModal(confirmBtn, payBtn) {
+            stopGcashPolling();
+            gcashContext = null;
+            document.getElementById('gcash-qr-modal').classList.add('hidden');
+            document.getElementById('gcash-status-display').textContent = 'Waiting for payment...';
+            document.getElementById('gcash-status-display').className = 'font-semibold text-amber-600';
+            confirmBtn.disabled = false;
+            payBtn.disabled = cart.length === 0;
+            payBtn.innerHTML = 'Pay';
+        }
+
+        document.getElementById('gcash-check-btn').addEventListener('click', function() {
+            const confirmBtn = document.getElementById('confirm-order-btn');
+            const payBtn = document.getElementById('pay-btn');
+            checkGcashStatus(confirmBtn, payBtn, true);
+        });
+
+        document.getElementById('gcash-cancel-btn').addEventListener('click', function() {
+            const confirmBtn = document.getElementById('confirm-order-btn');
+            const payBtn = document.getElementById('pay-btn');
+            closeGcashModal(confirmBtn, payBtn);
+        });
+
+        document.getElementById('gcash-modal-backdrop').addEventListener('click', function() {
+            const confirmBtn = document.getElementById('confirm-order-btn');
+            const payBtn = document.getElementById('pay-btn');
+            closeGcashModal(confirmBtn, payBtn);
         });
 
         function showSuccessToast(message) {
             const toast = document.createElement('div');
-            toast.className = 'fixed top-6 right-6 z-[100] bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in';
+            toast.className = 'fixed top-6 right-6 z-[100] bg-green-600 text-black px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in';
             toast.innerHTML = `
                 <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -1415,9 +1653,9 @@
                             imageContainer.appendChild(overlay);
                         }
                         if (isComposite) {
-                            overlay.innerHTML = '<span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-lg">Missing Ingredients</span>';
+                            overlay.innerHTML = '<span class="bg-orange-500 text-black text-xs px-2 py-1 rounded-lg">Missing Ingredients</span>';
                         } else {
-                            overlay.innerHTML = '<span class="bg-red-500 text-white text-xs px-2 py-1 rounded-lg">Out of Stock</span>';
+                            overlay.innerHTML = '<span class="bg-red-500 text-black text-xs px-2 py-1 rounded-lg">Out of Stock</span>';
                         }
                     } else if (overlay) {
                         overlay.remove();
@@ -1474,8 +1712,8 @@
     <div id="crewCheckInModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60">
         <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-white">Crew Check-In</h3>
-                <button type="button" onclick="closeCrewCheckInModal()" class="text-gray-400 hover:text-white">
+                <h3 class="text-lg font-bold text-black">Crew Check-In</h3>
+                <button type="button" onclick="closeCrewCheckInModal()" class="text-gray-400 hover:text-black">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -1500,14 +1738,14 @@
                 <p class="text-gray-400 text-xs mb-3">Enter crew member credentials to check them in.</p>
                 <form id="crewCheckInForm" onsubmit="handleCrewEmailCheckIn(event)">
                     <div class="mb-3">
-                        <label class="block text-xs text-gray-400 mb-1">Email</label>
-                        <input type="email" id="crewEmail" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="crew@example.com">
+                        <label for="crewEmail" class="block text-xs text-gray-400 mb-1">Email</label>
+                        <input type="email" id="crewEmail" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-black text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="crew@example.com">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-xs text-gray-400 mb-1">Password</label>
-                        <input type="password" id="crewPassword" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="••••••••">
+                        <label for="crewPassword" class="block text-xs text-gray-400 mb-1">Password</label>
+                        <input type="password" id="crewPassword" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-black text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="••••••••">
                     </div>
-                    <button type="submit" id="crewCheckInBtn" class="w-full py-2 bg-green-700 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <button type="submit" id="crewCheckInBtn" class="w-full py-2 bg-green-700 hover:bg-green-600 text-black text-sm font-semibold rounded-lg transition-colors">
                         Check In
                     </button>
                 </form>
@@ -1526,8 +1764,8 @@
     <div id="crewCheckOutModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60">
         <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-white">Crew Check-Out</h3>
-                <button type="button" onclick="closeCrewCheckOutModal()" class="text-gray-400 hover:text-white">
+                <h3 class="text-lg font-bold text-black">Crew Check-Out</h3>
+                <button type="button" onclick="closeCrewCheckOutModal()" class="text-gray-400 hover:text-black">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -1552,14 +1790,14 @@
                 <p class="text-gray-400 text-xs mb-3">Enter crew member credentials to confirm check-out.</p>
                 <form id="checkOutForm" onsubmit="handleCheckOutEmailSubmit(event)">
                     <div class="mb-3">
-                        <label class="block text-xs text-gray-400 mb-1">Email</label>
-                        <input type="email" id="checkOutEmail" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="crew@example.com">
+                        <label for="checkOutEmail" class="block text-xs text-gray-400 mb-1">Email</label>
+                        <input type="email" id="checkOutEmail" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-black text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="crew@example.com">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-xs text-gray-400 mb-1">Password</label>
-                        <input type="password" id="checkOutPassword" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="••••••••">
+                        <label for="checkOutPassword" class="block text-xs text-gray-400 mb-1">Password</label>
+                        <input type="password" id="checkOutPassword" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-black text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="••••••••">
                     </div>
-                    <button type="submit" id="checkOutBtn" class="w-full py-2 bg-red-700 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <button type="submit" id="checkOutBtn" class="w-full py-2 bg-red-700 hover:bg-red-600 text-black text-sm font-semibold rounded-lg transition-colors">
                         Confirm Check Out
                     </button>
                 </form>

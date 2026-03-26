@@ -87,7 +87,7 @@
                     <div class="mt-8 border-t border-gray-200 pt-6 no-print">
                         <div class="flex flex-col sm:flex-row gap-3 justify-center">
                             <button onclick="window.open('{{ route('pos.receipt.print', $sale->id) }}', '_blank')" 
-                                    class="inline-flex items-center justify-center px-6 py-3 bg-simplicitea-600 text-white font-medium rounded-lg hover:bg-simplicitea-700 focus:outline-none focus:ring-2 focus:ring-simplicitea-500 focus:ring-offset-2 transition-colors">
+                                    class="inline-flex items-center justify-center px-6 py-3 bg-simplicitea-600 text-black font-medium rounded-lg hover:bg-simplicitea-700 focus:outline-none focus:ring-2 focus:ring-simplicitea-500 focus:ring-offset-2 transition-colors">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 002 2z"/>
                                 </svg>

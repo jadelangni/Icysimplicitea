@@ -9,6 +9,23 @@ html {
     font-size: 14px; /* default is 16px — scales all rem-based sizes down */
 }
 
+/* Mobile usability baseline */
+@media (max-width: 768px) {
+    /* Prevent iOS auto-zoom on focused form controls */
+    input,
+    select,
+    textarea,
+    button {
+        font-size: 16px;
+    }
+
+    /* Smoother horizontal panning for data tables on touch devices */
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+    }
+}
+
 /* Sidebar Styles */
 [x-cloak] {
     display: none !important;
@@ -30,6 +47,64 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #a1a1a1;
+}
+
+/* Global palette for authenticated pages (dashboard to settings) */
+html:not(.dark) body.simplicitea-theme {
+    color: #102a2a;
+}
+
+html:not(.dark) body.simplicitea-theme .app-main .bg-white {
+    background-color: rgba(232, 246, 239, 0.92) !important;
+    border-color: rgba(0, 91, 92, 0.16) !important;
+}
+
+html:not(.dark) body.simplicitea-theme .app-main .bg-gray-50,
+html:not(.dark) body.simplicitea-theme .app-main .bg-gray-100 {
+    background-color: rgba(218, 236, 228, 0.76) !important;
+}
+
+html:not(.dark) body.simplicitea-theme .app-main .text-simplicitea-600,
+html:not(.dark) body.simplicitea-theme .app-main .text-simplicitea-700,
+html:not(.dark) body.simplicitea-theme .app-main .text-green-600,
+html:not(.dark) body.simplicitea-theme .app-main .text-green-700 {
+    color: #005b5c !important;
+}
+
+html:not(.dark) body.simplicitea-theme .app-main .bg-simplicitea-600,
+html:not(.dark) body.simplicitea-theme .app-main .bg-simplicitea-500,
+html:not(.dark) body.simplicitea-theme .app-main .bg-green-600,
+html:not(.dark) body.simplicitea-theme .app-main .bg-green-500 {
+    background-color: #00b140 !important;
+}
+
+html:not(.dark) body.simplicitea-theme .app-main .border-simplicitea-200,
+html:not(.dark) body.simplicitea-theme .app-main .border-green-200 {
+    border-color: rgba(0, 91, 92, 0.26) !important;
+}
+
+/* Improve readability for gray utility text across the app */
+html:not(.dark) .text-gray-400 { color: #4b5563 !important; }
+html:not(.dark) .text-gray-500 { color: #374151 !important; }
+html:not(.dark) .text-gray-600 { color: #1f2937 !important; }
+html:not(.dark) .text-gray-700 { color: #111827 !important; }
+
+/* Keep gray text readable if dark class is ever present */
+html.dark .text-gray-400 { color: #d1d5db !important; }
+html.dark .text-gray-500 { color: #e5e7eb !important; }
+html.dark .text-gray-600 { color: #f3f4f6 !important; }
+html.dark .text-gray-700 { color: #f9fafb !important; }
+
+/* Prevent long text from overflowing in common UI text blocks */
+:where(p, span, a, label, small, li, button) {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* Keep table text cleaner: wrap only when needed, avoid aggressive splits */
+:where(td, th) {
+    overflow-wrap: break-word;
+    word-break: normal;
 }
 
 /* Print Styles */
@@ -79,7 +154,7 @@ html {
     .text-gray-700,
     .text-gray-600,
     .text-gray-500,
-    .dark\:text-white,
+    .dark\:text-black,
     .dark\:text-gray-200,
     .dark\:text-gray-300,
     .dark\:text-gray-400 {

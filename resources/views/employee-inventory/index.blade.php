@@ -1,9 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Inventory Overview') }}
-            </h2>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-black leading-tight">Inventory Overview</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">View current stock and low-inventory alerts for your branch.</p>
+            </div>
             <div class="flex items-center gap-3">
                 <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl">
                     <span class="text-sm">📍</span>
@@ -13,7 +14,30 @@
         </div>
     </x-slot>
 
-    <div class="py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <style>
+        html:not(.dark) .employee-inventory-theme {
+            background: linear-gradient(180deg, #9cb7ab 0%, #8ca79a 54%, #7b9689 100%) !important;
+        }
+
+        html:not(.dark) .employee-inventory-theme .bg-white {
+            background: rgba(226, 243, 235, 0.94) !important;
+            border-color: rgba(0, 91, 92, 0.22) !important;
+            box-shadow: 0 10px 24px rgba(0, 91, 92, 0.12) !important;
+        }
+
+        html:not(.dark) .employee-inventory-theme .bg-gray-50,
+        html:not(.dark) .employee-inventory-theme .bg-gray-100,
+        html:not(.dark) .employee-inventory-theme .dark\:bg-gray-700\/50 {
+            background: rgba(200, 224, 213, 0.75) !important;
+        }
+
+        html:not(.dark) .employee-inventory-theme .text-green-600,
+        html:not(.dark) .employee-inventory-theme .text-green-700 {
+            color: #005b5c !important;
+        }
+    </style>
+
+    <div class="employee-inventory-theme py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- Low Stock Alerts Banner --}}
@@ -30,7 +54,7 @@
                             <div class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg px-3 py-2 border border-red-100 dark:border-red-900">
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm">{{ $alert->is_out ? '🔴' : '🟡' }}</span>
-                                    <span class="font-medium text-gray-900 dark:text-white text-sm">{{ $alert->name }}</span>
+                                    <span class="font-medium text-gray-900 dark:text-black text-sm">{{ $alert->name }}</span>
                                 </div>
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $alert->status_color }}">
                                     {{ $alert->status }}
@@ -52,13 +76,13 @@
             <div class="mb-6">
                 <div class="inline-flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                     <button onclick="switchTab('products')" id="tab-products"
-                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'products' ? 'bg-white dark:bg-gray-700 text-green-700 dark:text-green-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}">
+                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'products' ? 'bg-white dark:bg-gray-700 text-green-700 dark:text-green-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-black' }}">
                         <span class="text-lg">🧋</span>
                         Products
                         <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ ($activeTab ?? 'products') === 'products' ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300' : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400' }}">{{ $totalProducts }}</span>
                     </button>
                     <button onclick="switchTab('ingredients')" id="tab-ingredients"
-                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-white dark:bg-gray-700 text-green-700 dark:text-green-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}">
+                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-white dark:bg-gray-700 text-green-700 dark:text-green-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-black' }}">
                         <span class="text-lg">🧪</span>
                         Ingredients
                         <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300' : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400' }}">{{ $totalIngredients }}</span>
@@ -81,7 +105,7 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalProducts }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ $totalProducts }}</p>
                             </div>
                         </div>
                     </div>
@@ -124,7 +148,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                     <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-black flex items-center gap-2">
                                 <span class="text-xl">📦</span>
                                 Product Stock Overview
                             </h3>
@@ -132,7 +156,7 @@
                         </div>
                         <div class="relative">
                             <input type="text" id="productSearch" placeholder="Search products..." 
-                                class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
@@ -156,10 +180,10 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150 product-row" data-name="{{ strtolower($product->name) }}">
                                     <td class="px-5 py-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center text-black font-semibold text-sm">
                                                 {{ strtoupper(substr($product->name, 0, 2)) }}
                                             </div>
-                                            <p class="font-medium text-gray-900 dark:text-white">{{ $product->name }}</p>
+                                            <p class="font-medium text-gray-900 dark:text-black">{{ $product->name }}</p>
                                         </div>
                                     </td>
                                     <td class="px-5 py-4">
@@ -175,10 +199,10 @@
                                         @endif
                                     </td>
                                     <td class="px-5 py-4 text-center">
-                                        <span class="font-bold text-gray-900 dark:text-white">₱{{ number_format($product->price, 2) }}</span>
+                                        <span class="font-bold text-gray-900 dark:text-black">₱{{ number_format($product->price, 2) }}</span>
                                     </td>
                                     <td class="px-5 py-4 text-center">
-                                        <span class="text-lg font-bold {{ $product->is_out ? 'text-red-600 dark:text-red-400' : ($product->is_low ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white') }}">
+                                        <span class="text-lg font-bold {{ $product->is_out ? 'text-red-600 dark:text-red-400' : ($product->is_low ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-black') }}">
                                             {{ $product->is_direct ? $product->quantity : '—' }}
                                         </span>
                                     </td>
@@ -228,7 +252,7 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Total Ingredients</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalIngredients }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ $totalIngredients }}</p>
                             </div>
                         </div>
                     </div>
@@ -271,7 +295,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                     <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-black flex items-center gap-2">
                                 <span class="text-xl">🧪</span>
                                 Ingredient Stock Overview
                             </h3>
@@ -279,7 +303,7 @@
                         </div>
                         <div class="relative">
                             <input type="text" id="ingredientSearch" placeholder="Search ingredients..." 
-                                class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
@@ -302,10 +326,10 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150 ingredient-row" data-name="{{ strtolower($ingredient->name) }}">
                                     <td class="px-5 py-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-black font-semibold text-sm">
                                                 {{ strtoupper(substr($ingredient->name, 0, 2)) }}
                                             </div>
-                                            <p class="font-medium text-gray-900 dark:text-white">{{ $ingredient->name }}</p>
+                                            <p class="font-medium text-gray-900 dark:text-black">{{ $ingredient->name }}</p>
                                         </div>
                                     </td>
                                     <td class="px-5 py-4 text-center">
@@ -314,7 +338,7 @@
                                         </span>
                                     </td>
                                     <td class="px-5 py-4 text-center">
-                                        <span class="text-lg font-bold {{ $ingredient->is_out ? 'text-red-600 dark:text-red-400' : ($ingredient->is_low ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white') }}">
+                                        <span class="text-lg font-bold {{ $ingredient->is_out ? 'text-red-600 dark:text-red-400' : ($ingredient->is_low ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-black') }}">
                                             {{ number_format($ingredient->quantity, 2) }}
                                         </span>
                                     </td>

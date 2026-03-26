@@ -7,7 +7,7 @@
                     <input type="hidden" name="view" value="{{ $view }}">
                     <label for="branch_id" class="text-sm text-gray-600 dark:text-gray-400">Branch:</label>
                     <select name="branch_id" id="branch_id" onchange="this.form.submit()" 
-                            class="text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                            class="text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-md shadow-sm focus:ring-simplicitea-500 focus:border-simplicitea-500">
                         @foreach($branches as $branch)
                             <option value="{{ $branch->id }}" {{ $branchId == $branch->id ? 'selected' : '' }}>
                                 {{ $branch->name }}
@@ -19,7 +19,36 @@
         </div>
     </x-slot>
 
-    <div class="py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <style>
+        html:not(.dark) .inventory-theme {
+            background: linear-gradient(180deg, #9cb7ab 0%, #8ca79a 54%, #7b9689 100%) !important;
+        }
+
+        html:not(.dark) .inventory-theme .bg-white {
+            background: rgba(226, 243, 235, 0.94) !important;
+            border-color: rgba(0, 91, 92, 0.22) !important;
+            box-shadow: 0 10px 24px rgba(0, 91, 92, 0.12) !important;
+        }
+
+        html:not(.dark) .inventory-theme .bg-gray-50,
+        html:not(.dark) .inventory-theme .bg-gray-100,
+        html:not(.dark) .inventory-theme .dark\:bg-gray-700\/50 {
+            background: rgba(200, 224, 213, 0.75) !important;
+        }
+
+        html:not(.dark) .inventory-theme .text-simplicitea-600,
+        html:not(.dark) .inventory-theme .text-green-600,
+        html:not(.dark) .inventory-theme .text-green-700 {
+            color: #005b5c !important;
+        }
+
+        html:not(.dark) .inventory-theme .bg-simplicitea-600,
+        html:not(.dark) .inventory-theme .bg-green-600 {
+            background-color: #00b140 !important;
+        }
+    </style>
+
+    <div class="inventory-theme py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             @if(session('success'))
@@ -46,7 +75,7 @@
                     <a href="{{ route('inventory.index', ['view' => 'products', 'branch_id' => $branchId]) }}" 
                        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
                               {{ $view === 'products' 
-                                 ? 'bg-simplicitea-600 text-white shadow-md' 
+                                 ? 'bg-simplicitea-600 text-black shadow-md' 
                                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
@@ -59,7 +88,7 @@
                     <a href="{{ route('inventory.index', ['view' => 'ingredients']) }}" 
                        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
                               {{ $view === 'ingredients' 
-                                 ? 'bg-simplicitea-600 text-white shadow-md' 
+                                 ? 'bg-simplicitea-600 text-black shadow-md' 
                                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
@@ -79,14 +108,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
-                    <span>Viewing inventory for: <strong class="text-gray-900 dark:text-white">{{ $currentBranch->name ?? 'Unknown Branch' }}</strong></span>
+                    <span>Viewing inventory for: <strong class="text-gray-900 dark:text-black">{{ $currentBranch->name ?? 'Unknown Branch' }}</strong></span>
                 </div>
             @else
                 <div class="mb-4 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <span>Viewing <strong class="text-gray-900 dark:text-white">Global Inventory</strong> across all {{ $allBranches->count() }} branches</span>
+                    <span>Viewing <strong class="text-gray-900 dark:text-black">Global Inventory</strong> across all {{ $allBranches->count() }} branches</span>
                 </div>
             @endif
 
@@ -99,7 +128,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Total {{ $view === 'products' ? 'Products' : 'Ingredients' }}</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalItems }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ $totalItems }}</p>
                         </div>
                     </div>
                 </div>
@@ -151,7 +180,7 @@
                     <div class="relative">
                         <input type="text" name="q" value="{{ $search }}" 
                                placeholder="Search {{ $view === 'products' ? 'products' : 'ingredients' }}..."
-                               class="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-simplicitea-500 focus:border-transparent">
+                               class="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-black placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-simplicitea-500 focus:border-transparent">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -163,7 +192,7 @@
                 <div class="flex items-center gap-2">
                     @if($view === 'ingredients')
                         <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" 
-                                class="inline-flex items-center gap-2 px-4 py-2 bg-simplicitea-600 text-white rounded-xl text-sm font-medium hover:bg-simplicitea-700 transition-colors">
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-simplicitea-600 text-black rounded-xl text-sm font-medium hover:bg-simplicitea-700 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
@@ -205,7 +234,7 @@
                         <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                             <span class="text-3xl">{{ $view === 'products' ? '📦' : '🧪' }}</span>
                         </div>
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No {{ $view === 'products' ? 'products' : 'ingredients' }} found</h3>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-2">No {{ $view === 'products' ? 'products' : 'ingredients' }} found</h3>
                         <p class="text-gray-500 dark:text-gray-400">
                             @if($search)
                                 No results match your search "{{ $search }}".
@@ -254,7 +283,7 @@
                                                         <span class="text-lg">🧪</span>
                                                     </div>
                                                     <div>
-                                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->name }}</div>
+                                                        <div class="text-sm font-medium text-gray-900 dark:text-black">{{ $item->name }}</div>
                                                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ $item->description }}</div>
                                                     </div>
                                                 </div>
@@ -272,7 +301,7 @@
                                                 @endphp
                                                 <td class="px-4 py-4 whitespace-nowrap text-center">
                                                     <div class="flex flex-col items-center gap-1">
-                                                        <span class="text-sm font-semibold {{ $isOut ? 'text-red-600 dark:text-red-400' : ($isLow ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white') }}">
+                                                        <span class="text-sm font-semibold {{ $isOut ? 'text-red-600 dark:text-red-400' : ($isLow ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-black') }}">
                                                             {{ number_format($qty, 1) }}
                                                         </span>
                                                         @if($isOut)
@@ -328,7 +357,7 @@
                                                         <span class="text-lg">🧋</span>
                                                     </div>
                                                     <div>
-                                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->name }}</div>
+                                                        <div class="text-sm font-medium text-gray-900 dark:text-black">{{ $item->name }}</div>
                                                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ $item->description }}</div>
                                                     </div>
                                                 </div>
@@ -339,7 +368,7 @@
                                                 </span>
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-black">
                                                     {{ number_format($item->quantity, 0) }} {{ $item->unit }}
                                                 </div>
                                             </td>
@@ -369,7 +398,7 @@
             <!-- Sales Chart (Products view only) -->
             @if($view === 'products' && $chartLabels->isNotEmpty())
                 <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Products (Last 30 Days)</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-black mb-4">Top Products (Last 30 Days)</h3>
                     <div class="w-full" style="height:280px">
                         <canvas id="salesChart" class="w-full h-full"></canvas>
                     </div>
@@ -384,7 +413,7 @@
     <div id="addIngredientModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add New Ingredient</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Add New Ingredient</h3>
                 <button onclick="document.getElementById('addIngredientModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -397,18 +426,18 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ingredient Name</label>
                         <input type="text" name="name" required 
-                               class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                               class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg"
                                placeholder="e.g., Evaporated Milk">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                         <input type="text" name="description" 
-                               class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                               class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg"
                                placeholder="e.g., Dairy product">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit of Measure</label>
-                        <select name="unit" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                        <select name="unit" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                             <option value="g">Grams (g)</option>
                             <option value="kg">Kilograms (kg)</option>
                             <option value="ml">Milliliters (ml)</option>
@@ -423,12 +452,12 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Initial Quantity (All Branches)</label>
                             <input type="number" name="initial_quantity" step="0.01" min="0" value="0" required 
-                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min Stock Level</label>
                             <input type="number" name="min_stock_level" step="0.01" min="0" value="10" required 
-                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                         </div>
                     </div>
                 </div>
@@ -437,7 +466,7 @@
                             class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                         Cancel
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-lg hover:bg-simplicitea-700">
+                    <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700">
                         Add Ingredient
                     </button>
                 </div>
@@ -449,7 +478,7 @@
     <div id="branchRestockModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Restock Ingredient</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Restock Ingredient</h3>
                 <button onclick="document.getElementById('branchRestockModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -459,16 +488,16 @@
             <form id="branchRestockForm" method="POST">
                 @csrf
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    Ingredient: <strong id="branchRestockIngredientName" class="text-gray-900 dark:text-white"></strong>
+                    Ingredient: <strong id="branchRestockIngredientName" class="text-gray-900 dark:text-black"></strong>
                 </p>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    Branch: <strong id="branchRestockBranchName" class="text-gray-900 dark:text-white"></strong>
+                    Branch: <strong id="branchRestockBranchName" class="text-gray-900 dark:text-black"></strong>
                 </p>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount to Add</label>
                     <div class="flex items-center gap-2">
                         <input type="number" name="amount" step="0.01" min="0.01" required 
-                               class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                               class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                         <span id="branchRestockUnit" class="text-gray-500 dark:text-gray-400"></span>
                     </div>
                 </div>
@@ -477,7 +506,7 @@
                             class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                         Cancel
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-black rounded-lg hover:bg-green-700">
                         Restock
                     </button>
                 </div>
@@ -489,7 +518,7 @@
     <div id="editIngredientModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full mx-4 p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Ingredient Inventory</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Edit Ingredient Inventory</h3>
                 <button onclick="document.getElementById('editIngredientModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -497,7 +526,7 @@
                 </button>
             </div>
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Editing: <strong id="editIngredientName" class="text-gray-900 dark:text-white"></strong>
+                Editing: <strong id="editIngredientName" class="text-gray-900 dark:text-black"></strong>
                 (<span id="editIngredientUnit" class="text-gray-500"></span>)
             </p>
             <form id="editIngredientForm" action="{{ route('inventory.update-ingredient-branches') }}" method="POST">
@@ -511,7 +540,7 @@
                             class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                         Cancel
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-lg hover:bg-simplicitea-700">
+                    <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700">
                         Save All Changes
                     </button>
                 </div>
@@ -611,7 +640,7 @@
                                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                 </svg>
-                                <span class="font-medium text-gray-900 dark:text-white">${branchName}</span>
+                                <span class="font-medium text-gray-900 dark:text-black">${branchName}</span>
                             </div>
                             ${statusBadge}
                         </div>
@@ -620,7 +649,7 @@
                                 <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Current Quantity</label>
                                 <div class="relative">
                                     <input type="number" name="branches[${branchId}][quantity]" value="${currentQty}" step="0.01" min="0" 
-                                           class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg pr-12">
+                                           class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg pr-12">
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">${unit}</span>
                                 </div>
                                 <input type="hidden" name="branches[${branchId}][inventory_id]" value="${data.inventory_id || ''}">
@@ -629,7 +658,7 @@
                                 <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Alert Threshold</label>
                                 <div class="relative">
                                     <input type="number" name="branches[${branchId}][min_stock_level]" value="${minStock}" step="0.01" min="0" 
-                                           class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg pr-12">
+                                           class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg pr-12">
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">${unit}</span>
                                 </div>
                             </div>

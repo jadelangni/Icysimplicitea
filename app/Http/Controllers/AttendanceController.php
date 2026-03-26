@@ -6,9 +6,9 @@ use App\Models\StaffAttendance;
 use App\Models\User;
 use App\Models\UserActivityLog;
 use App\Models\DutySchedule;
-use App\Models\AdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -23,6 +23,10 @@ class AttendanceController extends Controller
     public function myAttendance(Request $request)
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
+
         $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->format('Y-m-d'));
 
@@ -80,6 +84,9 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
         
         // Only admins can view all attendance
         if (!$user->isAdmin()) {
@@ -230,22 +237,6 @@ class AttendanceController extends Controller
 
         // Log activity
         UserActivityLog::logActivity($user, 'clock_in', $request->ip(), $request->userAgent());
-
-        // Check duty schedule and notify admin if off-schedule (skip for admin users)
-        if (!$user->isAdmin()) {
-            $phNow = Carbon::now('Asia/Manila');
-            $scheduleStatus = DutySchedule::checkScheduleStatus($user->id, $phNow);
-            $schedule = DutySchedule::getScheduleForDay($user->id, $phNow->dayOfWeek);
-
-            if (in_array($scheduleStatus, ['off_schedule', 'day_off', 'no_schedule'])) {
-                AdminNotification::notifyOffScheduleClockIn($user, $scheduleStatus, $schedule);
-            }
-        }
-
-        // Notify admin if late
-        if ($attendance->is_late) {
-            AdminNotification::notifyLateClockIn($user);
-        }
 
         // Build response message
         $message = 'Clocked in successfully at ' . $attendance->recorded_at->setTimezone('Asia/Manila')->format('h:i A');
@@ -419,7 +410,7 @@ class AttendanceController extends Controller
 
             return $filename;
         } catch (\Exception $e) {
-            \Log::error('Failed to save attendance selfie: ' . $e->getMessage());
+            Log::error('Failed to save attendance selfie: ' . $e->getMessage());
             return null;
         }
     }
@@ -430,6 +421,9 @@ class AttendanceController extends Controller
     public function viewSelfie(StaffAttendance $attendance)
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
         
         // Only allow viewing own selfies or if admin
         if ($attendance->user_id !== $user->id && !$user->isAdmin()) {
@@ -487,45 +481,4 @@ class AttendanceController extends Controller
             ->with('success', "Duty schedule for {$user->name} updated successfully.");
     }
 
-    /**
-     * Show admin notifications page.
-     */
-    public function notifications()
-    {
-        $notifications = AdminNotification::with('triggeredByUser')
-            ->orderBy('created_at', 'desc')
-            ->paginate(30);
-
-        return view('attendance.notifications', compact('notifications'));
-    }
-
-    /**
-     * Mark a notification as read.
-     */
-    public function markNotificationRead(AdminNotification $notification)
-    {
-        $notification->markAsRead();
-
-        return response()->json(['success' => true]);
-    }
-
-    /**
-     * Mark all notifications as read.
-     */
-    public function markAllNotificationsRead()
-    {
-        AdminNotification::markAllAsRead();
-
-        return redirect()->back()->with('success', 'All notifications marked as read.');
-    }
-
-    /**
-     * Get unread notification count (API).
-     */
-    public function unreadNotificationCount()
-    {
-        return response()->json([
-            'count' => AdminNotification::unreadCount(),
-        ]);
-    }
 }

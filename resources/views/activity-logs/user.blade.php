@@ -86,7 +86,7 @@
                         </div>
 
                         <div class="flex items-end gap-2">
-                            <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-md hover:bg-simplicitea-700 focus:outline-none focus:ring-2 focus:ring-simplicitea-500 text-sm">
+                            <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-md hover:bg-simplicitea-700 focus:outline-none focus:ring-2 focus:ring-simplicitea-500 text-sm">
                                 Filter
                             </button>
                             <a href="{{ route('activity-logs.user', $user) }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm">

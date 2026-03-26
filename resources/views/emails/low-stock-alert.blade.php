@@ -7,9 +7,9 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f3f4f6; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .card { background: #000000; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .header { background: linear-gradient(135deg, #16a34a, #15803d); padding: 24px 30px; text-align: center; }
-        .header h1 { color: #ffffff; margin: 0; font-size: 22px; font-weight: 700; }
+        .header h1 { color: #000000; margin: 0; font-size: 22px; font-weight: 700; }
         .header p { color: #bbf7d0; margin: 8px 0 0; font-size: 14px; }
         .alert-banner { background: #fef2f2; border-left: 4px solid #ef4444; padding: 16px 24px; margin: 20px 24px 0; border-radius: 8px; }
         .alert-banner p { margin: 0; color: #991b1b; font-weight: 600; font-size: 15px; }
@@ -23,12 +23,12 @@
         th { background: #f9fafb; padding: 10px 14px; text-align: left; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; }
         td { padding: 12px 14px; border-bottom: 1px solid #f3f4f6; font-size: 14px; color: #374151; }
         .critical { background: #fef2f2; }
-        .low { background: #fffbeb; }
+        .low { background: #000beb; }
         .badge-critical { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #fee2e2; color: #dc2626; }
         .badge-low { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #fef3c7; color: #d97706; }
         .footer { padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb; }
         .footer p { margin: 0; color: #9ca3af; font-size: 12px; }
-        .btn { display: inline-block; padding: 12px 28px; background: linear-gradient(135deg, #16a34a, #15803d); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; margin-top: 16px; }
+        .btn { display: inline-block; padding: 12px 28px; background: linear-gradient(135deg, #16a34a, #15803d); color: #000000; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; margin-top: 16px; }
     </style>
 </head>
 <body>

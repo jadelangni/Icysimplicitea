@@ -24,13 +24,13 @@
             <div class="mb-6 flex items-center justify-between">
                 <div class="inline-flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                     <button onclick="switchTab('products')" id="tab-products"
-                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'products' ? 'bg-white dark:bg-gray-700 text-simplicitea-700 dark:text-simplicitea-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}">
+                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'products' ? 'bg-white dark:bg-gray-700 text-simplicitea-700 dark:text-simplicitea-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-black' }}">
                         <span class="text-lg">🧋</span>
                         Products
                         <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ ($activeTab ?? 'products') === 'products' ? 'bg-simplicitea-100 dark:bg-simplicitea-900/50 text-simplicitea-700 dark:text-simplicitea-300' : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400' }}">{{ $products->count() }}</span>
                     </button>
                     <button onclick="switchTab('ingredients')" id="tab-ingredients"
-                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-white dark:bg-gray-700 text-simplicitea-700 dark:text-simplicitea-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}">
+                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-white dark:bg-gray-700 text-simplicitea-700 dark:text-simplicitea-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-black' }}">
                         <span class="text-lg">🧪</span>
                         Ingredients
                         <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-simplicitea-100 dark:bg-simplicitea-900/50 text-simplicitea-700 dark:text-simplicitea-300' : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400' }}">{{ $ingredients->count() }}</span>
@@ -43,7 +43,7 @@
                 <!-- Export Button -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" type="button"
-                        class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+                        class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-black text-sm font-semibold rounded-xl transition-colors shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
@@ -96,12 +96,12 @@
                             @foreach($lowStockAlerts as $alert)
                             <div class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg px-3 py-2 border border-red-100 dark:border-red-900">
                                 <div>
-                                    <span class="font-medium text-gray-900 dark:text-white">{{ $alert->product->name ?? 'Unknown' }}</span>
+                                    <span class="font-medium text-gray-900 dark:text-black">{{ $alert->product->name ?? 'Unknown' }}</span>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">@ {{ $alert->branch->name ?? 'Unknown' }}</span>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <button onclick="openRestockModal({{ $alert->product_id }}, {{ $alert->branch_id }})" 
-                                        class="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition">
+                                        class="px-3 py-1 bg-red-600 text-black text-xs font-medium rounded-lg hover:bg-red-700 transition">
                                         Restock
                                     </button>
                                 </div>
@@ -127,7 +127,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $products->count() }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ $products->count() }}</p>
                         </div>
                     </div>
                 </div>
@@ -175,7 +175,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-black flex items-center gap-2">
                             <span class="text-xl">📦</span>
                             Product Inventory Management
                         </h3>
@@ -184,7 +184,7 @@
                     <div class="flex items-center gap-3">
                         <div class="relative">
                             <input type="text" id="productSearch" placeholder="Search products..." 
-                                class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                                class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                             <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
@@ -246,11 +246,11 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150 product-row" data-name="{{ strtolower($product->name) }}">
                                 <td class="px-5 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-400 to-simplicitea-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-400 to-simplicitea-600 rounded-xl flex items-center justify-center text-black font-semibold text-sm">
                                             {{ strtoupper(substr($product->name, 0, 2)) }}
                                         </div>
                                         <div>
-                                            <p class="font-medium text-gray-900 dark:text-white">{{ $product->name }}</p>
+                                            <p class="font-medium text-gray-900 dark:text-black">{{ $product->name }}</p>
                                             <div class="flex items-center gap-2">
                                                 <p class="text-xs text-gray-500 dark:text-gray-400">ID: {{ $product->id }}</p>
                                                 @if($isDirectProduct)
@@ -268,7 +268,7 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-center">
-                                    <span class="text-lg font-bold text-gray-900 dark:text-white">₱{{ number_format($product->price, 2) }}</span>
+                                    <span class="text-lg font-bold text-gray-900 dark:text-black">₱{{ number_format($product->price, 2) }}</span>
                                 </td>
                                 <td class="px-5 py-4 text-center">
                                     @if($isSynced && !$hasLowStock)
@@ -315,7 +315,7 @@
                                     @if($isDirectProduct)
                                         {{-- Direct product: show product inventory stock --}}
                                         <div class="inline-flex flex-col items-center">
-                                            <span class="stock-value text-sm font-bold {{ $qty <= 0 ? 'text-red-600' : ($isLow ? 'text-yellow-600' : 'text-gray-900 dark:text-white') }}">
+                                            <span class="stock-value text-sm font-bold {{ $qty <= 0 ? 'text-red-600' : ($isLow ? 'text-yellow-600' : 'text-gray-900 dark:text-black') }}">
                                                 {{ $qty }}
                                             </span>
                                             @if($isLow)
@@ -346,7 +346,7 @@
                                 @endforeach
                                 <td class="px-5 py-4 text-center">
                                     <button onclick="openProductModal({{ $product->id }})" 
-                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-simplicitea-600 hover:bg-simplicitea-700 text-white text-xs font-medium rounded-lg transition-colors">
+                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-xs font-medium rounded-lg transition-colors">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
@@ -382,7 +382,7 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Total Ingredients</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $ingredients->count() }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ $ingredients->count() }}</p>
                             </div>
                         </div>
                     </div>
@@ -448,7 +448,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                     <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-black flex items-center gap-2">
                                 <span class="text-xl">🧪</span>
                                 Raw Materials & Ingredients
                             </h3>
@@ -457,12 +457,12 @@
                         <div class="flex items-center gap-3">
                             <div class="relative">
                                 <input type="text" id="ingredientSearch" placeholder="Search ingredients..." 
-                                    class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                                    class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                                 <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                 </svg>
                             </div>
-                            <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" class="px-4 py-2 bg-simplicitea-600 text-white text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition flex items-center gap-2">
+                            <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" class="px-4 py-2 bg-simplicitea-600 text-black text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
@@ -493,11 +493,11 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150 ingredient-row" data-name="{{ strtolower($ingredient->name) }}">
                                     <td class="px-5 py-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-600 rounded-xl flex items-center justify-center text-black font-semibold text-sm">
                                                 {{ strtoupper(substr($ingredient->name, 0, 2)) }}
                                             </div>
                                             <div>
-                                                <p class="font-medium text-gray-900 dark:text-white">{{ $ingredient->name }}</p>
+                                                <p class="font-medium text-gray-900 dark:text-black">{{ $ingredient->name }}</p>
                                                 @if($ingredient->description)
                                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ Str::limit($ingredient->description, 40) }}</p>
                                                 @endif
@@ -529,7 +529,7 @@
                                         @endif
                                     </td>
                                     <td class="px-5 py-4 text-center">
-                                        <span class="text-lg font-bold {{ $isOutOfStock ? 'text-red-600 dark:text-red-400' : ($isLowStock ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white') }}">
+                                        <span class="text-lg font-bold {{ $isOutOfStock ? 'text-red-600 dark:text-red-400' : ($isLowStock ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-black') }}">
                                             {{ number_format($ingredient->quantity, 1) }}
                                         </span>
                                     </td>
@@ -571,7 +571,7 @@
                                         <div class="text-gray-500 dark:text-gray-400">
                                             <span class="text-4xl">🧪</span>
                                             <p class="mt-2">No ingredients found</p>
-                                            <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-simplicitea-600 text-white text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition">
+                                            <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-simplicitea-600 text-black text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                                 </svg>
@@ -596,7 +596,7 @@
     <div id="addIngredientModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add New Ingredient</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Add New Ingredient</h3>
                 <button onclick="document.getElementById('addIngredientModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -609,18 +609,18 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ingredient Name</label>
                         <input type="text" name="name" required 
-                               class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                               class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg"
                                placeholder="e.g., Evaporated Milk">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                         <input type="text" name="description" 
-                               class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                               class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg"
                                placeholder="e.g., Dairy product">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit of Measure</label>
-                        <select name="unit" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                        <select name="unit" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                             <option value="g">Grams (g)</option>
                             <option value="kg">Kilograms (kg)</option>
                             <option value="ml">Milliliters (ml)</option>
@@ -635,12 +635,12 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Initial Quantity (All Branches)</label>
                             <input type="number" name="initial_quantity" step="0.01" min="0" value="0" required 
-                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min Stock Level</label>
                             <input type="number" name="min_stock_level" step="0.01" min="0" value="10" required 
-                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                         </div>
                     </div>
                 </div>
@@ -649,7 +649,7 @@
                             class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                         Cancel
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-lg hover:bg-simplicitea-700">
+                    <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700">
                         Add Ingredient
                     </button>
                 </div>
@@ -661,7 +661,7 @@
     <div id="editIngredientModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full mx-4 p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Ingredient Inventory</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Edit Ingredient Inventory</h3>
                 <button onclick="document.getElementById('editIngredientModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -669,7 +669,7 @@
                 </button>
             </div>
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Editing: <strong id="editIngredientName" class="text-gray-900 dark:text-white"></strong>
+                Editing: <strong id="editIngredientName" class="text-gray-900 dark:text-black"></strong>
                 (<span id="editIngredientUnit" class="text-gray-500"></span>)
             </p>
             <form id="editIngredientForm" action="{{ route('inventory.update-ingredient-branches') }}" method="POST">
@@ -683,7 +683,7 @@
                             class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                         Cancel
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-lg hover:bg-simplicitea-700">
+                    <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700">
                         Save All Changes
                     </button>
                 </div>
@@ -713,21 +713,21 @@
                     
                     <div class="relative flex items-start justify-between">
                         <div class="flex items-center gap-4">
-                            <div id="modalProductIcon" class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                            <div id="modalProductIcon" class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-black font-bold text-xl shadow-lg">
                                 <span class="text-2xl">📦</span>
                             </div>
                             <div class="text-left">
-                                <h3 id="modalProductName" class="text-xl font-bold text-white">Loading...</h3>
-                                <p id="modalProductCategory" class="text-white/70 text-sm mt-1">Category</p>
+                                <h3 id="modalProductName" class="text-xl font-bold text-black">Loading...</h3>
+                                <p id="modalProductCategory" class="text-black/70 text-sm mt-1">Category</p>
                                 <div class="flex items-center gap-2 mt-2">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur-sm">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 text-black backdrop-blur-sm">
                                         <span class="w-2 h-2 bg-green-400 rounded-full mr-1.5 animate-pulse"></span>
                                         Live Sync
                                     </span>
                                 </div>
                             </div>
                         </div>
-                        <button onclick="closeProductModal()" class="text-white/70 hover:text-white transition p-2 hover:bg-white/10 rounded-xl">
+                        <button onclick="closeProductModal()" class="text-black/70 hover:text-black transition p-2 hover:bg-white/10 rounded-xl">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -778,7 +778,7 @@
             
             // Update tab button styles
             const activeClasses = ['bg-white', 'dark:bg-gray-700', 'text-simplicitea-700', 'dark:text-simplicitea-300', 'shadow-sm'];
-            const inactiveClasses = ['text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-white'];
+            const inactiveClasses = ['text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-black'];
             
             document.getElementById('tab-products').classList.remove(...activeClasses);
             document.getElementById('tab-products').classList.add(...inactiveClasses);
@@ -944,7 +944,7 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <span class="text-lg">📍</span>
-                                    <span class="font-semibold text-gray-900 dark:text-white">${inv.branch_name}</span>
+                                    <span class="font-semibold text-gray-900 dark:text-black">${inv.branch_name}</span>
                                 </div>
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${isOut ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300' : (isLow ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300' : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300')}">
                                     ${statusIcon} ${statusText}
@@ -979,7 +979,7 @@
                                             name="stock_${inv.branch_id}" 
                                             value="${inv.quantity}" 
                                             min="0"
-                                            class="w-20 text-center border-0 bg-white dark:bg-gray-800 text-lg font-bold text-gray-900 dark:text-white focus:ring-0 py-2">
+                                            class="w-20 text-center border-0 bg-white dark:bg-gray-800 text-lg font-bold text-gray-900 dark:text-black focus:ring-0 py-2">
                                         <button type="button" onclick="adjustStock(${inv.branch_id}, 1)" class="px-3 py-2 text-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 transition font-medium">+</button>
                                         <button type="button" onclick="adjustStock(${inv.branch_id}, 10)" class="px-3 py-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 transition font-medium text-sm">+10</button>
                                     </div>
@@ -995,7 +995,7 @@
                                         name="min_${inv.branch_id}" 
                                         value="${inv.min_stock_level}" 
                                         min="0"
-                                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500">
+                                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
                                 </div>
                             </div>
                         </div>
@@ -1046,10 +1046,10 @@
                         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-800">
                             <div class="flex items-center gap-3 mb-5">
                                 <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                                    <span class="text-white text-lg">🌐</span>
+                                    <span class="text-black text-lg">🌐</span>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-gray-900 dark:text-white">Global Product Settings</h4>
+                                    <h4 class="font-bold text-gray-900 dark:text-black">Global Product Settings</h4>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">Changes apply to all branches instantly</p>
                                 </div>
                             </div>
@@ -1060,7 +1060,7 @@
                                         <span class="mr-1">📝</span> Product Name
                                     </label>
                                     <input type="text" name="name" value="${product.name}" required
-                                        class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 shadow-sm">
+                                        class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-blue-500 shadow-sm">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -1069,14 +1069,14 @@
                                     <div class="relative">
                                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">₱</span>
                                         <input type="number" name="price" value="${product.price}" step="0.01" min="0" required
-                                            class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 shadow-sm text-lg font-bold">
+                                            class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-blue-500 shadow-sm text-lg font-bold">
                                     </div>
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                         <span class="mr-1">📂</span> Category
                                     </label>
-                                    <select name="category_id" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 shadow-sm">
+                                    <select name="category_id" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-blue-500 shadow-sm">
                                         ${categoryOptions}
                                     </select>
                                 </div>
@@ -1123,7 +1123,7 @@
                             </svg>
                             Cancel
                         </button>
-                        <button type="submit" id="saveBtn" class="px-8 py-3 bg-gradient-to-r from-simplicitea-600 to-teal-500 hover:from-simplicitea-700 hover:to-teal-600 text-white font-semibold rounded-xl transition shadow-lg shadow-simplicitea-500/30 flex items-center gap-2">
+                        <button type="submit" id="saveBtn" class="px-8 py-3 bg-gradient-to-r from-simplicitea-600 to-teal-500 hover:from-simplicitea-700 hover:to-teal-600 text-black font-semibold rounded-xl transition shadow-lg shadow-simplicitea-500/30 flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -1231,7 +1231,7 @@
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = `fixed bottom-4 right-4 px-6 py-4 rounded-2xl shadow-lg z-50 transform translate-y-full transition-all duration-300 flex items-center gap-3 ${
-                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                type === 'success' ? 'bg-green-500 text-black' : 'bg-red-500 text-black'
             }`;
             toast.innerHTML = `
                 <span class="text-lg">${type === 'success' ? '✅' : '❌'}</span>
@@ -1316,7 +1316,7 @@
                                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                 </svg>
-                                <span class="font-medium text-gray-900 dark:text-white">${branchName}</span>
+                                <span class="font-medium text-gray-900 dark:text-black">${branchName}</span>
                             </div>
                             ${statusBadge}
                         </div>
@@ -1325,7 +1325,7 @@
                                 <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Current Quantity</label>
                                 <div class="relative">
                                     <input type="number" name="branches[${branchId}][quantity]" value="${currentQty}" step="0.01" min="0" 
-                                           class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg pr-12">
+                                           class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg pr-12">
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">${unit}</span>
                                 </div>
                                 <input type="hidden" name="branches[${branchId}][inventory_id]" value="${data.inventory_id || ''}">
@@ -1334,7 +1334,7 @@
                                 <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Alert Threshold</label>
                                 <div class="relative">
                                     <input type="number" name="branches[${branchId}][min_stock_level]" value="${minStock}" step="0.01" min="0" 
-                                           class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg pr-12">
+                                           class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg pr-12">
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">${unit}</span>
                                 </div>
                             </div>
@@ -1380,7 +1380,7 @@
                             if (oldVal !== newVal) {
                                 stockSpan.textContent = newVal;
                                 stockSpan.className = 'stock-value text-sm font-bold ' + 
-                                    (stockItem.is_out ? 'text-red-600' : (stockItem.is_low ? 'text-yellow-600' : 'text-gray-900 dark:text-white'));
+                                    (stockItem.is_out ? 'text-red-600' : (stockItem.is_low ? 'text-yellow-600' : 'text-gray-900 dark:text-black'));
                                 el.style.transition = 'background-color 0.3s';
                                 el.style.backgroundColor = 'rgba(34,197,94,0.1)';
                                 setTimeout(() => { el.style.backgroundColor = ''; }, 2000);
@@ -1404,7 +1404,7 @@
                             if (oldVal !== newVal) {
                                 stockSpan.textContent = newVal;
                                 stockSpan.className = 'stock-value text-sm font-bold ' + 
-                                    (stockItem.is_out ? 'text-red-600' : (stockItem.is_low ? 'text-yellow-600' : 'text-gray-900 dark:text-white'));
+                                    (stockItem.is_out ? 'text-red-600' : (stockItem.is_low ? 'text-yellow-600' : 'text-gray-900 dark:text-black'));
                                 el.style.transition = 'background-color 0.3s';
                                 el.style.backgroundColor = 'rgba(34,197,94,0.1)';
                                 setTimeout(() => { el.style.backgroundColor = ''; }, 2000);

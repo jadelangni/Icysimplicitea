@@ -1,0 +1,24 @@
+{
+  "name": "Icy's Simplicitea POS",
+  "short_name": "Simplicitea POS",
+  "description": "Mobile web-based POS and admin monitoring for Icy's Simplicitea",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#166534",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -44,7 +44,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $products->count() }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ $products->count() }}</p>
                         </div>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-black flex items-center gap-2">
                             <span class="text-xl">📦</span>
                             Product Recipes
                         </h3>
@@ -98,7 +98,7 @@
                     </div>
                     <div class="relative">
                         <input type="text" id="productSearch" placeholder="Search products..." 
-                            class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                            class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                         <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
@@ -128,11 +128,11 @@
                                 onclick="openRecipeModal({{ $product->id }})">
                                 <td class="px-5 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-400 to-simplicitea-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-400 to-simplicitea-600 rounded-xl flex items-center justify-center text-black font-semibold text-sm">
                                             {{ strtoupper(substr($product->name, 0, 2)) }}
                                         </div>
                                         <div>
-                                            <p class="font-medium text-gray-900 dark:text-white">{{ $product->name }}</p>
+                                            <p class="font-medium text-gray-900 dark:text-black">{{ $product->name }}</p>
                                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ $product->category->name ?? 'Uncategorized' }}</p>
                                         </div>
                                     </div>
@@ -150,7 +150,7 @@
                                 </td>
                                 <td class="px-5 py-4 text-center">
                                     @if($hasRecipe)
-                                        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $product->ingredients->count() }} ingredient(s)</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-black">{{ $product->ingredients->count() }} ingredient(s)</span>
                                     @else
                                         <span class="text-sm text-gray-400 dark:text-gray-500">—</span>
                                     @endif
@@ -175,7 +175,7 @@
                                 </td>
                                 <td class="px-5 py-4 text-center">
                                     <button onclick="event.stopPropagation(); openRecipeModal({{ $product->id }})" 
-                                        class="px-3 py-1.5 bg-simplicitea-600 text-white text-xs font-medium rounded-lg hover:bg-simplicitea-700 transition">
+                                        class="px-3 py-1.5 bg-simplicitea-600 text-black text-xs font-medium rounded-lg hover:bg-simplicitea-700 transition">
                                         {{ $hasRecipe ? 'Edit Recipe' : 'Add Recipe' }}
                                     </button>
                                 </td>
@@ -207,15 +207,15 @@
                 <div class="relative px-6 py-5 bg-gradient-to-r from-simplicitea-600 via-simplicitea-500 to-teal-500 rounded-t-3xl">
                     <div class="flex items-start justify-between">
                         <div class="flex items-center gap-4">
-                            <div id="modalProductIcon" class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                            <div id="modalProductIcon" class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-black font-bold text-lg shadow-lg">
                                 <span class="text-2xl">📋</span>
                             </div>
                             <div class="text-left">
-                                <h3 id="modalProductName" class="text-xl font-bold text-white">Loading...</h3>
-                                <p id="modalProductCategory" class="text-white/70 text-sm mt-1">Category</p>
+                                <h3 id="modalProductName" class="text-xl font-bold text-black">Loading...</h3>
+                                <p id="modalProductCategory" class="text-black/70 text-sm mt-1">Category</p>
                             </div>
                         </div>
-                        <button onclick="closeRecipeModal()" class="text-white/70 hover:text-white transition p-2 hover:bg-white/10 rounded-xl">
+                        <button onclick="closeRecipeModal()" class="text-black/70 hover:text-black transition p-2 hover:bg-white/10 rounded-xl">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -307,7 +307,7 @@
                                     <span class="text-xl">📦</span>
                                 </div>
                                 <div class="text-left">
-                                    <p class="font-medium text-gray-900 dark:text-white">Direct Product</p>
+                                    <p class="font-medium text-gray-900 dark:text-black">Direct Product</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Finished goods (deduct from product inventory)</p>
                                 </div>
                             </label>
@@ -318,7 +318,7 @@
                                     <span class="text-xl">🧋</span>
                                 </div>
                                 <div class="text-left">
-                                    <p class="font-medium text-gray-900 dark:text-white">Composite Product</p>
+                                    <p class="font-medium text-gray-900 dark:text-black">Composite Product</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Made-to-order (deduct from ingredients)</p>
                                 </div>
                             </label>
@@ -329,7 +329,7 @@
                     <div id="ingredientsSection" class="${product.product_type === 'composite' ? '' : 'hidden'}">
                         <div class="flex items-center justify-between mb-4">
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Required Ingredients</label>
-                            <button type="button" onclick="addIngredientRow()" class="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition flex items-center gap-1">
+                            <button type="button" onclick="addIngredientRow()" class="px-3 py-1.5 bg-green-600 text-black text-xs font-medium rounded-lg hover:bg-green-700 transition flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
@@ -344,10 +344,10 @@
 
                     <!-- Actions -->
                     <div class="flex items-center justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <button type="button" onclick="closeRecipeModal()" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition">
+                        <button type="button" onclick="closeRecipeModal()" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-black transition">
                             Cancel
                         </button>
-                        <button type="submit" class="px-6 py-2.5 bg-simplicitea-600 text-white font-medium rounded-xl hover:bg-simplicitea-700 transition flex items-center gap-2">
+                        <button type="submit" class="px-6 py-2.5 bg-simplicitea-600 text-black font-medium rounded-xl hover:bg-simplicitea-700 transition flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -374,12 +374,12 @@
             return `
                 <div class="ingredient-row flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                     <div class="flex-1">
-                        <select name="ingredients[${rowIndex}][ingredient_id]" required class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500" onchange="updateUnit(this, ${rowIndex})">
+                        <select name="ingredients[${rowIndex}][ingredient_id]" required class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500" onchange="updateUnit(this, ${rowIndex})">
                             ${options}
                         </select>
                     </div>
                     <div class="w-28">
-                        <input type="number" name="ingredients[${rowIndex}][quantity_required]" value="${quantity}" step="0.01" min="0.01" required placeholder="Qty" class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500">
+                        <input type="number" name="ingredients[${rowIndex}][quantity_required]" value="${quantity}" step="0.01" min="0.01" required placeholder="Qty" class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
                     </div>
                     <div class="w-24">
                         <input type="text" name="ingredients[${rowIndex}][unit]" id="unit_${rowIndex}" value="${unit}" placeholder="Unit" class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-400" readonly>
@@ -491,7 +491,7 @@
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = `fixed bottom-4 right-4 px-6 py-4 rounded-2xl shadow-lg z-[60] transform translate-y-full transition-all duration-300 flex items-center gap-3 ${
-                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                type === 'success' ? 'bg-green-500 text-black' : 'bg-red-500 text-black'
             }`;
             toast.innerHTML = `
                 <span class="text-lg">${type === 'success' ? '✅' : '❌'}</span>

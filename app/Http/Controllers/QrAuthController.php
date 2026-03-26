@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AdminNotification;
 use App\Models\BranchSession;
 use App\Models\StaffAttendance;
 use App\Models\User;
@@ -100,14 +99,7 @@ class QrAuthController extends Controller
 
             // Start branch session
             if ($user->branch_id && $user->role === 'cashier' && !BranchSession::hasActiveSession($user->id)) {
-                $session = BranchSession::startSession($user->branch_id, $user->id);
-                $roleLabel = $session->is_cashier ? 'Cashier' : 'Crew';
-                AdminNotification::create([
-                    'type' => 'branch_session',
-                    'title' => "Employee Logged In ({$roleLabel}) via QR",
-                    'message' => "{$user->name} logged in as {$roleLabel} at " . ($user->branch->name ?? 'branch') . " on " . \Carbon\Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
-                    'triggered_by' => $user->id,
-                ]);
+                BranchSession::startSession($user->branch_id, $user->id);
             }
 
             return response()->json([
@@ -166,12 +158,6 @@ class QrAuthController extends Controller
                         ], 403);
                     }
                     $branchSession->endSession();
-                    AdminNotification::create([
-                        'type' => 'branch_session',
-                        'title' => 'Employee Logged Out via QR',
-                        'message' => "{$user->name} logged out from " . ($user->branch->name ?? 'branch') . " on " . \Carbon\Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
-                        'triggered_by' => $user->id,
-                    ]);
                 }
             }
 
@@ -200,6 +186,9 @@ class QrAuthController extends Controller
     public function showMyQrCode()
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
 
         // Generate QR token if not exists
         if (!$user->qr_token) {
@@ -216,6 +205,9 @@ class QrAuthController extends Controller
     public function regenerateQrCode()
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
         
         // Only admins can regenerate their own QR code
         if (!$user->isAdmin()) {
@@ -234,6 +226,9 @@ class QrAuthController extends Controller
     public function getQrCodeImage(Request $request)
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
 
         if (!$user->qr_token) {
             $user->generateQrToken();
@@ -251,8 +246,13 @@ class QrAuthController extends Controller
      */
     public function showUserQrCode(User $user)
     {
+        $authUser = Auth::user();
+        if (!$authUser instanceof User) {
+            abort(403);
+        }
+
         // Only admins can view other users' QR codes
-        if (!Auth::user()->isAdmin()) {
+        if (!$authUser->isAdmin()) {
             abort(403);
         }
 
@@ -269,8 +269,13 @@ class QrAuthController extends Controller
      */
     public function regenerateUserQrCode(User $user)
     {
+        $authUser = Auth::user();
+        if (!$authUser instanceof User) {
+            abort(403);
+        }
+
         // Only admins can regenerate other users' QR codes
-        if (!Auth::user()->isAdmin()) {
+        if (!$authUser->isAdmin()) {
             abort(403);
         }
 
@@ -298,6 +303,12 @@ class QrAuthController extends Controller
         }
 
         $currentUser = Auth::user();
+        if (!$currentUser instanceof User) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
 
         // Must be same branch
         if ($targetUser->branch_id !== $currentUser->branch_id) {

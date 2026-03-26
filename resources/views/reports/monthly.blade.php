@@ -28,15 +28,14 @@
                 <p class="text-center text-gray-600">{{ DateTime::createFromFormat('!m', $selectedMonth)->format('F') }} {{ $selectedYear }}</p>
                 <p class="text-center text-sm text-gray-500">Generated: {{ now()->format('M d, Y h:i A') }}</p>
             </div>
-            
-            <!-- Month/Year Selection -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8 print:hidden">
                 <div class="p-6">
                     <form method="GET" action="{{ route('reports.monthly') }}" class="flex flex-wrap items-end gap-4">
                         @if($canSelectBranch)
                         <div>
                             <label for="branch_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Branch</label>
-                            <select name="branch_id" id="branch_id" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
+                            <select name="branch_id" id="branch_id" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
                                 <option value="all" {{ $isAll ? 'selected' : '' }}>All Branches</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ $selectedBranchId == $branch->id && !$isAll ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -44,9 +43,10 @@
                             </select>
                         </div>
                         @endif
+
                         <div>
                             <label for="month" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Month</label>
-                            <select name="month" id="month" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
+                            <select name="month" id="month" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
                                 @for($i = 1; $i <= 12; $i++)
                                     <option value="{{ $i }}" {{ $selectedMonth == $i ? 'selected' : '' }}>
                                         {{ DateTime::createFromFormat('!m', $i)->format('F') }}
@@ -54,26 +54,24 @@
                                 @endfor
                             </select>
                         </div>
+
                         <div>
                             <label for="year" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Year</label>
-                            <select name="year" id="year" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
+                            <select name="year" id="year" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
                                 @for($y = date('Y') - 2; $y <= date('Y') + 1; $y++)
                                     <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
                                 @endfor
                             </select>
                         </div>
-                        <button type="button" onclick="window.print()" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors print:hidden">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                            </svg>
-                            Print Report
-                        </button>
-                        <a href="{{ route('reports.export.monthly', ['month' => $selectedMonth, 'year' => $selectedYear, 'branch_id' => $selectedBranchId]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors print:hidden">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            Export Excel
-                        </a>
+
+                        <div class="inline-flex items-center p-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg print:hidden">
+                            <a href="{{ route('reports.export.monthly', ['month' => $selectedMonth, 'year' => $selectedYear, 'branch_id' => $selectedBranchId]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-black rounded-md transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Export Excel
+                            </a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -92,7 +90,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Monthly Revenue</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($totalRevenue, 2) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($totalRevenue, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -110,7 +108,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Transactions</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalTransactions) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ number_format($totalTransactions) }}</p>
                             </div>
                         </div>
                     </div>
@@ -128,7 +126,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Average Transaction</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($averageTransaction, 2) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($averageTransaction, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -139,7 +137,7 @@
                 <!-- Daily Performance Chart -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Daily Performance</h3>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Daily Performance</h3>
                         <div class="h-64">
                             <canvas id="dailyChart"></canvas>
                         </div>
@@ -149,18 +147,18 @@
                 <!-- Product Performance -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Top Products</h3>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Top Products</h3>
                         @if($productPerformance->count() > 0)
                             <div class="space-y-3 max-h-64 overflow-y-auto">
                                 @foreach($productPerformance->take(8) as $item)
                                 @if($item->product)
                                 <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                     <div>
-                                        <p class="font-medium text-gray-900 dark:text-white">{{ $item->product->name }}</p>
+                                        <p class="font-medium text-gray-900 dark:text-black">{{ $item->product->name }}</p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ $item->total_sold }} units sold</p>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($item->revenue, 2) }}</p>
+                                        <p class="font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($item->revenue, 2) }}</p>
                                     </div>
                                 </div>
                                 @endif
@@ -177,7 +175,7 @@
             @if(count($dailyBreakdown) > 0)
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mt-8">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">
                         Daily Breakdown - {{ DateTime::createFromFormat('!m', $selectedMonth)->format('F') }} {{ $selectedYear }}
                     </h3>
                     <div class="overflow-x-auto">
@@ -193,13 +191,13 @@
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @foreach($dailyBreakdown as $day)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 {{ $day['revenue'] == 0 ? 'opacity-50' : '' }}">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-black">
                                         {{ $day['date'] }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                         {{ $day['day'] }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-black">
                                         @if($day['revenue'] > 0)
                                             &#8369;{{ number_format($day['revenue'], 2) }}
                                         @else
@@ -257,7 +255,7 @@
             data: {
                 labels: {!! json_encode(collect($dailyBreakdown)->pluck('date')->toArray()) !!},
                 datasets: [{
-                    label: 'Daily Revenue (&#8369;)',
+                    label: 'Daily Revenue (₱)',
                     data: {!! json_encode(collect($dailyBreakdown)->pluck('revenue')->toArray()) !!},
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     borderColor: 'rgba(59, 130, 246, 1)',
@@ -279,7 +277,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return '&#8369;' + value.toLocaleString();
+                                return '₱' + value.toLocaleString();
                             }
                         }
                     },

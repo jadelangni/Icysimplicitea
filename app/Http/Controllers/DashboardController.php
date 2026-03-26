@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Branch;
 use App\Models\Inventory;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,9 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
         
         // Admin can select any branch or view all branches, cashier only sees their own branch
         $branches = collect();
@@ -149,10 +153,8 @@ class DashboardController extends Controller
         $dailyTarget = $isAllBranches ? 15000 : 5000; // Higher target for all branches
         $performanceScore = min(100, round(($todaysSales / max($dailyTarget, 1)) * 100));
 
-        // Use cashier-specific dashboard for cashiers
-        $viewName = $user->isCashier() ? 'dashboard-cashier' : 'dashboard';
-
-        return view($viewName, compact(
+        // Use one shared dashboard UI for both admin and employee users
+        return view('dashboard', compact(
             'todaysSales',
             'salesChange',
             'todaysTransactions',
@@ -179,6 +181,9 @@ class DashboardController extends Controller
     public function getDashboardData(Request $request)
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
         
         // Admin can select any branch, cashier only sees their own branch
         if ($user->isAdmin()) {
@@ -308,6 +313,10 @@ class DashboardController extends Controller
     public function getCashierDashboardData()
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $branchId = $user->branch_id;
 
         $todaysSales = Sale::where('branch_id', $branchId)
@@ -415,6 +424,10 @@ class DashboardController extends Controller
     public function getRecentSales()
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $branchId = $user->branch_id;
 
         // Get recent sales
@@ -441,6 +454,10 @@ class DashboardController extends Controller
     public function getLiveSales(Request $request)
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $branchId = $request->get('branch_id', $user->branch_id);
         $since = $request->get('since'); // ISO timestamp
         

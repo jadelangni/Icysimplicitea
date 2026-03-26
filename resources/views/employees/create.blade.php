@@ -16,7 +16,7 @@
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-simplicitea-500 to-simplicitea-600">
-                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <h3 class="text-lg font-semibold text-black flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                         </svg>
@@ -40,7 +40,7 @@
                                 </svg>
                             </div>
                             <input type="text" name="name" id="name" value="{{ old('name') }}" required
-                                class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('name') border-red-500 @enderror"
+                                class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('name') border-red-500 @enderror"
                                 placeholder="Enter full name">
                         </div>
                         @error('name')
@@ -60,7 +60,7 @@
                                 </svg>
                             </div>
                             <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                                class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('email') border-red-500 @enderror"
+                                class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('email') border-red-500 @enderror"
                                 placeholder="employee@simplicitea.com">
                         </div>
                         @error('email')
@@ -81,7 +81,7 @@
                                     </svg>
                                 </div>
                                 <input type="password" name="password" id="password" required
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('password') border-red-500 @enderror"
+                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('password') border-red-500 @enderror"
                                     placeholder="••••••••">
                             </div>
                             @error('password')
@@ -100,7 +100,7 @@
                                     </svg>
                                 </div>
                                 <input type="password" name="password_confirmation" id="password_confirmation" required
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500"
+                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500"
                                     placeholder="••••••••">
                             </div>
                         </div>
@@ -120,7 +120,7 @@
                             <div>
                                 <label for="pin" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">PIN</label>
                                 <input type="password" name="pin" id="pin" maxlength="6" minlength="4"
-                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm @error('pin') border-red-500 @enderror"
+                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm @error('pin') border-red-500 @enderror"
                                     placeholder="4-6 digits">
                                 @error('pin')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -130,7 +130,7 @@
                             <div>
                                 <label for="pin_confirmation" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Confirm PIN</label>
                                 <input type="password" name="pin_confirmation" id="pin_confirmation" maxlength="6" minlength="4"
-                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm"
+                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm"
                                     placeholder="Confirm PIN">
                             </div>
                         </div>
@@ -149,7 +149,7 @@
                                     </svg>
                                 </div>
                                 <select name="role" id="role" required
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 appearance-none @error('role') border-red-500 @enderror">
+                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 appearance-none @error('role') border-red-500 @enderror">
                                     <option value="">Select Role</option>
                                     <option value="cashier" {{ old('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
                                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
@@ -177,7 +177,7 @@
                                     </svg>
                                 </div>
                                 <select name="branch_id" id="branch_id" required
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 appearance-none @error('branch_id') border-red-500 @enderror">
+                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 appearance-none @error('branch_id') border-red-500 @enderror">
                                     <option value="">Select Branch</option>
                                     @foreach($branches as $branch)
                                         <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
@@ -204,7 +204,7 @@
                             Cancel
                         </a>
                         <button type="submit" 
-                            class="px-6 py-3 bg-simplicitea-600 hover:bg-simplicitea-700 text-white text-sm font-medium rounded-xl transition-colors duration-200 shadow-lg shadow-simplicitea-500/30 inline-flex items-center">
+                            class="px-6 py-3 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-sm font-medium rounded-xl transition-colors duration-200 shadow-lg shadow-simplicitea-500/30 inline-flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>

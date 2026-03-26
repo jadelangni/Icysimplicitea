@@ -11,10 +11,10 @@
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Product List</h3>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-black">Product List</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your products and their sizes</p>
                         </div>
-                        <a href="{{ route('products.create') }}" class="inline-flex items-center px-5 py-2.5 bg-simplicitea-600 text-white rounded-xl hover:bg-simplicitea-700 font-medium transition-colors shadow-sm">
+                        <a href="{{ route('products.create') }}" class="inline-flex items-center px-5 py-2.5 bg-simplicitea-600 text-black rounded-xl hover:bg-simplicitea-700 font-medium transition-colors shadow-sm">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
@@ -25,9 +25,9 @@
                     @if($products->isEmpty())
                         <div class="text-center py-16">
                             <div class="text-6xl mb-4">🧋</div>
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No products yet</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-2">No products yet</h3>
                             <p class="text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first product</p>
-                            <a href="{{ route('products.create') }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 text-white rounded-lg hover:bg-simplicitea-700">
+                            <a href="{{ route('products.create') }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700">
                                 Add Product
                             </a>
                         </div>
@@ -55,7 +55,7 @@
                                                         <span class="text-lg">🧋</span>
                                                     </div>
                                                 @endif
-                                                <span class="font-medium text-gray-900 dark:text-white">{{ $product->name }}</span>
+                                                <span class="font-medium text-gray-900 dark:text-black">{{ $product->name }}</span>
                                             </div>
                                         </td>
                                         <td class="py-4 px-4">
@@ -82,7 +82,7 @@
                                                     @endif
                                                 @endforeach
                                             @else
-                                                <span class="text-lg font-bold text-gray-900 dark:text-white">₱{{ number_format($product->price, 0) }}</span>
+                                                <span class="text-lg font-bold text-gray-900 dark:text-black">₱{{ number_format($product->price, 0) }}</span>
                                             @endif
                                         </td>
                                         @php $qty = $product->inventory->first()->quantity ?? 0; @endphp

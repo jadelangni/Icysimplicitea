@@ -13,7 +13,7 @@
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome back! 👋</h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">
-                        Here's what's happening at <span id="branchNameDisplay" class="font-semibold text-simplicitea-600 dark:text-simplicitea-400">{{ $selectedBranch->name ?? 'All Branches' }}</span> today.
+                        Here's what's happening at <span id="branchNameDisplay" class="font-semibold text-simplicitea-600 dark:text-simplicitea-400">{{ $selectedBranch->name ?? 'your branch' }}</span> today.
                     </p>
                 </div>
                 <div class="flex items-center gap-4">
@@ -32,7 +32,6 @@
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Select Branch</label>
                         <div class="relative">
                             <select id="branchSelector" class="appearance-none bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-4 pr-10 py-2.5 text-sm font-medium text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer min-w-[180px]">
-                                <option value="all" {{ $branchId == 'all' ? 'selected' : '' }}>🏪 All Branches</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ $branchId == $branch->id ? 'selected' : '' }}>
                                         📍 {{ $branch->name }}

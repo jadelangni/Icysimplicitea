@@ -36,7 +36,7 @@
                         @if($canSelectBranch)
                         <div>
                             <label for="branch_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Branch</label>
-                            <select name="branch_id" id="branch_id" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
+                            <select name="branch_id" id="branch_id" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
                                 <option value="all" {{ $isAll ? 'selected' : '' }}>All Branches</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ $selectedBranchId == $branch->id && !$isAll ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -47,25 +47,21 @@
                         <div>
                             <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
                             <input type="date" name="start_date" id="start_date" value="{{ request('start_date', $startDate->format('Y-m-d')) }}" onchange="this.form.submit()"
-                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
+                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
                         </div>
                         <div>
                             <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
                             <input type="date" name="end_date" id="end_date" value="{{ request('end_date', $endDate->format('Y-m-d')) }}" onchange="this.form.submit()"
-                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
+                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
                         </div>
-                        <button type="button" onclick="window.print()" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors print:hidden">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                            </svg>
-                            Print Report
-                        </button>
-                        <a href="{{ route('reports.export.sales', ['start_date' => request('start_date', $startDate->format('Y-m-d')), 'end_date' => request('end_date', $endDate->format('Y-m-d')), 'branch_id' => $selectedBranchId]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors print:hidden">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            Export Excel
-                        </a>
+                        <div class="inline-flex items-center p-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg print:hidden">
+                            <a href="{{ route('reports.export.sales', ['start_date' => request('start_date', $startDate->format('Y-m-d')), 'end_date' => request('end_date', $endDate->format('Y-m-d')), 'branch_id' => $selectedBranchId]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-black rounded-md transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Export Excel
+                            </a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -84,7 +80,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($totalRevenue, 2) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($totalRevenue, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -102,7 +98,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Transactions</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalTransactions) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ number_format($totalTransactions) }}</p>
                             </div>
                         </div>
                     </div>
@@ -120,7 +116,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Average Transaction</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($averageTransaction, 2) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($averageTransaction, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -131,18 +127,18 @@
                 <!-- Top Selling Products -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Top Selling Products</h3>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Top Selling Products</h3>
                         @if($topProducts->count() > 0)
                             <div class="space-y-3">
                                 @foreach($topProducts as $item)
                                 @if($item->product)
                                 <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                     <div>
-                                        <p class="font-medium text-gray-900 dark:text-white">{{ $item->product->name }}</p>
+                                        <p class="font-medium text-gray-900 dark:text-black">{{ $item->product->name }}</p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ $item->total_sold }} units sold</p>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($item->revenue, 2) }}</p>
+                                        <p class="font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($item->revenue, 2) }}</p>
                                     </div>
                                 </div>
                                 @endif
@@ -157,18 +153,18 @@
                 <!-- Recent Sales -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Sales</h3>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Recent Sales</h3>
                         @if($sales->count() > 0)
                             <div class="space-y-3 max-h-96 overflow-y-auto">
                                 @foreach($sales->take(10) as $sale)
                                 <div class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
                                     <div>
-                                        <p class="font-medium text-gray-900 dark:text-white">{{ $sale->receipt_number }}</p>
+                                        <p class="font-medium text-gray-900 dark:text-black">{{ $sale->receipt_number }}</p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ $sale->created_at->format('M d, Y h:i A') }}</p>
                                         <p class="text-xs text-gray-400 dark:text-gray-500">{{ $sale->user->name ?? 'Staff' }}</p>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($sale->total_amount, 2) }}</p>
+                                        <p class="font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($sale->total_amount, 2) }}</p>
                                         <span class="text-xs px-2 py-1 {{ $sale->payment_method === 'cash' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300' }} rounded-full">
                                             {{ ucfirst($sale->payment_method) }}
                                         </span>
@@ -186,7 +182,7 @@
             <!-- Sales by Staff -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mt-8">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Sales by Staff</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Sales by Staff</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ $startDate->format('M d, Y') }} - {{ $endDate->format('M d, Y') }}</p>
                     @if($salesByUser->count() > 0)
                         <div class="overflow-x-auto">
@@ -202,7 +198,7 @@
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     @foreach($salesByUser as $userSales)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-black">
                                             {{ $userSales->user->name ?? 'Unknown Staff' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -219,8 +215,8 @@
                                 </tbody>
                                 <tfoot class="bg-gray-100 dark:bg-gray-700">
                                     <tr>
-                                        <td class="px-6 py-3 text-sm font-bold text-gray-900 dark:text-white">Total</td>
-                                        <td class="px-6 py-3 text-sm font-bold text-gray-900 dark:text-white">{{ number_format($salesByUser->sum('transaction_count')) }}</td>
+                                        <td class="px-6 py-3 text-sm font-bold text-gray-900 dark:text-black">Total</td>
+                                        <td class="px-6 py-3 text-sm font-bold text-gray-900 dark:text-black">{{ number_format($salesByUser->sum('transaction_count')) }}</td>
                                         <td class="px-6 py-3 text-sm font-bold text-green-600 dark:text-green-400">&#8369;{{ number_format($salesByUser->sum('total_sales'), 2) }}</td>
                                         <td class="px-6 py-3 text-sm text-gray-500 dark:text-gray-400">-</td>
                                     </tr>
@@ -237,7 +233,7 @@
             @if($sales->count() > 0)
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mt-8">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">All Sales</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">All Sales</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
@@ -252,7 +248,7 @@
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @foreach($sales as $sale)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-black">
                                         {{ $sale->receipt_number }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -266,7 +262,7 @@
                                             {{ ucfirst($sale->payment_method) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-black">
                                         &#8369;{{ number_format($sale->total_amount, 2) }}
                                     </td>
                                 </tr>

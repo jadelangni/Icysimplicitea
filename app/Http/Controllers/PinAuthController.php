@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AdminNotification;
 use App\Models\BranchSession;
 use App\Models\StaffAttendance;
 use App\Models\User;
@@ -110,14 +109,7 @@ class PinAuthController extends Controller
 
         // Start branch session
         if ($user->branch_id && $user->role === 'cashier' && !BranchSession::hasActiveSession($user->id)) {
-            $session = BranchSession::startSession($user->branch_id, $user->id);
-            $roleLabel = $session->is_cashier ? 'Cashier' : 'Crew';
-            AdminNotification::create([
-                'type' => 'branch_session',
-                'title' => "Employee Logged In ({$roleLabel}) via PIN",
-                'message' => "{$user->name} logged in as {$roleLabel} at " . ($user->branch->name ?? 'branch') . " on " . \Carbon\Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
-                'triggered_by' => $user->id,
-            ]);
+            BranchSession::startSession($user->branch_id, $user->id);
         }
 
         // Store branch ID in session
@@ -136,6 +128,10 @@ class PinAuthController extends Controller
     public function showSetupPin()
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
+
         $hasPin = !empty($user->pin);
         
         return view('auth.setup-pin', compact('hasPin'));
@@ -160,6 +156,9 @@ class PinAuthController extends Controller
         }
 
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
 
         // Verify current password
         if (!Hash::check($request->current_password, $user->password)) {
@@ -189,6 +188,9 @@ class PinAuthController extends Controller
         }
 
         $user = Auth::user();
+        if (!$user instanceof User) {
+            abort(403);
+        }
 
         // Verify current password
         if (!Hash::check($request->current_password, $user->password)) {
@@ -210,8 +212,16 @@ class PinAuthController extends Controller
      */
     public function adminSetPin(Request $request, User $user)
     {
+        $authUser = Auth::user();
+        if (!$authUser instanceof User) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
         // Only admins can set PINs for other users
-        if (!Auth::user()->isAdmin()) {
+        if (!$authUser->isAdmin()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
@@ -234,7 +244,7 @@ class PinAuthController extends Controller
 
         // Log the activity
         UserActivityLog::logActivity(
-            Auth::user(), 
+            $authUser,
             'admin_set_pin_for_user_' . $user->id, 
             $request->ip(), 
             $request->userAgent()

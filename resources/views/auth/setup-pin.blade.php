@@ -6,10 +6,10 @@
         <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden">
             <!-- Header -->
             <div class="bg-gradient-to-r from-simplicitea-500 to-simplicitea-600 px-6 py-8 text-center">
-                <svg class="mx-auto h-16 w-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="mx-auto h-16 w-16 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                <h2 class="mt-4 text-2xl font-bold text-white">PIN Setup</h2>
+                <h2 class="mt-4 text-2xl font-bold text-black">PIN Setup</h2>
                 <p class="mt-2 text-simplicitea-100">Set up your quick login PIN for faster access</p>
             </div>
 
@@ -45,7 +45,7 @@
                             Current Password
                         </label>
                         <input type="password" name="current_password" id="current_password" required
-                            class="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white">
+                            class="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
                         @error('current_password')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
@@ -56,7 +56,7 @@
                             {{ $hasPin ? 'New PIN' : 'PIN' }} (4-6 digits)
                         </label>
                         <input type="password" name="pin" id="pin" required maxlength="6" pattern="[0-9]{4,6}"
-                            class="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white text-center text-2xl tracking-widest"
+                            class="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black text-center text-2xl tracking-widest"
                             placeholder="••••••">
                         @error('pin')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -68,12 +68,12 @@
                             Confirm PIN
                         </label>
                         <input type="password" name="pin_confirmation" id="pin_confirmation" required maxlength="6" pattern="[0-9]{4,6}"
-                            class="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white text-center text-2xl tracking-widest"
+                            class="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black text-center text-2xl tracking-widest"
                             placeholder="••••••">
                     </div>
 
                     <button type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-simplicitea-600 hover:bg-simplicitea-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-simplicitea-500">
+                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-black bg-simplicitea-600 hover:bg-simplicitea-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-simplicitea-500">
                         {{ $hasPin ? 'Update PIN' : 'Set PIN' }}
                     </button>
                 </form>
@@ -89,7 +89,7 @@
                                     Password (to remove PIN)
                                 </label>
                                 <input type="password" name="current_password" id="remove_password" required
-                                    class="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white">
+                                    class="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-black">
                             </div>
 
                             <button type="submit"

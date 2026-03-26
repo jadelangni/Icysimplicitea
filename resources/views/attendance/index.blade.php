@@ -4,18 +4,19 @@
         <!-- Header -->
         <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Staff Attendance</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-black">Staff Attendance</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Monitor staff clock-in and clock-out records</p>
             </div>
         </div>
 
         <!-- Filters -->
         <div class="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-            <form method="GET" action="{{ route('attendance.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <form id="attendance-filters" method="GET" action="{{ route('attendance.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 @if(auth()->user()->isAdmin() && $branches->count() > 0)
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Branch</label>
-                        <select name="branch_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white">
+                        <select name="branch_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
+                            <option value="" {{ $branchId === '' ? 'selected' : '' }}>All Branches</option>
                             @foreach($branches as $branch)
                                 <option value="{{ $branch->id }}" {{ $branchId == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
                             @endforeach
@@ -24,7 +25,7 @@
                 @endif
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Staff Member</label>
-                    <select name="user_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white">
+                    <select name="user_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
                         <option value="">All Staff</option>
                         @foreach($staff as $member)
                             <option value="{{ $member->id }}" {{ $userId == $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
@@ -34,18 +35,12 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
                     <input type="date" name="start_date" value="{{ $startDate }}"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white">
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
                     <input type="date" name="end_date" value="{{ $endDate }}"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white">
-                </div>
-                <div class="flex items-end">
-                    <button type="submit"
-                        class="w-full px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-white rounded-lg transition-colors">
-                        Filter
-                    </button>
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
                 </div>
             </form>
         </div>
@@ -61,7 +56,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Time</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Photo</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">IP Address</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Notes</th>
                         </tr>
                     </thead>
@@ -71,18 +66,18 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-8 h-8 bg-simplicitea-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white text-sm font-medium">{{ substr($record->user->name, 0, 1) }}</span>
+                                            <span class="text-black text-sm font-medium">{{ substr($record->user->name, 0, 1) }}</span>
                                         </div>
                                         <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $record->user->name }}</p>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-black">{{ $record->user->name }}</p>
                                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ ucfirst($record->user->role) }}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-black">
                                     {{ $record->recorded_at->format('M d, Y') }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-black">
                                     {{ $record->recorded_at->format('h:i A') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -100,8 +95,17 @@
                                         <span class="text-gray-400">-</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $record->ip_address ?? '-' }}
+                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                    @if($record->branch)
+                                        <div>{{ $record->branch->name }}</div>
+                                    @endif
+                                    @if(!is_null($record->latitude) && !is_null($record->longitude))
+                                        <div class="text-xs text-gray-400 dark:text-gray-500">
+                                            {{ number_format((float) $record->latitude, 5) }}, {{ number_format((float) $record->longitude, 5) }}
+                                        </div>
+                                    @elseif(!$record->branch)
+                                        -
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                     {{ $record->notes ?? '-' }}
@@ -129,6 +133,21 @@
 
 <!-- Live polling: auto-refresh attendance records every 30 seconds -->
 <script>
+    const attendanceFilters = document.getElementById('attendance-filters');
+
+    if (attendanceFilters) {
+        const selectFields = attendanceFilters.querySelectorAll('select');
+        const dateFields = attendanceFilters.querySelectorAll('input[type="date"]');
+
+        selectFields.forEach((field) => {
+            field.addEventListener('change', () => attendanceFilters.submit());
+        });
+
+        dateFields.forEach((field) => {
+            field.addEventListener('change', () => attendanceFilters.submit());
+        });
+    }
+
     setInterval(() => {
         window.location.reload();
     }, 30000);

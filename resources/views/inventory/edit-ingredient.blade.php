@@ -23,7 +23,7 @@
                         <span class="text-3xl">🧪</span>
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-black">
                             {{ $inventoryItem->ingredient->name }}
                         </h3>
                         <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -50,7 +50,7 @@
                                        step="0.01" 
                                        min="0" 
                                        required
-                                       class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-simplicitea-500 focus:border-transparent pr-16">
+                                       class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-xl shadow-sm focus:ring-2 focus:ring-simplicitea-500 focus:border-transparent pr-16">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-500 dark:text-gray-400">
                                     {{ $inventoryItem->ingredient->unit }}
                                 </div>
@@ -73,7 +73,7 @@
                                        step="0.01" 
                                        min="0" 
                                        required
-                                       class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-simplicitea-500 focus:border-transparent pr-16">
+                                       class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-xl shadow-sm focus:ring-2 focus:ring-simplicitea-500 focus:border-transparent pr-16">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-500 dark:text-gray-400">
                                     {{ $inventoryItem->ingredient->unit }}
                                 </div>
@@ -104,7 +104,7 @@
                             Cancel
                         </a>
                         <button type="submit" 
-                                class="px-6 py-2 bg-simplicitea-600 text-white rounded-xl hover:bg-simplicitea-700 transition-colors font-medium">
+                                class="px-6 py-2 bg-simplicitea-600 text-black rounded-xl hover:bg-simplicitea-700 transition-colors font-medium">
                             Save Changes
                         </button>
                     </div>

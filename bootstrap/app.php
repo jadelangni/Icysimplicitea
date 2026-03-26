@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('stock:send-low-alerts')->everySixHours();
     })
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);

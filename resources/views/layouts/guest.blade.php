@@ -4,6 +4,13 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="theme-color" content="#166534">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="Simplicitea POS">
+        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
 
         <title>{{ config('app.name', 'Simplicitea') }} - Login</title>
 
@@ -114,7 +121,7 @@
                 width: 182px;
                 height: 182px;
                 border-radius: 32px;
-                background: linear-gradient(145deg, #ffffff, #f0f8f0);
+                background: linear-gradient(145deg, #000000, #f0f8f0);
                 padding: 6px;
                 box-shadow:
                     0 20px 60px rgba(76, 175, 80, 0.15),
@@ -154,7 +161,7 @@
 
             /* ===== RIGHT PANE - Login Form ===== */
             .form-pane {
-                background: #ffffff;
+                background: #000000;
             }
 
             .dark .form-pane {
@@ -183,7 +190,7 @@
             }
 
             .mint-input:focus {
-                background: #ffffff;
+                background: #000000;
                 border-color: #66bb6a;
                 box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.12);
                 outline: none;
@@ -192,7 +199,7 @@
             .dark .mint-input {
                 background: rgba(30, 41, 59, 0.8);
                 border: 1.5px solid rgba(102, 187, 106, 0.15);
-                color: white;
+                color: black;
             }
 
             .dark .mint-input:hover {
@@ -214,7 +221,7 @@
             .btn-mint {
                 background: linear-gradient(135deg, #4caf50 0%, #43a047 100%);
                 border-radius: 12px;
-                color: white;
+                color: black;
                 font-weight: 600;
                 font-size: 15px;
                 transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -369,23 +376,96 @@
 
             /* Responsive: stack on mobile */
             @media (max-width: 767px) {
-                .page-wrapper { padding: 16px; }
-                .outer-box { border-radius: 24px; min-height: auto; }
-                .dual-pane { flex-direction: column !important; }
-                .brand-pane { min-height: 220px !important; width: 100% !important; }
-                .form-pane { width: 100% !important; }
+                .page-wrapper {
+                    padding: 8px;
+                    align-items: flex-start;
+                    min-height: 100dvh;
+                }
+                .outer-box {
+                    border-radius: 20px;
+                    min-height: auto;
+                    overflow: visible;
+                    max-width: 100%;
+                }
+                .dual-pane {
+                    flex-direction: column !important;
+                    min-height: auto !important;
+                }
+                .dual-pane[style] { min-height: auto !important; }
+                .brand-pane {
+                    min-height: 150px !important;
+                    width: 100% !important;
+                    border-radius: 20px 20px 0 0 !important;
+                    justify-content: center !important;
+                }
+                .form-pane {
+                    width: 100% !important;
+                    border-radius: 0 0 20px 20px !important;
+                    padding: 20px 14px 24px !important;
+                }
+                .logo-3d {
+                    width: 92px;
+                    height: 92px;
+                    border-radius: 20px;
+                    margin-bottom: 10px;
+                    padding: 4px;
+                }
+                .logo-3d-inner { border-radius: 18px; }
+                .brand-pane .flex-1 {
+                    padding-left: 16px;
+                    padding-right: 16px;
+                }
+                .brand-pane h1 {
+                    font-size: 1.55rem;
+                    line-height: 1.1;
+                    text-align: center;
+                }
+                .brand-pane p {
+                    font-size: 0.75rem;
+                    text-align: center;
+                }
+                .brand-pane .pb-8 {
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                    padding-bottom: 0;
+                }
+                .form-pane > div[style] {
+                    max-width: 100% !important;
+                }
+                .form-pane h2 {
+                    font-size: 2rem;
+                    line-height: 1.1;
+                }
                 .center-logo { display: none; }
+            }
+
+            @media (max-width: 420px) {
+                .page-wrapper { padding: 6px; }
+                .outer-box { border-radius: 16px; }
+                .brand-pane {
+                    min-height: 136px !important;
+                    border-radius: 16px 16px 0 0 !important;
+                }
+                .form-pane {
+                    border-radius: 0 0 16px 16px !important;
+                    padding: 18px 12px 22px !important;
+                }
+                .logo-3d {
+                    width: 80px;
+                    height: 80px;
+                    margin-bottom: 8px;
+                }
+                .brand-pane h1 { font-size: 1.35rem; }
+                .form-pane h2 {
+                    font-size: 1.75rem;
+                    margin-bottom: 0.25rem;
+                }
             }
         </style>
         
-        <!-- Dark mode initialization -->
-        <script>
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.documentElement.classList.add('dark');
-            }
-        </script>
     </head>
-    <body class="antialiased">
+    <body class="antialiased overflow-x-hidden">
         <div class="page-wrapper">
             <div class="outer-box">
                 <div class="dual-pane flex flex-row h-full relative" style="min-height: 700px;">
@@ -411,7 +491,7 @@
                     </div>
 
                     <!-- Brand Text -->
-                    <h1 class="text-3xl font-bold text-gray-800 dark:text-white tracking-tight mb-2" style="font-family: var(--font-serif);">
+                    <h1 class="text-3xl font-bold text-gray-800 dark:text-black tracking-tight mb-2" style="font-family: var(--font-serif);">
                         Icy's Simplicitea
                     </h1>
                     <p class="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">
@@ -419,24 +499,13 @@
                     </p>
                 </div>
 
-                <!-- Theme Toggle at Bottom -->
-                <div class="pb-8 relative z-10">
-                    <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
-                        <svg class="icon-sun w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                        <svg class="icon-moon w-5 h-5 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-                        </svg>
-                    </button>
-                </div>
             </div>
 
             {{-- ===== RIGHT: Login / User Interaction ===== --}}
             <div class="form-pane w-1/2 flex flex-col justify-center items-center px-6 py-12" style="border-radius: 0 32px 32px 0;">
                 <div class="w-full" style="max-width: 380px;">
                     <!-- Get Started heading -->
-                    <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-1" style="font-family: var(--font-serif);">
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-black mb-1" style="font-family: var(--font-serif);">
                         Get Started
                     </h2>
                     <p class="text-sm text-gray-400 dark:text-gray-500 mb-8">
@@ -456,11 +525,5 @@
             </div>
         </div>
         
-        <script>
-            function toggleDarkMode() {
-                document.documentElement.classList.toggle('dark');
-                localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
-            }
-        </script>
     </body>
 </html>

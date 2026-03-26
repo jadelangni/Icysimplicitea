@@ -6,16 +6,24 @@
     $sidebarActiveCrew = Auth::user()->branch_id ? \App\Models\BranchSession::getActiveCrew(Auth::user()->branch_id) : collect();
 @endphp
 
+<button type="button" id="cashierSidebarToggle" class="cashier-sidebar-toggle no-print p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 bg-white dark:bg-gray-800" aria-label="Open navigation menu" aria-expanded="false" data-hide-toggle-on-open="{{ str_starts_with($currentRoute, 'pos.') ? 'true' : 'false' }}">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+</button>
+
+<div id="cashierSidebarOverlay" class="cashier-sidebar-overlay"></div>
+
 <!-- LEFT SIDEBAR -->
-<div class="sidebar">
+<div id="cashierSidebar" class="sidebar cashier-sidebar">
     <!-- User Profile -->
     <div class="p-4 border-b border-gray-700">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center overflow-hidden">
-                <span class="text-white font-bold text-lg">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+            <div class="w-10 h-10 bg-gradient-to-br from-[#00B140] to-[#005B5C] rounded-lg flex items-center justify-center overflow-hidden">
+                <span class="text-black font-bold text-lg">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-semibold text-white text-sm truncate">{{ Auth::user()->name }}</p>
+                <p class="font-semibold text-black text-sm truncate">{{ Auth::user()->name }}</p>
                 <p class="text-xs text-gray-400">
                     {{ $sidebarSessionRole }}
                     @if($sidebarBranchSession && $sidebarBranchSession->is_cashier && $sidebarActiveCrew->count() > 0)
@@ -23,20 +31,11 @@
                     @endif
                 </p>
             </div>
-            <!-- Dark Mode Toggle -->
-            <button type="button" id="darkModeToggle" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                <svg id="darkModeIconMoon" class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-                <svg id="darkModeIconSun" class="w-5 h-5 text-yellow-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-            </button>
         </div>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 px-3 py-4 overflow-y-auto hide-scrollbar">
+    <nav class="flex-1 px-3 py-4 overflow-y-auto hide-scrollbar" id="cashierSidebarNav">
         <!-- Dashboard -->
         <a href="{{ route('dashboard') }}" class="nav-item {{ $currentRoute === 'dashboard' ? 'active' : '' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,6 +52,16 @@
             </svg>
             <span class="flex-1">Point of Sale</span>
         </a>
+
+        @if(Auth::user()->role === 'cashier')
+        <!-- Inventory (employee view) -->
+        <a href="{{ route('employee-inventory.index') }}" class="nav-item {{ str_starts_with($currentRoute, 'employee-inventory.') ? 'active' : '' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+            </svg>
+            <span class="flex-1">Inventory</span>
+        </a>
+        @endif
 
         @if(Auth::user()->role === 'admin')
         <!-- Products -->
@@ -112,9 +121,6 @@
         </a>
         @endif
 
-        <!-- Divider -->
-        <div class="my-3 border-t border-gray-700"></div>
-
         @if(Auth::user()->role === 'cashier')
         <!-- My Attendance -->
         <a href="{{ route('attendance.my-attendance') }}" class="nav-item {{ $currentRoute === 'attendance.my-attendance' ? 'active' : '' }}">
@@ -133,14 +139,6 @@
         </a>
         @endif
 
-        <!-- Settings -->
-        <a href="{{ route('profile.edit') }}" class="nav-item {{ str_starts_with($currentRoute, 'profile.') ? 'active' : '' }}">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <span class="flex-1">Settings</span>
-        </a>
     </nav>
 
     <!-- Footer -->
@@ -169,61 +167,187 @@
             </svg>
             <span class="flex-1 text-left">Logout</span>
         </a>
+        <a href="{{ route('profile.edit') }}" class="nav-item w-full {{ str_starts_with($currentRoute, 'profile.') ? 'active' : '' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span class="flex-1 text-left">Settings</span>
+        </a>
         <div class="mt-4 text-center">
             <p class="text-[10px] text-gray-500 uppercase tracking-wider">Powered by</p>
-            <p class="text-sm font-semibold text-white flex items-center justify-center gap-2 mt-1">
-                <span class="w-5 h-5 bg-green-600 rounded flex items-center justify-center text-xs font-bold">S</span>
+            <p class="text-sm font-semibold text-black flex items-center justify-center gap-2 mt-1">
+                <span class="sidebar-brand-badge">S</span>
                 Simplicitea
             </p>
         </div>
     </div>
 </div>
 
+<style>
+#cashierSidebar {
+    background: linear-gradient(180deg, #005B5C 0%, #014b4c 55%, #003536 100%);
+}
+
+#cashierSidebar .nav-item.active {
+    background: #00B140;
+    color: #000000;
+}
+
+#cashierSidebar .nav-item:hover {
+    background: rgba(152, 255, 152, 0.15);
+    color: #000000;
+}
+
+#cashierSidebar .text-gray-400 {
+    color: #b2e8d8 !important;
+}
+
+#cashierSidebar .border-gray-700 {
+    border-color: rgba(178, 232, 216, 0.24) !important;
+}
+
+#cashierSidebar .sidebar-brand-badge {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    background: #00b140;
+    color: #000000;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+@media (max-width: 1023px) {
+    .cashier-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: min(86vw, 280px);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 0 24px 48px rgba(15, 23, 42, 0.32);
+        z-index: 60;
+    }
+
+    .cashier-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .cashier-sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(17, 24, 39, 0.6);
+        backdrop-filter: blur(1px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 55;
+    }
+
+    .cashier-sidebar-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .cashier-sidebar-toggle {
+        position: fixed;
+        top: 0.75rem;
+        left: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 65;
+    }
+
+    .cashier-sidebar-toggle.is-hidden {
+        display: none !important;
+    }
+
+    body.cashier-sidebar-open {
+        overflow: hidden;
+    }
+}
+
+@media (min-width: 1024px) {
+    .cashier-sidebar-toggle,
+    .cashier-sidebar-overlay {
+        display: none;
+    }
+}
+</style>
+
 <script>
-// Dark mode handling for sidebar
-function toggleDarkMode() {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    const newMode = !isDark;
-    localStorage.setItem('darkMode', newMode);
-    updateDarkModeUI(newMode);
-    
-    // Apply dark mode to document
-    if (newMode) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
+function setCashierSidebar(open) {
+    const sidebar = document.getElementById('cashierSidebar');
+    const overlay = document.getElementById('cashierSidebarOverlay');
+    const toggle = document.getElementById('cashierSidebarToggle');
+    const isMobile = window.innerWidth < 1024;
+
+    if (!sidebar || !overlay || !toggle || !isMobile) return;
+
+    sidebar.classList.toggle('open', open);
+    overlay.classList.toggle('show', open);
+    document.body.classList.toggle('cashier-sidebar-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+    const shouldHideToggleOnOpen = toggle.dataset.hideToggleOnOpen === 'true';
+    if (shouldHideToggleOnOpen) {
+        toggle.classList.toggle('is-hidden', open);
     }
 }
 
-function updateDarkModeUI(isDark) {
-    const moonIcon = document.getElementById('darkModeIconMoon');
-    const sunIcon = document.getElementById('darkModeIconSun');
-    const text = document.getElementById('darkModeText');
-    
-    if (moonIcon && sunIcon) {
-        if (isDark) {
-            moonIcon.classList.add('hidden');
-            sunIcon.classList.remove('hidden');
-            if (text) text.textContent = 'Light Mode';
-        } else {
-            moonIcon.classList.remove('hidden');
-            sunIcon.classList.add('hidden');
-            if (text) text.textContent = 'Dark Mode';
+function openCashierSidebar() {
+    setCashierSidebar(true);
+}
+
+function closeCashierSidebar() {
+    setCashierSidebar(false);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const toggle = document.getElementById('cashierSidebarToggle');
+    const overlay = document.getElementById('cashierSidebarOverlay');
+    const nav = document.getElementById('cashierSidebarNav');
+
+    if (toggle) {
+        toggle.addEventListener('click', function () {
+            const sidebar = document.getElementById('cashierSidebar');
+            const isOpen = sidebar ? sidebar.classList.contains('open') : false;
+            setCashierSidebar(!isOpen);
+        });
+    }
+
+    if (overlay) {
+        overlay.addEventListener('click', closeCashierSidebar);
+    }
+
+    if (nav) {
+        nav.addEventListener('click', function (event) {
+            if (window.innerWidth < 1024 && event.target.closest('a.nav-item')) {
+                closeCashierSidebar();
+            }
+        });
+    }
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth >= 1024) {
+            const sidebar = document.getElementById('cashierSidebar');
+            const overlayEl = document.getElementById('cashierSidebarOverlay');
+            if (sidebar) sidebar.classList.remove('open');
+            if (overlayEl) overlayEl.classList.remove('show');
+            document.body.classList.remove('cashier-sidebar-open');
         }
-    }
-}
+    });
 
-// Initialize dark mode state on page load
-(function() {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    if (isDark) {
-        document.documentElement.classList.add('dark');
-    }
-    // Update UI after DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => updateDarkModeUI(isDark));
-    } else {
-        updateDarkModeUI(isDark);
-    }
-})();
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeCashierSidebar();
+        }
+    });
+});
 </script>

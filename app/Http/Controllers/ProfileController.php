@@ -16,10 +16,7 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        // Use cashier-specific layout for cashiers
-        $view = $request->user()->role === 'cashier' ? 'profile.edit-cashier' : 'profile.edit';
-        
-        return view($view, [
+        return view('profile.edit', [
             'user' => $request->user(),
         ]);
     }

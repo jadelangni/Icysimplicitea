@@ -50,12 +50,19 @@ class Sale extends Model
     public function generateReceiptNumber(): string
     {
         $branch = $this->branch;
-        $branchCode = strtoupper(substr($branch->name, 0, 3));
+        $location = $branch
+            ? strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $branch->name))
+            : 'LOCATION';
         $date = now()->format('Ymd');
-        $sequence = Sale::where('branch_id', $this->branch_id)
-            ->whereDate('created_at', now())
-            ->count() + 1;
-        
-        return $branchCode . '-' . $date . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+
+        $attempts = 0;
+        do {
+            $random = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+            $receiptNumber = $location . '-' . $date . '-' . $random;
+            $exists = Sale::where('receipt_number', $receiptNumber)->exists();
+            $attempts++;
+        } while ($exists && $attempts < 10);
+
+        return $receiptNumber;
     }
 }

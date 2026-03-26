@@ -12,12 +12,38 @@
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; overflow: hidden; }
         .pos-wrapper { display: flex; height: 100vh; width: 100vw; }
-        .sidebar { width: 240px; background: #1a1a2e; display: flex; flex-direction: column; color: white; flex-shrink: 0; }
-        .main-content { flex: 1; display: flex; flex-direction: column; background: #f8f9fa; overflow: hidden; transition: background-color 0.3s; }
+        .sidebar { width: 240px; background: #1a1a2e; display: flex; flex-direction: column; color: black; flex-shrink: 0; }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background:
+                linear-gradient(120deg, rgba(0, 91, 92, 0.24) 0%, rgba(0, 91, 92, 0.14) 36%, rgba(0, 91, 92, 0.07) 72%),
+                linear-gradient(180deg, #97b2a5 0%, #87a294 54%, #789284 100%);
+            overflow: hidden;
+            transition: background-color 0.3s;
+        }
         .content-area { flex: 1; overflow-y: auto; padding: 24px; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #9ca3af; text-decoration: none; }
-        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
-        .nav-item.active { background: #166534; color: white; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: black; }
+        .nav-item.active { background: #00B140; color: black; }
+
+        .main-content .bg-white {
+            background: rgba(226, 243, 235, 0.94) !important;
+            border-color: rgba(0, 91, 92, 0.22) !important;
+            box-shadow: 0 10px 24px rgba(0, 91, 92, 0.12) !important;
+        }
+
+        .main-content .bg-gray-50,
+        .main-content .bg-gray-100 {
+            background: rgba(200, 224, 213, 0.75) !important;
+        }
+
+        .main-content .text-green-600,
+        .main-content .text-green-700,
+        .main-content .text-gray-900 {
+            color: #005b5c !important;
+        }
         @keyframes fade-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .animate-fade-in { animation: fade-in 0.2s ease forwards; }
         
@@ -82,14 +108,6 @@
         html.dark .bg-red-100 { background: #7f1d1d !important; }
         html.dark .text-red-800 { color: #fca5a5 !important; }
     </style>
-    <script>
-        // Initialize dark mode before page renders
-        (function() {
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.documentElement.classList.add('dark');
-            }
-        })();
-    </script>
 </head>
 <body class="font-sans antialiased h-full bg-gray-100" x-data="{ show: true }">
     <div class="pos-wrapper">
@@ -98,11 +116,11 @@
         <!-- MAIN CONTENT -->
         <div class="main-content">
             <!-- Header -->
-            <div class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="bg-white border-b border-gray-200 pl-16 pr-6 py-4 lg:px-6" style="background: linear-gradient(180deg, #167879 0%, #0f6a6b 55%, #0a5758 100%); border-color: rgba(178, 232, 216, 0.35);">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
-                        <p class="text-gray-500 text-sm">Manage your account settings and preferences</p>
+                        <h1 class="text-2xl font-bold text-black">Settings</h1>
+                        <p class="text-[#d3f3e8] text-sm">Manage your account settings and preferences</p>
                     </div>
                 </div>
             </div>
@@ -147,7 +165,7 @@
                                 </div>
 
                                 <div class="flex items-center gap-4 pt-2">
-                                    <button type="submit" class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+                                    <button type="submit" class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-black rounded-lg font-medium transition-colors">
                                         Save Changes
                                     </button>
                                     @if (session('status') === 'profile-updated')
@@ -203,7 +221,7 @@
                                 </div>
 
                                 <div class="flex items-center gap-4 pt-2">
-                                    <button type="submit" class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+                                    <button type="submit" class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-black rounded-lg font-medium transition-colors">
                                         Update Password
                                     </button>
                                     @if (session('status') === 'password-updated')

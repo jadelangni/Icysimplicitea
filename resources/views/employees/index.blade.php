@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Employee Management') }}
             </h2>
-            <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-white text-sm font-medium rounded-xl transition-colors duration-200 shadow-lg shadow-simplicitea-500/30">
+            <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-sm font-medium rounded-xl transition-colors duration-200 shadow-lg shadow-simplicitea-500/30">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                 </svg>
@@ -50,7 +50,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Total Employees</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ \App\Models\User::count() }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ \App\Models\User::count() }}</p>
                         </div>
                     </div>
                 </div>
@@ -101,7 +101,7 @@
             <!-- Filters -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-6">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-black flex items-center gap-2">
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                         </svg>
@@ -109,7 +109,7 @@
                     </h3>
                 </div>
                 <div class="p-5">
-                    <form action="{{ route('employees.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <form id="employeesFiltersForm" action="{{ route('employees.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <!-- Search -->
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Search</label>
@@ -118,14 +118,14 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                 </svg>
                                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name or email..." 
-                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                             </div>
                         </div>
                         
                         <!-- Branch Filter -->
                         <div>
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Branch</label>
-                            <select name="branch_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                            <select name="branch_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                                 <option value="">All Branches</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -136,7 +136,7 @@
                         <!-- Role Filter -->
                         <div>
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Role</label>
-                            <select name="role" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                            <select name="role" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                                 <option value="">All Roles</option>
                                 <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="cashier" {{ request('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
@@ -146,28 +146,13 @@
                         <!-- Status Filter -->
                         <div>
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
-                            <select name="status" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                            <select name="status" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                                 <option value="">All Status</option>
                                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                                 <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                             </select>
                         </div>
                         
-                        <!-- Filter Buttons -->
-                        <div class="md:col-span-5 flex gap-3">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-white text-sm font-medium rounded-xl transition-colors duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                                </svg>
-                                Apply Filters
-                            </button>
-                            <a href="{{ route('employees.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium rounded-xl transition-colors duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                                Clear
-                            </a>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -175,7 +160,7 @@
             <!-- Employee Table -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-black flex items-center gap-2">
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                         </svg>
@@ -201,11 +186,11 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150">
                                 <td class="px-5 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-400 to-simplicitea-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-400 to-simplicitea-600 rounded-full flex items-center justify-center text-black font-semibold text-sm">
                                             {{ strtoupper(substr($employee->name, 0, 2)) }}
                                         </div>
                                         <div>
-                                            <p class="font-medium text-gray-900 dark:text-white">{{ $employee->name }}</p>
+                                            <p class="font-medium text-gray-900 dark:text-black">{{ $employee->name }}</p>
                                             <p class="text-sm text-gray-500 dark:text-gray-400">{{ $employee->email }}</p>
                                         </div>
                                     </div>
@@ -230,7 +215,7 @@
                                 <td class="px-5 py-4">
                                     <div class="inline-branch-selector" data-employee-id="{{ $employee->id }}">
                                         <select onchange="updateBranch({{ $employee->id }}, this.value)" 
-                                            class="branch-select text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer min-w-[140px]">
+                                            class="branch-select text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer min-w-[140px]">
                                             @foreach($branches as $branch)
                                                 <option value="{{ $branch->id }}" {{ $employee->branch_id == $branch->id ? 'selected' : '' }}>
                                                     📍 {{ $branch->name }}
@@ -307,9 +292,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">No employees found</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-1">No employees found</h3>
                     <p class="text-gray-500 dark:text-gray-400 mb-4">Try adjusting your filters or add a new employee.</p>
-                    <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-white text-sm font-medium rounded-xl transition-colors duration-200">
+                    <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-sm font-medium rounded-xl transition-colors duration-200">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
@@ -411,6 +396,26 @@
                 showToast('An error occurred', 'error');
             });
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const filtersForm = document.getElementById('employeesFiltersForm');
+            if (!filtersForm) return;
+
+            const searchInput = filtersForm.querySelector('input[name="search"]');
+            const autoSubmitFields = filtersForm.querySelectorAll('select');
+            let searchDebounce = null;
+
+            autoSubmitFields.forEach(field => {
+                field.addEventListener('change', () => filtersForm.requestSubmit());
+            });
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchDebounce);
+                    searchDebounce = setTimeout(() => filtersForm.requestSubmit(), 450);
+                });
+            }
+        });
     </script>
 
     <style>

@@ -1,7 +1,7 @@
 <x-guest-layout>
     <!-- Header -->
     <div class="text-center mb-6">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Welcome!</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-black">Welcome!</h2>
         <p class="text-gray-500 dark:text-gray-400 mt-2 text-sm">
             Please set a new password for your account
         </p>
@@ -16,7 +16,7 @@
     <!-- Current User Info -->
     <div class="mb-5 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-100 dark:border-gray-600">
         <p class="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Logged in as</p>
-        <p class="font-semibold text-gray-900 dark:text-white">{{ auth()->user()->name }}</p>
+        <p class="font-semibold text-gray-900 dark:text-black">{{ auth()->user()->name }}</p>
         <p class="text-sm text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</p>
     </div>
 
@@ -35,7 +35,7 @@
                     </svg>
                 </div>
                 <input id="password" type="password" name="password" required autofocus autocomplete="new-password"
-                    class="mint-input block w-full pl-12 pr-4 py-3.5 text-gray-800 dark:text-white placeholder-gray-400"
+                    class="mint-input block w-full pl-12 pr-4 py-3.5 text-gray-800 dark:text-black placeholder-gray-400"
                     placeholder="Enter new password">
             </div>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
@@ -56,7 +56,7 @@
                     </svg>
                 </div>
                 <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password"
-                    class="mint-input block w-full pl-12 pr-4 py-3.5 text-gray-800 dark:text-white placeholder-gray-400"
+                    class="mint-input block w-full pl-12 pr-4 py-3.5 text-gray-800 dark:text-black placeholder-gray-400"
                     placeholder="Confirm new password">
             </div>
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />

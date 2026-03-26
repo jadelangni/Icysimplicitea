@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\AdminNotification;
 use App\Models\BranchSession;
 use App\Models\StaffAttendance;
 use App\Models\UserActivityLog;
@@ -20,8 +19,12 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the employee login view.
      */
-    public function create(): View
+    public function create(Request $request): View|RedirectResponse
     {
+        if ($this->shouldShowAdminLoginOnMobile($request)) {
+            return redirect()->route('admin.login');
+        }
+
         return view('auth.login');
     }
 
@@ -31,6 +34,27 @@ class AuthenticatedSessionController extends Controller
     public function createAdmin(): View
     {
         return view('auth.admin-login');
+    }
+
+    /**
+     * Route phone browsers to the admin login while preserving desktop access
+     * to the employee login and allowing an explicit override.
+     */
+    protected function shouldShowAdminLoginOnMobile(Request $request): bool
+    {
+        if ($request->boolean('employee')) {
+            return false;
+        }
+
+        $mobileHint = $request->header('sec-ch-ua-mobile');
+        if ($mobileHint === '?1') {
+            return true;
+        }
+
+        $userAgent = strtolower($request->userAgent() ?? '');
+
+        return $userAgent !== ''
+            && preg_match('/android.+mobile|iphone|ipod|windows phone|blackberry|opera mini|mobile/', $userAgent) === 1;
     }
 
     /**
@@ -80,13 +104,6 @@ class AuthenticatedSessionController extends Controller
                 $session = BranchSession::startSession($user->branch_id, $user->id);
                 $roleLabel = $session->is_cashier ? 'Cashier' : 'Crew';
 
-                // Notify admin about the branch session
-                AdminNotification::create([
-                    'type' => 'branch_session',
-                    'title' => "Employee Logged In ({$roleLabel})",
-                    'message' => "{$user->name} logged in as {$roleLabel} at " . ($user->branch->name ?? 'branch') . " on " . Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
-                    'triggered_by' => $user->id,
-                ]);
             }
         }
 
@@ -151,12 +168,6 @@ class AuthenticatedSessionController extends Controller
                     // Non-cashier crew member - end their session and proceed with logout
                     $branchSession->endSession();
 
-                    AdminNotification::create([
-                        'type' => 'branch_session',
-                        'title' => 'Crew Member Logged Out',
-                        'message' => "{$user->name} (Crew) logged out from " . ($user->branch->name ?? 'branch') . " on " . Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
-                        'triggered_by' => $user->id,
-                    ]);
                 }
             }
 
@@ -216,12 +227,6 @@ class AuthenticatedSessionController extends Controller
                         ->where('branch_id', $user->branch_id)
                         ->sum('total_amount');
 
-                    AdminNotification::create([
-                        'type' => 'daily_shift_summary',
-                        'title' => 'Branch Shift Ended - ' . ($user->branch->name ?? 'Branch'),
-                        'message' => "{$user->name} ({$roleLabel}) completed their shift at " . ($user->branch->name ?? 'branch') . ". Today's staff: {$staffNames}. Total branch sales: ₱" . number_format($todaySales, 2) . ". Shift ended: " . Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
-                        'triggered_by' => $user->id,
-                    ]);
                 }
             }
 

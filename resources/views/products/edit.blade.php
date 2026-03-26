@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-white leading-tight">{{ __('Edit Product') }}</h2>
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-black leading-tight">{{ __('Edit Product') }}</h2>
     </x-slot>
 
     <div class="py-6">
@@ -32,7 +32,7 @@
                         <div class="grid grid-cols-1 gap-4">
                             <label class="block">
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Category</span>
-                                <select id="category-select" name="category_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                <select id="category-select" name="category_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black">
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}" @if($product->category_id == $category->id) selected @endif>{{ $category->name }}</option>
                                     @endforeach
@@ -42,23 +42,23 @@
 
                             <label id="custom-category-label" class="block hidden">
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">New Category Name</span>
-                                <input type="text" id="custom-category-input" name="custom_category" placeholder="Enter new category name" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                <input type="text" id="custom-category-input" name="custom_category" placeholder="Enter new category name" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black">
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This will create a new category and assign it to this product.</p>
                             </label>
 
                             <label class="block">
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Name</span>
-                                <input type="text" name="name" value="{{ old('name', $product->name) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" required>
+                                <input type="text" name="name" value="{{ old('name', $product->name) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black" required>
                             </label>
 
                             <label class="block">
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Description</span>
-                                <textarea name="description" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">{{ old('description', $product->description) }}</textarea>
+                                <textarea name="description" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black">{{ old('description', $product->description) }}</textarea>
                             </label>
 
                             <label class="block">
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Price</span>
-                                <input type="number" step="0.01" name="price" value="{{ old('price', $product->price) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" required>
+                                <input type="number" step="0.01" name="price" value="{{ old('price', $product->price) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black" required>
                             </label>
 
                             <label class="block">
@@ -86,14 +86,14 @@
                                 </div>
                                 <div class="mt-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
                                     <div class="flex gap-2 mb-2">
-                                        <input id="option-name" type="text" placeholder="Option name (e.g. Size)" class="block w-1/3 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-2 py-1">
+                                        <input id="option-name" type="text" placeholder="Option name (e.g. Size)" class="block w-1/3 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black px-2 py-1">
                                         <button type="button" id="add-option-group" class="px-3 py-1 bg-simplicitea-100 dark:bg-simplicitea-900 text-simplicitea-700 dark:text-simplicitea-300 rounded-md">Create Option Group</button>
                                     </div>
                                     <div id="current-option-values" class="space-y-2 hidden">
                                         <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Add values for this option:</div>
                                         <div class="flex gap-2">
-                                            <input id="value-name" type="text" placeholder="Value name" class="block w-1/2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-2 py-1">
-                                            <input id="value-price" type="number" step="0.01" placeholder="Fixed price (0 = base)" class="block w-1/3 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-2 py-1">
+                                            <input id="value-name" type="text" placeholder="Value name" class="block w-1/2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black px-2 py-1">
+                                            <input id="value-price" type="number" step="0.01" placeholder="Fixed price (0 = base)" class="block w-1/3 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black px-2 py-1">
                                             <button type="button" id="add-value" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md">Add Value</button>
                                         </div>
                                         <div id="current-values-list" class="space-y-1"></div>
@@ -120,7 +120,7 @@
                                     <div class="flex gap-2 items-end">
                                         <div class="flex-1">
                                             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Ingredient</label>
-                                            <select id="recipe-ingredient" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+                                            <select id="recipe-ingredient" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black text-sm">
                                                 <option value="">Select ingredient...</option>
                                                 @foreach($ingredients as $ingredient)
                                                     <option value="{{ $ingredient->id }}" data-name="{{ $ingredient->name }}" data-unit="{{ $ingredient->unit }}">
@@ -131,13 +131,13 @@
                                         </div>
                                         <div class="w-24">
                                             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Quantity</label>
-                                            <input id="recipe-quantity" type="number" step="0.01" min="0.01" placeholder="0.00" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+                                            <input id="recipe-quantity" type="number" step="0.01" min="0.01" placeholder="0.00" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black text-sm">
                                         </div>
                                         <div class="w-20">
                                             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Unit</label>
                                             <input id="recipe-unit" type="text" readonly class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-300 text-sm bg-gray-100">
                                         </div>
-                                        <button type="button" id="add-recipe-item" class="px-3 py-2 bg-simplicitea-600 text-white text-sm rounded-md hover:bg-simplicitea-700 transition">
+                                        <button type="button" id="add-recipe-item" class="px-3 py-2 bg-simplicitea-600 text-black text-sm rounded-md hover:bg-simplicitea-700 transition">
                                             Add
                                         </button>
                                     </div>
@@ -146,7 +146,7 @@
                             </div>
 
                             <div class="pt-4">
-                                <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-white rounded-lg">Update</button>
+                                <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg">Update</button>
                                 <a href="{{ route('products.index') }}" class="ml-3 text-sm text-gray-600 dark:text-gray-400">Cancel</a>
                             </div>
                         </div>
@@ -333,7 +333,7 @@
                                                 <span class="text-sm">🧪</span>
                                             </div>
                                             <div>
-                                                <p class="font-medium text-gray-900 dark:text-white text-sm">${item.name}</p>
+                                                <p class="font-medium text-gray-900 dark:text-black text-sm">${item.name}</p>
                                                 <p class="text-xs text-gray-500 dark:text-gray-400">${item.quantity_required} ${item.unit}</p>
                                             </div>
                                         </div>

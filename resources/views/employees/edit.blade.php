@@ -18,11 +18,11 @@
                 <!-- Header with Employee Info -->
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-simplicitea-500 to-simplicitea-600">
                     <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-black font-bold text-xl">
                             {{ strtoupper(substr($employee->name, 0, 2)) }}
                         </div>
                         <div>
-                            <h3 class="text-lg font-semibold text-white">{{ $employee->name }}</h3>
+                            <h3 class="text-lg font-semibold text-black">{{ $employee->name }}</h3>
                             <p class="text-simplicitea-100 text-sm">{{ $employee->email }}</p>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                                 </svg>
                             </div>
                             <input type="text" name="name" id="name" value="{{ old('name', $employee->name) }}" required
-                                class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('name') border-red-500 @enderror"
+                                class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('name') border-red-500 @enderror"
                                 placeholder="Enter full name">
                         </div>
                         @error('name')
@@ -64,7 +64,7 @@
                                 </svg>
                             </div>
                             <input type="email" name="email" id="email" value="{{ old('email', $employee->email) }}" required
-                                class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('email') border-red-500 @enderror"
+                                class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 @error('email') border-red-500 @enderror"
                                 placeholder="employee@simplicitea.com">
                         </div>
                         @error('email')
@@ -86,7 +86,7 @@
                             <div>
                                 <label for="password" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">New Password</label>
                                 <input type="password" name="password" id="password"
-                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm @error('password') border-red-500 @enderror"
+                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm @error('password') border-red-500 @enderror"
                                     placeholder="••••••••">
                                 @error('password')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -96,7 +96,7 @@
                             <div>
                                 <label for="password_confirmation" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Confirm Password</label>
                                 <input type="password" name="password_confirmation" id="password_confirmation"
-                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm"
+                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm"
                                     placeholder="••••••••">
                             </div>
                         </div>
@@ -116,7 +116,7 @@
                             <div>
                                 <label for="pin" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">New PIN</label>
                                 <input type="password" name="pin" id="pin" maxlength="6" minlength="4"
-                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm @error('pin') border-red-500 @enderror"
+                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm @error('pin') border-red-500 @enderror"
                                     placeholder="4-6 digits">
                                 @error('pin')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -126,7 +126,7 @@
                             <div>
                                 <label for="pin_confirmation" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Confirm PIN</label>
                                 <input type="password" name="pin_confirmation" id="pin_confirmation" maxlength="6" minlength="4"
-                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm"
+                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm"
                                     placeholder="Confirm PIN">
                             </div>
                         </div>
@@ -145,7 +145,7 @@
                                     </svg>
                                 </div>
                                 <select name="role" id="role" required
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 appearance-none @error('role') border-red-500 @enderror">
+                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 appearance-none @error('role') border-red-500 @enderror">
                                     <option value="cashier" {{ old('role', $employee->role) == 'cashier' ? 'selected' : '' }}>Cashier</option>
                                     <option value="admin" {{ old('role', $employee->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                                 </select>
@@ -172,7 +172,7 @@
                                     </svg>
                                 </div>
                                 <select name="branch_id" id="branch_id" required
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 appearance-none @error('branch_id') border-red-500 @enderror">
+                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 appearance-none @error('branch_id') border-red-500 @enderror">
                                     @foreach($branches as $branch)
                                         <option value="{{ $branch->id }}" {{ old('branch_id', $employee->branch_id) == $branch->id ? 'selected' : '' }}>
                                             {{ $branch->name }}
@@ -211,7 +211,7 @@
                             Cancel
                         </a>
                         <button type="submit" 
-                            class="px-6 py-3 bg-simplicitea-600 hover:bg-simplicitea-700 text-white text-sm font-medium rounded-xl transition-colors duration-200 shadow-lg shadow-simplicitea-500/30 inline-flex items-center">
+                            class="px-6 py-3 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-sm font-medium rounded-xl transition-colors duration-200 shadow-lg shadow-simplicitea-500/30 inline-flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -241,7 +241,7 @@
             
             <!-- Activity Info -->
             <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-black mb-4 flex items-center gap-2">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -250,11 +250,11 @@
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <p class="text-gray-500 dark:text-gray-400">Created</p>
-                        <p class="text-gray-900 dark:text-white font-medium">{{ $employee->created_at->format('M d, Y h:i A') }}</p>
+                        <p class="text-gray-900 dark:text-black font-medium">{{ $employee->created_at->format('M d, Y h:i A') }}</p>
                     </div>
                     <div>
                         <p class="text-gray-500 dark:text-gray-400">Last Updated</p>
-                        <p class="text-gray-900 dark:text-white font-medium">{{ $employee->updated_at->format('M d, Y h:i A') }}</p>
+                        <p class="text-gray-900 dark:text-black font-medium">{{ $employee->updated_at->format('M d, Y h:i A') }}</p>
                     </div>
                 </div>
             </div>

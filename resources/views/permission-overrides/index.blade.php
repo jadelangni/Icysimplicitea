@@ -6,7 +6,7 @@
         <!-- Header -->
         <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Permission Overrides</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-black">Permission Overrides</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Review and manage restricted action requests</p>
             </div>
             @if($pendingCount > 0)
@@ -25,7 +25,7 @@
                 @if(auth()->user()->isAdmin() && $branches->count() > 0)
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Branch</label>
-                        <select name="branch_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white">
+                        <select name="branch_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
                             @foreach($branches as $branch)
                                 <option value="{{ $branch->id }}" {{ $branchId == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
                             @endforeach
@@ -34,7 +34,7 @@
                 @endif
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                    <select name="status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white">
+                    <select name="status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
                         <option value="all" {{ $status === 'all' ? 'selected' : '' }}>All Status</option>
                         <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="approved" {{ $status === 'approved' ? 'selected' : '' }}>Approved</option>
@@ -45,16 +45,16 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
                     <input type="date" name="start_date" value="{{ $startDate }}"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white">
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
                     <input type="date" name="end_date" value="{{ $endDate }}"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white">
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
                 </div>
                 <div class="flex items-end">
                     <button type="submit"
-                        class="w-full px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-white rounded-lg transition-colors">
+                        class="w-full px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-black rounded-lg transition-colors">
                         Filter
                     </button>
                 </div>
@@ -83,10 +83,10 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-8 h-8 bg-simplicitea-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white text-sm font-medium">{{ substr($override->requestedBy->name, 0, 1) }}</span>
+                                            <span class="text-black text-sm font-medium">{{ substr($override->requestedBy->name, 0, 1) }}</span>
                                         </div>
                                         <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $override->requestedBy->name }}</p>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-black">{{ $override->requestedBy->name }}</p>
                                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ ucfirst($override->requestedBy->role) }}</p>
                                         </div>
                                     </div>
@@ -96,10 +96,10 @@
                                         {{ $override->action_label }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-black max-w-xs truncate">
                                     {{ $override->reason ?? '-' }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-black">
                                     @if($override->discount_percent)
                                         {{ $override->discount_percent }}% off
                                     @elseif($override->new_amount && $override->original_amount)
@@ -167,13 +167,13 @@
     <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-gray-900 bg-opacity-50" onclick="closeDenyModal()"></div>
         <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Deny Request</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-black mb-4">Deny Request</h3>
             <form id="denyForm" onsubmit="submitDeny(event)">
                 <input type="hidden" id="denyOverrideId">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for denial (optional)</label>
                     <textarea id="denyReason" rows="3"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black"
                         placeholder="Enter reason..."></textarea>
                 </div>
                 <div class="flex justify-end space-x-3">
@@ -182,7 +182,7 @@
                         Cancel
                     </button>
                     <button type="submit"
-                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-black rounded-lg">
                         Deny Request
                     </button>
                 </div>

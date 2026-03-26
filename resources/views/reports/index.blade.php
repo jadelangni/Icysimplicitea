@@ -23,7 +23,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($totalSales, 2) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($totalSales, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Transactions</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalTransactions) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ number_format($totalTransactions) }}</p>
                             </div>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Average Transaction</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($averageTransaction, 2) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($averageTransaction, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
             <!-- Monthly Sales Chart -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8 transition-colors duration-200">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Monthly Sales Overview</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Monthly Sales Overview</h3>
                     <div class="h-64">
                         <canvas id="monthlyChart"></canvas>
                     </div>
@@ -89,7 +89,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Sales Reports</h3>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-black">Sales Reports</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">View detailed sales analytics</p>
                                 <a href="{{ route('reports.sales') }}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500">
                                     View Reports
@@ -113,7 +113,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Inventory Reports</h3>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-black">Inventory Reports</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Monitor stock levels and usage</p>
                                 <a href="{{ route('reports.inventory') }}" class="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-500">
                                     View Reports
@@ -137,7 +137,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Daily Reports</h3>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-black">Daily Reports</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Today's sales performance</p>
                                 <a href="{{ route('reports.daily') }}" class="inline-flex items-center text-sm font-medium text-yellow-600 hover:text-yellow-500">
                                     View Reports
@@ -161,7 +161,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Monthly Reports</h3>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-black">Monthly Reports</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Monthly sales trends</p>
                                 <a href="{{ route('reports.monthly') }}" class="inline-flex items-center text-sm font-medium text-purple-600 hover:text-purple-500">
                                     View Reports
@@ -187,7 +187,7 @@
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [{
-                    label: 'Monthly Sales (&#8369;)',
+                    label: 'Monthly Sales (₱)',
                     data: {!! json_encode($monthlyData) !!},
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     borderColor: 'rgba(59, 130, 246, 1)',
@@ -212,7 +212,7 @@
                         },
                         ticks: {
                             callback: function(value) {
-                                return '&#8369;' + value.toLocaleString();
+                                return '₱' + value.toLocaleString();
                             }
                         }
                     },

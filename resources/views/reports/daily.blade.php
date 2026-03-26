@@ -36,7 +36,7 @@
                         @if($canSelectBranch)
                         <div>
                             <label for="branch_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Branch</label>
-                            <select name="branch_id" id="branch_id" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
+                            <select name="branch_id" id="branch_id" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
                                 <option value="all" {{ $isAll ? 'selected' : '' }}>All Branches</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ $selectedBranchId == $branch->id && !$isAll ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -47,9 +47,9 @@
                         <div>
                             <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Date</label>
                             <input type="date" name="date" id="date" value="{{ $selectedDate }}" onchange="this.form.submit()"
-                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
+                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-md shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
                         </div>
-                        <a href="{{ route('reports.daily.print', ['date' => $selectedDate]) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors print:hidden">
+                        <a href="{{ route('reports.daily.print', ['date' => $selectedDate]) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-black rounded-md transition-colors print:hidden">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                             </svg>
@@ -73,7 +73,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($totalRevenue, 2) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($totalRevenue, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Transactions</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalTransactions) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ number_format($totalTransactions) }}</p>
                             </div>
                         </div>
                     </div>
@@ -109,7 +109,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Average Transaction</h3>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($averageTransaction, 2) }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($averageTransaction, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -120,7 +120,7 @@
                 <!-- Hourly Sales Chart -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Hourly Sales Distribution</h3>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Hourly Sales Distribution</h3>
                         <div class="h-64">
                             <canvas id="hourlyChart"></canvas>
                         </div>
@@ -130,7 +130,7 @@
                 <!-- Payment Methods -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Methods</h3>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Payment Methods</h3>
                         @if($paymentMethods->count() > 0)
                             <div class="space-y-4">
                                 @foreach($paymentMethods as $method => $data)
@@ -138,12 +138,12 @@
                                     <div class="flex items-center">
                                         <div class="w-3 h-3 {{ $method === 'cash' ? 'bg-green-500' : 'bg-blue-500' }} rounded-full mr-3"></div>
                                         <div>
-                                            <p class="font-medium text-gray-900 dark:text-white">{{ ucfirst($method) }}</p>
+                                            <p class="font-medium text-gray-900 dark:text-black">{{ ucfirst($method) }}</p>
                                             <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ $data['count'] }} transactions</p>
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($data['total'], 2) }}</p>
+                                        <p class="font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($data['total'], 2) }}</p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ number_format(($data['total'] / $totalRevenue) * 100, 1) }}%</p>
                                     </div>
                                 </div>
@@ -160,7 +160,7 @@
             @if($dailySales->count() > 0)
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mt-8">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">All Sales for {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">All Sales for {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
@@ -176,7 +176,7 @@
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @foreach($dailySales as $sale)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-black">
                                         {{ $sale->receipt_number }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -193,7 +193,7 @@
                                             {{ ucfirst($sale->payment_method) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-black">
                                         &#8369;{{ number_format($sale->total_amount, 2) }}
                                     </td>
                                 </tr>
@@ -227,7 +227,7 @@
             data: {
                 labels: {!! json_encode(collect($hourlySales)->pluck('hour')->toArray()) !!},
                 datasets: [{
-                    label: 'Revenue (&#8369;)',
+                    label: 'Revenue (₱)',
                     data: {!! json_encode(collect($hourlySales)->pluck('revenue')->toArray()) !!},
                     backgroundColor: 'rgba(59, 130, 246, 0.8)',
                     borderColor: 'rgba(59, 130, 246, 1)',
@@ -247,7 +247,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return '&#8369;' + value.toLocaleString();
+                                return '₱' + value.toLocaleString();
                             }
                         }
                     }

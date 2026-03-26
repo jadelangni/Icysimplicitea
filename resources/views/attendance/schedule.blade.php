@@ -4,7 +4,7 @@
         <!-- Header -->
         <div class="mb-6">
             <a href="{{ route('attendance.index') }}" class="text-sm text-simplicitea-600 dark:text-simplicitea-400 hover:underline mb-2 inline-block">&larr; Back to Attendance</a>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Duty Schedule</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-black">Duty Schedule</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">Set the weekly work schedule for <strong>{{ $user->name }}</strong></p>
         </div>
 
@@ -36,7 +36,7 @@
                             <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                                 <!-- Day Name -->
                                 <div class="w-full sm:w-32 flex-shrink-0">
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $dayName }}</span>
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-black">{{ $dayName }}</span>
                                 </div>
 
                                 <!-- Day Off Toggle -->
@@ -60,7 +60,7 @@
                                         <input type="time" 
                                                name="schedules[{{ $dayNum }}][start_time]" 
                                                value="{{ $startTime }}"
-                                               class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white w-full">
+                                               class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black w-full">
                                     </div>
                                     <span class="text-gray-400 mt-5">to</span>
                                     <div>
@@ -68,7 +68,7 @@
                                         <input type="time" 
                                                name="schedules[{{ $dayNum }}][end_time]" 
                                                value="{{ $endTime }}"
-                                               class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-white w-full">
+                                               class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black w-full">
                                     </div>
                                 </div>
 
@@ -83,7 +83,7 @@
 
                 <!-- Submit -->
                 <div class="p-4 sm:p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
-                    <button type="submit" class="px-6 py-2.5 bg-simplicitea-600 hover:bg-simplicitea-700 text-white rounded-lg font-medium transition-colors">
+                    <button type="submit" class="px-6 py-2.5 bg-simplicitea-600 hover:bg-simplicitea-700 text-black rounded-lg font-medium transition-colors">
                         Save Schedule
                     </button>
                 </div>

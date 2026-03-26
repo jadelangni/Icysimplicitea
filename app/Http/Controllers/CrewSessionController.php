@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AdminNotification;
 use App\Models\BranchSession;
 use App\Models\StaffAttendance;
 use App\Models\User;
@@ -110,14 +109,6 @@ class CrewSessionController extends Controller
             $request->userAgent()
         );
 
-        // Notify admin
-        AdminNotification::create([
-            'type' => 'branch_session',
-            'title' => 'Crew Member Checked In',
-            'message' => "{$crewUser->name} checked in as Crew at " . ($cashier->branch->name ?? 'branch') . " on " . Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
-            'triggered_by' => $crewUser->id,
-        ]);
-
         return response()->json([
             'success' => true,
             'message' => $crewUser->name . ' has checked in as Crew!',
@@ -199,14 +190,6 @@ class CrewSessionController extends Controller
             $request->ip(),
             $request->userAgent()
         );
-
-        // Notify admin
-        AdminNotification::create([
-            'type' => 'branch_session',
-            'title' => 'Crew Member Checked Out',
-            'message' => "{$crewUser->name} (Crew) checked out from " . ($cashier->branch->name ?? 'branch') . " on " . Carbon::now('Asia/Manila')->format('M d, Y h:i A') . ".",
-            'triggered_by' => $crewUser->id,
-        ]);
 
         if ($request->expectsJson()) {
             return response()->json([

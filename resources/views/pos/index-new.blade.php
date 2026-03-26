@@ -13,7 +13,7 @@
         .cart-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
         @keyframes slide-in { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
         .animate-slide-in { animation: slide-in 0.3s ease forwards; }
-        .category-tab.active { background: #166534 !important; color: white !important; }
+        .category-tab.active { background: #166534 !important; color: black !important; }
     </style>
 
     <div class="py-4 px-4 sm:px-6 lg:px-8">
@@ -22,7 +22,7 @@
             <div class="pos-left">
                 <!-- Header -->
                 <div class="mb-4">
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Point of Sale</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-black">Point of Sale</h1>
                     <p class="text-gray-500 dark:text-gray-400 text-sm">Let's Choose Your Option To Sale!</p>
                 </div>
 
@@ -30,7 +30,7 @@
                 <div class="flex items-center gap-3 mb-4">
                     <div class="relative flex-1 max-w-xs">
                         <input type="text" id="product-search" placeholder="Search" 
-                               class="w-full pl-4 pr-10 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:text-white">
+                               class="w-full pl-4 pr-10 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:text-black">
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -44,17 +44,17 @@
                         Filters
                     </button>
                     <!-- Cart count badge (mobile) -->
-                    <button type="button" id="cart-mobile-toggle" class="lg:hidden relative px-4 py-2.5 bg-green-600 text-white rounded-lg">
+                    <button type="button" id="cart-mobile-toggle" class="lg:hidden relative px-4 py-2.5 bg-green-600 text-black rounded-lg">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
-                        <span id="cart-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">0</span>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-black text-xs rounded-full flex items-center justify-center hidden">0</span>
                     </button>
                 </div>
 
                 <!-- Category Tabs -->
                 <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
-                    <button class="category-tab active px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-green-600" data-category="all">
+                    <button class="category-tab active px-4 py-2 bg-green-700 text-black rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-green-600" data-category="all">
                         All Products
                     </button>
                     @php
@@ -96,7 +96,7 @@
                     <!-- Ordered Items Button -->
                     <button type="button" id="show-ordered-btn" class="ml-auto px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium whitespace-nowrap flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700">
                         Ordered
-                        <span id="ordered-count" class="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full">0</span>
+                        <span id="ordered-count" class="bg-green-600 text-black text-xs px-2 py-0.5 rounded-full">0</span>
                     </button>
                 </div>
 
@@ -133,14 +133,14 @@
                                 @endif
                                 @if($qty <= 0)
                                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                    <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">Out of Stock</span>
+                                    <span class="bg-red-500 text-black text-xs px-2 py-1 rounded">Out of Stock</span>
                                 </div>
                                 @endif
                             </div>
                             
                             <!-- Product Info -->
                             <div class="p-3">
-                                <h4 class="font-semibold text-sm text-gray-900 dark:text-white mb-1 line-clamp-1">{{ $product->name }}</h4>
+                                <h4 class="font-semibold text-sm text-gray-900 dark:text-black mb-1 line-clamp-1">{{ $product->name }}</h4>
                                 <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
                                     <span>Sold <span class="text-green-600 font-medium">{{ $soldCount }}pcs</span></span>
                                     <span>Avail <span class="text-green-600 font-medium">{{ $qty }}pcs</span></span>
@@ -160,7 +160,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <span class="text-xs text-gray-500 dark:text-gray-400">Price</span>
-                                        <p class="text-lg font-bold text-gray-900 dark:text-white">₱{{ number_format($product->price, 0) }}</p>
+                                        <p class="text-lg font-bold text-gray-900 dark:text-black">₱{{ number_format($product->price, 0) }}</p>
                                     </div>
                                     <button type="button" class="add-to-cart-btn p-2 bg-gray-100 dark:bg-gray-700 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors group">
                                         <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,7 +193,7 @@
                                     Online
                                 </span>
                             </div>
-                            <p class="font-semibold text-gray-900 dark:text-white">{{ Auth::user()->name }}</p>
+                            <p class="font-semibold text-gray-900 dark:text-black">{{ Auth::user()->name }}</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">ID: #{{ str_pad(Auth::user()->id, 7, '0', STR_PAD_LEFT) }}</p>
                         </div>
                         <div class="text-right">
@@ -205,8 +205,8 @@
                 <!-- Cart Header -->
                 <div class="px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700">
                     <div class="flex items-center gap-2">
-                        <span class="font-medium text-gray-900 dark:text-white">List Order Product</span>
-                        <span id="cart-count-badge" class="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full">0</span>
+                        <span class="font-medium text-gray-900 dark:text-black">List Order Product</span>
+                        <span id="cart-count-badge" class="bg-green-600 text-black text-xs px-2 py-0.5 rounded-full">0</span>
                     </div>
                     <button type="button" id="clear-cart-btn" class="text-sm text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors">
                         Clear All
@@ -231,28 +231,28 @@
 
                 <!-- Payment Details -->
                 <div class="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <h4 class="font-medium text-gray-900 dark:text-white mb-3">Detail Payment</h4>
+                    <h4 class="font-medium text-gray-900 dark:text-black mb-3">Detail Payment</h4>
                     
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Subtotal</span>
-                            <span id="subtotal" class="font-medium text-gray-900 dark:text-white">₱0</span>
+                            <span id="subtotal" class="font-medium text-gray-900 dark:text-black">₱0</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Discount</span>
-                            <span id="discount-display" class="text-gray-900 dark:text-white">₱0</span>
+                            <span id="discount-display" class="text-gray-900 dark:text-black">₱0</span>
                         </div>
                     </div>
 
                     <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <span class="font-medium text-gray-900 dark:text-white">Total Amount</span>
-                        <span id="total" class="text-xl font-bold text-gray-900 dark:text-white">₱0</span>
+                        <span class="font-medium text-gray-900 dark:text-black">Total Amount</span>
+                        <span id="total" class="text-xl font-bold text-gray-900 dark:text-black">₱0</span>
                     </div>
 
                     <!-- Discount Input -->
                     <div class="flex items-center gap-2 mt-4">
                         <input type="text" id="discount-input" placeholder="Discount code or amount" 
-                               class="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm dark:text-white">
+                               class="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm dark:text-black">
                         <button type="button" id="apply-discount-btn" class="px-4 py-2 text-sm text-green-600 dark:text-green-400 font-medium hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors">
                             Apply
                         </button>
@@ -272,7 +272,7 @@
                     </div>
 
                     <!-- Pay Button -->
-                    <button type="button" id="pay-btn" disabled class="w-full mt-4 py-3.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-lg transition-colors">
+                    <button type="button" id="pay-btn" disabled class="w-full mt-4 py-3.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed text-black rounded-xl font-semibold text-lg transition-colors">
                         Pay
                     </button>
                 </div>
@@ -285,7 +285,7 @@
         <div id="product-options-backdrop" class="absolute inset-0 bg-black/60"></div>
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-4 overflow-hidden">
-                <div class="bg-green-600 text-white px-6 py-4">
+                <div class="bg-green-600 text-black px-6 py-4">
                     <h3 id="modal-product-name" class="text-xl font-bold">Select Size</h3>
                     <p class="text-green-100 text-sm mt-1">Choose your preferred size</p>
                 </div>
@@ -297,7 +297,7 @@
                         <button type="button" id="modal-cancel-btn" class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                             Cancel
                         </button>
-                        <button type="button" id="modal-add-btn" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors">
+                        <button type="button" id="modal-add-btn" class="flex-1 px-4 py-3 bg-green-600 text-black rounded-xl font-medium hover:bg-green-700 transition-colors">
                             Add to Cart
                         </button>
                     </div>
@@ -311,7 +311,7 @@
         <div class="absolute inset-0 bg-black/60" onclick="document.getElementById('amount-modal').classList.add('hidden')"></div>
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-4 overflow-hidden">
-                <div class="bg-green-600 text-white px-6 py-4">
+                <div class="bg-green-600 text-black px-6 py-4">
                     <h3 class="text-xl font-bold">Enter Amount Paid</h3>
                     <p class="text-green-100 text-sm mt-1">Total: <span id="modal-total-display">₱0</span></p>
                 </div>
@@ -322,7 +322,7 @@
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 text-lg">₱</span>
                             <input type="number" id="amount-paid-input" step="0.01" min="0" placeholder="0.00" 
-                                   class="w-full pl-8 pr-4 py-3 text-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                   class="w-full pl-8 pr-4 py-3 text-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         </div>
                     </div>
                     
@@ -345,7 +345,7 @@
                         <button type="button" onclick="document.getElementById('amount-modal').classList.add('hidden')" class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                             Cancel
                         </button>
-                        <button type="button" id="confirm-payment-btn" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors">
+                        <button type="button" id="confirm-payment-btn" class="flex-1 px-4 py-3 bg-green-600 text-black rounded-xl font-medium hover:bg-green-700 transition-colors">
                             Confirm Payment
                         </button>
                     </div>
@@ -360,7 +360,7 @@
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-auto overflow-hidden">
                 <div class="bg-green-600 px-6 py-4">
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-black flex items-center gap-2">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
@@ -375,7 +375,7 @@
                     <div class="space-y-2">
                         <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                             <span>Subtotal</span>
-                            <span id="confirm-subtotal" class="font-medium text-gray-900 dark:text-white">₱0.00</span>
+                            <span id="confirm-subtotal" class="font-medium text-gray-900 dark:text-black">₱0.00</span>
                         </div>
                         <div class="flex justify-between text-lg font-bold text-green-700 dark:text-green-400 pt-1">
                             <span>Total</span>
@@ -385,11 +385,11 @@
                     <div class="mt-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 space-y-2">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500 dark:text-gray-400">Payment Method</span>
-                            <span id="confirm-payment-method" class="font-medium text-gray-900 dark:text-white">Cash</span>
+                            <span id="confirm-payment-method" class="font-medium text-gray-900 dark:text-black">Cash</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500 dark:text-gray-400">Amount Paid</span>
-                            <span id="confirm-amount-paid" class="font-medium text-gray-900 dark:text-white">₱0.00</span>
+                            <span id="confirm-amount-paid" class="font-medium text-gray-900 dark:text-black">₱0.00</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500 dark:text-gray-400">Change</span>
@@ -402,7 +402,7 @@
                     <button type="button" id="cancel-order-btn" class="flex-1 px-4 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
                         Cancel
                     </button>
-                    <button type="button" id="confirm-order-btn" class="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                    <button type="button" id="confirm-order-btn" class="flex-1 px-4 py-2.5 bg-green-600 text-black rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
@@ -465,10 +465,10 @@
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.category-tab').forEach(t => {
-                    t.classList.remove('active', 'bg-green-700', 'text-white');
+                    t.classList.remove('active', 'bg-green-700', 'text-black');
                     t.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border', 'border-gray-200', 'dark:border-gray-700');
                 });
-                this.classList.add('active', 'bg-green-700', 'text-white');
+                this.classList.add('active', 'bg-green-700', 'text-black');
                 this.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border', 'border-gray-200', 'dark:border-gray-700');
                 currentCategory = this.dataset.category;
                 filterProducts();
@@ -581,7 +581,7 @@
                     btn.dataset.optionName = opt.name || `Option ${idx+1}`;
                     
                     btn.innerHTML = `
-                        <div class="font-bold text-gray-900 dark:text-white text-lg">${labelValue}</div>
+                        <div class="font-bold text-gray-900 dark:text-black text-lg">${labelValue}</div>
                         <div class="text-green-600 dark:text-green-400 font-semibold mt-1">₱${priceVal > 0 ? priceVal.toFixed(0) : parseFloat(product.productPrice).toFixed(0)}</div>
                     `;
                     
@@ -687,15 +687,15 @@
                         <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                             <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex-shrink-0"></div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-medium text-sm text-gray-900 dark:text-white truncate">${item.productName}</p>
+                                <p class="font-medium text-sm text-gray-900 dark:text-black truncate">${item.productName}</p>
                                 ${optionText ? `<p class="text-xs text-gray-500 dark:text-gray-400">Size: ${optionText}</p>` : ''}
-                                <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">₱${itemTotal.toFixed(0)}</p>
+                                <p class="text-sm font-semibold text-gray-900 dark:text-black mt-1">₱${itemTotal.toFixed(0)}</p>
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="updateQuantity(${index}, -1)" class="w-7 h-7 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-500">
                                     <span class="text-gray-600 dark:text-gray-300">−</span>
                                 </button>
-                                <span class="w-6 text-center font-medium text-gray-900 dark:text-white">${item.quantity}</span>
+                                <span class="w-6 text-center font-medium text-gray-900 dark:text-black">${item.quantity}</span>
                                 <button onclick="updateQuantity(${index}, 1)" class="w-7 h-7 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-500">
                                     <span class="text-gray-600 dark:text-gray-300">+</span>
                                 </button>
@@ -828,10 +828,10 @@
                 return `
                     <div class="flex justify-between items-center py-1.5">
                         <div class="flex-1 min-w-0">
-                            <span class="text-sm font-medium text-gray-900 dark:text-white">${item.productName}</span>${optionLabel}
+                            <span class="text-sm font-medium text-gray-900 dark:text-black">${item.productName}</span>${optionLabel}
                             <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">x${item.quantity}</span>
                         </div>
-                        <span class="text-sm font-semibold text-gray-900 dark:text-white ml-3">₱${(item.productPrice * item.quantity).toFixed(2)}</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-black ml-3">₱${(item.productPrice * item.quantity).toFixed(2)}</span>
                     </div>
                 `;
             }).join('');
@@ -907,7 +907,7 @@
 
         function showSuccessToast(message) {
             const toast = document.createElement('div');
-            toast.className = 'fixed top-6 right-6 z-[100] bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-slide-in';
+            toast.className = 'fixed top-6 right-6 z-[100] bg-green-600 text-black px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-slide-in';
             toast.innerHTML = `
                 <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>

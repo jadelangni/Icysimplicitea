@@ -33,7 +33,7 @@
         <!-- Action Toggle -->
         <div class="bg-white rounded-2xl shadow-lg p-2 mb-6 inline-flex">
             <button @click="action = 'login'" 
-                    :class="action === 'login' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-100'"
+                    :class="action === 'login' ? 'bg-green-500 text-black' : 'text-gray-600 hover:bg-gray-100'"
                     class="px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -41,7 +41,7 @@
                 Clock In
             </button>
             <button @click="action = 'logout'" 
-                    :class="action === 'logout' ? 'bg-red-500 text-white' : 'text-gray-600 hover:bg-gray-100'"
+                    :class="action === 'logout' ? 'bg-red-500 text-black' : 'text-gray-600 hover:bg-gray-100'"
                     class="px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -76,7 +76,7 @@
             <!-- User Info on Success -->
             <div x-show="userData" x-cloak class="mt-4 p-4 bg-simplicitea-50 rounded-xl">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 bg-simplicitea-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    <div class="w-12 h-12 bg-simplicitea-500 rounded-full flex items-center justify-center text-black font-bold text-lg">
                         <span x-text="userData?.name?.charAt(0)?.toUpperCase()"></span>
                     </div>
                     <div class="ml-3">
@@ -100,7 +100,7 @@
         <!-- Footer Links -->
         <div class="mt-8 flex items-center gap-4">
             <a href="{{ route('login') }}" class="text-simplicitea-600 hover:text-simplicitea-700 text-sm font-medium">
-                Manual Login →
+                Use Email Login Instead →
             </a>
         </div>
     </div>

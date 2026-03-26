@@ -14,14 +14,14 @@
             <svg class="mx-auto h-16 w-16 text-simplicitea-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M2 17h20v2H2zm1.15-4.05L4 11l.85 1.95.66-.35c.52-.28 1.12-.35 1.69-.35.92 0 1.8.13 2.8.13 2.24 0 3-.81 3-1.94 0-.5-.31-1.24-.81-1.74-.5-.5-1.24-.81-1.74-.81-.92 0-1.56.49-2.06.99L6 7.38c.5-.5 1.31-.99 2.44-.99 1.92 0 3.56 1.58 3.56 3.61 0 2.03-1.64 3.61-3.56 3.61-1.14 0-1.94-.49-2.44-.99l1.39-1.81z"/>
             </svg>
-            <h1 class="mt-4 text-3xl font-bold text-gray-900 dark:text-white">Quick PIN Login</h1>
+            <h1 class="mt-4 text-3xl font-bold text-gray-900 dark:text-black">Quick PIN Login</h1>
             <p class="mt-2 text-gray-600 dark:text-gray-400">Select your name and enter your PIN</p>
         </div>
 
         <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
             <!-- User Selection -->
             <div id="userSelection" class="p-6">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Who's working?</h2>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-black mb-4">Who's working?</h2>
                 <div class="space-y-2" id="userList">
                     @forelse($users as $user)
                         <button type="button" 
@@ -29,10 +29,10 @@
                             class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700 hover:bg-simplicitea-50 dark:hover:bg-simplicitea-900/30 rounded-lg transition-colors">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 bg-simplicitea-500 rounded-full flex items-center justify-center">
-                                    <span class="text-white font-bold">{{ substr($user->name, 0, 1) }}</span>
+                                    <span class="text-black font-bold">{{ substr($user->name, 0, 1) }}</span>
                                 </div>
                                 <div class="ml-3 text-left">
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $user->name }}</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-black">{{ $user->name }}</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ ucfirst($user->role) }}</p>
                                 </div>
                             </div>
@@ -60,9 +60,9 @@
 
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 bg-simplicitea-500 rounded-full flex items-center justify-center mx-auto">
-                        <span id="selectedUserInitial" class="text-2xl text-white font-bold"></span>
+                        <span id="selectedUserInitial" class="text-2xl text-black font-bold"></span>
                     </div>
-                    <h3 id="selectedUserName" class="mt-3 text-xl font-semibold text-gray-900 dark:text-white"></h3>
+                    <h3 id="selectedUserName" class="mt-3 text-xl font-semibold text-gray-900 dark:text-black"></h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Enter your PIN</p>
                 </div>
 
@@ -111,7 +111,7 @@
 
                     <!-- Submit Button -->
                     <button type="submit" id="submitBtn" disabled
-                        class="mt-6 w-full py-3 px-4 bg-simplicitea-600 hover:bg-simplicitea-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors">
+                        class="mt-6 w-full py-3 px-4 bg-simplicitea-600 hover:bg-simplicitea-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-medium rounded-lg transition-colors">
                         Login
                     </button>
                 </form>
