@@ -22,16 +22,18 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background: linear-gradient(180deg, #92aea1 0%, #839f92 52%, #749185 100%);
+            background:
+                linear-gradient(120deg, rgba(0, 91, 92, 0.10) 0%, rgba(0, 91, 92, 0.05) 36%, rgba(0, 91, 92, 0.02) 72%),
+                linear-gradient(180deg, #eaf4ef 0%, #deece5 52%, #d4e5dc 100%);
         }
         .pos-wrapper { display: flex; height: 100vh; width: 100vw; }
-        .sidebar { width: 240px; background: #1a1a2e; display: flex; flex-direction: column; color: black; flex-shrink: 0; }
+        .sidebar { width: 220px; background: #1a1a2e; display: flex; flex-direction: column; color: black; flex-shrink: 0; }
         .main-content {
             flex: 1;
             display: flex;
             background:
-                linear-gradient(120deg, rgba(0, 91, 92, 0.26) 0%, rgba(0, 91, 92, 0.16) 38%, rgba(0, 91, 92, 0.09) 72%),
-                linear-gradient(180deg, #8ba79a 0%, #7c9789 54%, #6d877a 100%);
+                linear-gradient(120deg, rgba(0, 91, 92, 0.10) 0%, rgba(0, 91, 92, 0.05) 36%, rgba(0, 91, 92, 0.02) 72%),
+                linear-gradient(180deg, #eaf4ef 0%, #deece5 52%, #d4e5dc 100%);
             padding: 10px 10px 0 10px;
             gap: 10px;
             overflow: hidden;
@@ -43,22 +45,47 @@
             flex-direction: column;
             padding: 24px 24px 0 24px;
             overflow: hidden;
-            background: rgba(146, 180, 161, 0.99);
-            border: 1px solid rgba(0, 91, 92, 0.46);
+            background: rgba(243, 250, 247, 0.95);
+            border: 1px solid rgba(0, 91, 92, 0.16);
             border-bottom: none;
             border-radius: 16px 16px 0 0;
-            box-shadow: 0 10px 20px rgba(0, 91, 92, 0.18);
+            box-shadow: 0 10px 24px rgba(0, 91, 92, 0.08);
         }
         .cart-panel {
-            width: 300px;
-            background: rgba(142, 180, 162, 0.99);
+            width: 280px;
+            background: rgba(243, 250, 247, 0.95);
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(0, 91, 92, 0.5);
+            border: 1px solid rgba(0, 91, 92, 0.16);
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 14px 28px rgba(0, 91, 92, 0.24);
+            box-shadow: 0 14px 28px rgba(0, 91, 92, 0.10);
             transition: background-color 0.3s, border-color 0.3s;
+        }
+        .pos-feature-links {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .pos-feature-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 91, 92, 0.18);
+            background: rgba(255, 255, 255, 0.8);
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .pos-feature-link:hover {
+            border-color: rgba(0, 91, 92, 0.36);
+            background: rgba(0, 177, 64, 0.12);
+            color: #005b5c;
         }
         .products-grid { flex: 1; overflow-y: auto; padding-right: 8px; padding-bottom: 24px; -ms-overflow-style: none; scrollbar-width: none; }
         .products-grid::-webkit-scrollbar { display: none; }
@@ -380,15 +407,12 @@
                     <p class="text-gray-500 text-sm">Let's Choose Your Option To Sale!</p>
                 </div>
 
-                <!-- Search & Filter Row -->
+                <!-- Search Row -->
                 <div class="flex items-center gap-3 mb-5">
                     <div class="relative flex-1 max-w-sm">
                         <input type="text" id="product-search" placeholder="Search" 
                                class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
                     </div>
-                    <button type="button" class="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                        Filters
-                    </button>
                     <!-- Ordered button -->
                     <button type="button" id="show-ordered-btn" class="ml-auto px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                         Ordered
@@ -583,6 +607,7 @@
                             <p class="text-[10px] text-gray-400">{{ now()->format('d M Y') }}</p>
                         </div>
                     </div>
+
                 </div>
 
                 <!-- Cart Header -->
@@ -643,7 +668,7 @@
     <div id="product-options-modal" class="fixed inset-0 z-50 hidden">
         <div id="product-options-backdrop" class="absolute inset-0 bg-black/60"></div>
         <div class="flex items-center justify-center min-h-screen p-3 sm:p-4">
-            <div class="bg-white rounded-2xl shadow-2xl relative z-10 w-full max-w-md sm:max-w-lg md:max-w-2xl mx-2 sm:mx-4 overflow-hidden animate-fade-in max-h-[90vh] md:max-h-[95vh] flex flex-col">
+            <div class="bg-white rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-4 overflow-hidden animate-fade-in max-h-[90vh] md:max-h-[95vh] flex flex-col">
                 <div class="pos-modal-header px-4 sm:px-6 py-4">
                     <h3 id="modal-product-name" class="text-xl font-bold">Select Size</h3>
                     <p class="pos-modal-header-subtitle text-sm mt-1">Choose your preferred size</p>
@@ -1762,7 +1787,7 @@
 
     {{-- Crew Check-Out Confirmation Modal --}}
     <div id="crewCheckOutModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60">
-        <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-black">Crew Check-Out</h3>
                 <button type="button" onclick="closeCrewCheckOutModal()" class="text-gray-400 hover:text-black">
@@ -1787,15 +1812,15 @@
 
             {{-- Email/Password Fallback (Hidden by default) --}}
             <div id="checkOutEmailSection" class="hidden">
-                <p class="text-gray-400 text-xs mb-3">Enter crew member credentials to confirm check-out.</p>
+                <p class="text-gray-600 text-xs mb-3">Enter crew member credentials to confirm check-out.</p>
                 <form id="checkOutForm" onsubmit="handleCheckOutEmailSubmit(event)">
                     <div class="mb-3">
-                        <label for="checkOutEmail" class="block text-xs text-gray-400 mb-1">Email</label>
-                        <input type="email" id="checkOutEmail" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-black text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="crew@example.com">
+                        <label for="checkOutEmail" class="block text-xs text-gray-600 mb-1">Email</label>
+                        <input type="email" id="checkOutEmail" required class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="crew@example.com">
                     </div>
                     <div class="mb-4">
-                        <label for="checkOutPassword" class="block text-xs text-gray-400 mb-1">Password</label>
-                        <input type="password" id="checkOutPassword" required class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-black text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="••••••••">
+                        <label for="checkOutPassword" class="block text-xs text-gray-600 mb-1">Password</label>
+                        <input type="password" id="checkOutPassword" required class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="••••••••">
                     </div>
                     <button type="submit" id="checkOutBtn" class="w-full py-2 bg-red-700 hover:bg-red-600 text-black text-sm font-semibold rounded-lg transition-colors">
                         Confirm Check Out
@@ -2201,6 +2226,9 @@
                 });
                 const data = await response.json();
                 const container = document.getElementById('crewListContainer');
+                if (!container) {
+                    return;
+                }
 
                 if (data.crew && data.crew.length > 0) {
                     let html = '<div class="mb-3 p-2 bg-yellow-900/30 border border-yellow-500/30 rounded-lg">';
@@ -2230,6 +2258,8 @@
                 console.error('Failed to refresh crew list:', err);
             }
         }
+
+        refreshCrewList();
 
         // Close modal on Escape key
         document.addEventListener('keydown', function(e) {

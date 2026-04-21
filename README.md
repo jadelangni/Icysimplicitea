@@ -84,6 +84,12 @@ Visit `http://localhost:8000` to access the application.
 
 ## Development
 
+## Deployment
+
+For production deployment on Laravel Forge, follow:
+
+- DEPLOY_FORGE.md
+
 ### Available Commands
 
 ```bash

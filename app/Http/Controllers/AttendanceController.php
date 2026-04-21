@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BranchSession;
 use App\Models\StaffAttendance;
 use App\Models\User;
 use App\Models\UserActivityLog;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class AttendanceController extends Controller
 {
@@ -25,6 +27,13 @@ class AttendanceController extends Controller
         $user = Auth::user();
         if (!$user instanceof User) {
             abort(403);
+        }
+
+        if ($user->branch_id && in_array($user->role, ['cashier', 'admin'], true)) {
+            $activeSession = BranchSession::getActiveSessionForUser($user->id);
+            if (!$activeSession) {
+                BranchSession::startSession($user->branch_id, $user->id);
+            }
         }
 
         $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
@@ -68,6 +77,24 @@ class AttendanceController extends Controller
         
         // Reverse to show most recent first
         $sessions = array_reverse($sessions);
+
+        $cashierDutyGroups = [];
+        if (in_array($user->role, ['cashier', 'admin'], true)) {
+            $allDutyGroups = $this->buildDailyDutyGroups($startDate, $endDate, $user->branch_id ?: null);
+            $cashierDutyGroups = array_values(array_filter($allDutyGroups, function ($group) use ($user) {
+                return (int) ($group['cashier_user_id'] ?? 0) === (int) $user->id;
+            }));
+        }
+
+        $crewByDate = [];
+        foreach ($cashierDutyGroups as $group) {
+            $crewByDate[$group['date']] = $group['crew'];
+        }
+
+        foreach ($sessions as &$session) {
+            $session['crew_team'] = $crewByDate[$session['date']] ?? [];
+        }
+        unset($session);
         
         // Calculate total hours
         $totalHours = array_sum(array_column($sessions, 'hours_worked'));
@@ -75,7 +102,7 @@ class AttendanceController extends Controller
         $isClockedIn = StaffAttendance::isUserClockedIn($user->id);
         $todayHours = StaffAttendance::calculateHoursWorked($user->id, today());
 
-        return view('attendance.my-attendance', compact('sessions', 'isClockedIn', 'todayHours', 'totalHours', 'startDate', 'endDate'));
+        return view('attendance.my-attendance', compact('sessions', 'isClockedIn', 'todayHours', 'totalHours', 'startDate', 'endDate', 'cashierDutyGroups'));
     }
 
     /**
@@ -169,6 +196,69 @@ class AttendanceController extends Controller
             : collect();
 
         return view('attendance.index', compact('attendance', 'staff', 'branches', 'branchId', 'startDate', 'endDate', 'userId', 'employeeSummaries'));
+    }
+
+    private function buildDailyDutyGroups(string $startDate, string $endDate, ?int $branchId = null): array
+    {
+        $sessions = BranchSession::with(['user:id,name,role', 'branch:id,name'])
+            ->whereDate('logged_in_at', '>=', $startDate)
+            ->whereDate('logged_in_at', '<=', $endDate)
+            ->when($branchId, function ($query, $id) {
+                $query->where('branch_id', $id);
+            })
+            ->orderBy('logged_in_at')
+            ->get();
+
+        /** @var Collection<string, Collection<int, BranchSession>> $grouped */
+        $grouped = $sessions->groupBy(function (BranchSession $session) {
+            return $session->logged_in_at->timezone('Asia/Manila')->format('Y-m-d') . '|' . $session->branch_id;
+        });
+
+        $result = [];
+        foreach ($grouped as $key => $items) {
+            $cashierSession = $items->first(function (BranchSession $session) {
+                return $session->is_cashier;
+            });
+
+            if (!$cashierSession || !$cashierSession->user) {
+                continue;
+            }
+
+            [$date] = explode('|', $key);
+
+            $crewSessions = $items
+                ->filter(function (BranchSession $session) {
+                    return !$session->is_cashier && $session->user;
+                })
+                ->values();
+
+            $crew = $crewSessions->map(function (BranchSession $session) {
+                return [
+                    'user_id' => $session->user->id,
+                    'name' => $session->user->name,
+                    'checked_in_at' => optional($session->logged_in_at)->timezone('Asia/Manila')->format('h:i A'),
+                    'checked_out_at' => $session->logged_out_at ? $session->logged_out_at->timezone('Asia/Manila')->format('h:i A') : null,
+                    'is_active' => (bool) $session->is_active,
+                ];
+            })->all();
+
+            $result[] = [
+                'date' => $date,
+                'branch_id' => $cashierSession->branch_id,
+                'branch_name' => optional($cashierSession->branch)->name ?? 'Unknown Branch',
+                'cashier_user_id' => $cashierSession->user->id,
+                'cashier_name' => $cashierSession->user->name,
+                'cashier_logged_in_at' => optional($cashierSession->logged_in_at)->timezone('Asia/Manila')->format('h:i A'),
+                'cashier_logged_out_at' => $cashierSession->logged_out_at ? $cashierSession->logged_out_at->timezone('Asia/Manila')->format('h:i A') : null,
+                'crew' => $crew,
+            ];
+        }
+
+        usort($result, function (array $a, array $b) {
+            return strcmp($b['date'], $a['date']);
+        });
+
+        return $result;
     }
 
     /**

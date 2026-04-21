@@ -5,6 +5,25 @@
         </h2>
     </x-slot>
 
+<style>
+    .stat-icon-box {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+    .stat-icon-green { background-color: rgba(34, 197, 94, 0.35); }
+    .stat-icon-blue { background-color: rgba(59, 130, 246, 0.35); }
+    .stat-icon-purple { background-color: rgba(168, 85, 247, 0.35); }
+    .stat-icon-yellow { background-color: rgba(234, 179, 8, 0.35); }
+    .stat-icon-red { background-color: rgba(239, 68, 68, 0.35); }
+    html.dark .stat-icon-box { border-color: rgba(255, 255, 255, 0.2); }
+
+</style>
+
 <div class="py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
@@ -12,11 +31,14 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome back! 👋</h1>
+                    @php
+                        $isAdminAllBranches = auth()->user()->isAdmin() && (($branchId ?? null) === 'all' || ($branchId ?? null) === null);
+                    @endphp
                     <p class="text-gray-600 dark:text-gray-400 mt-1">
-                        Here's what's happening at <span id="branchNameDisplay" class="font-semibold text-simplicitea-600 dark:text-simplicitea-400">{{ $selectedBranch->name ?? 'your branch' }}</span> today.
+                        Here's what's happening at <span id="branchNameDisplay" class="font-semibold text-simplicitea-600 dark:text-simplicitea-400">{{ $selectedBranch->name ?? ($isAdminAllBranches ? 'All Branches' : 'your branch') }}</span> today.
                     </p>
                 </div>
-                <div class="flex items-center gap-4">
+                <div class="flex flex-wrap items-start sm:items-center gap-3 sm:gap-4 w-full md:w-auto">
                     <!-- Live Indicator -->
                     <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl" id="liveIndicator">
                         <span class="relative flex h-2.5 w-2.5">
@@ -28,10 +50,13 @@
                     
                     @if(auth()->user()->isAdmin() && isset($branches) && $branches->count() > 0)
                     <!-- Branch Selector for Admin -->
-                    <div class="relative">
+                    <div class="relative w-full sm:w-auto">
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Select Branch</label>
                         <div class="relative">
-                            <select id="branchSelector" class="appearance-none bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-4 pr-10 py-2.5 text-sm font-medium text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer min-w-[180px]">
+                            <select id="branchSelector" class="appearance-none w-full sm:w-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-4 pr-10 py-2.5 text-sm font-medium text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer min-w-0 sm:min-w-[180px]">
+                                <option value="all" {{ $branchId === 'all' ? 'selected' : '' }}>
+                                    🌐 All Branches
+                                </option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ $branchId == $branch->id ? 'selected' : '' }}>
                                         📍 {{ $branch->name }}
@@ -46,8 +71,8 @@
                         </div>
                     </div>
                     @endif
-                    <div class="text-right">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ now()->format('l, F j, Y') }}</p>
+                    <div class="text-right ml-auto sm:ml-0 shrink-0">
+                        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{{ now()->format('l, F j, Y') }}</p>
                         <p class="text-lg font-semibold text-simplicitea-600 dark:text-simplicitea-400" id="currentTime">{{ now()->format('h:i A') }}</p>
                     </div>
                 </div>
@@ -63,11 +88,11 @@
         </div>
 
         <!-- Top Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
             <!-- Weekly Revenue -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center">
+                    <div class="stat-icon-box stat-icon-green dark:bg-green-900/50">
                         <span class="text-xl">💰</span>
                     </div>
                     <span id="weeklyChangeBadge" class="text-xs font-medium px-2 py-1 rounded-full {{ ($weeklyChange ?? 0) >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' }}">
@@ -81,7 +106,7 @@
             <!-- Today's Sales -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center">
+                    <div class="stat-icon-box stat-icon-blue dark:bg-blue-900/50">
                         <span class="text-xl">📊</span>
                     </div>
                     <span id="salesChangeBadge" class="text-xs font-medium px-2 py-1 rounded-full {{ ($salesChange ?? 0) >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' }}">
@@ -95,7 +120,7 @@
             <!-- Orders -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center">
+                    <div class="stat-icon-box stat-icon-purple dark:bg-purple-900/50">
                         <span class="text-xl">🧾</span>
                     </div>
                     <span id="transactionsChangeBadge" class="text-xs font-medium px-2 py-1 rounded-full {{ ($transactionsChange ?? 0) >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' }}">
@@ -109,7 +134,7 @@
             <!-- Performance -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center">
+                    <div class="stat-icon-box stat-icon-yellow dark:bg-yellow-900/50">
                         <span class="text-xl">⭐</span>
                     </div>
                 </div>
@@ -122,7 +147,7 @@
             <!-- Stock Alerts -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div id="lowStockIcon" class="w-10 h-10 {{ ($lowStockCount ?? 0) > 0 ? 'bg-red-100 dark:bg-red-900/50' : 'bg-green-100 dark:bg-green-900/50' }} rounded-xl flex items-center justify-center">
+                    <div id="lowStockIcon" class="stat-icon-box {{ ($lowStockCount ?? 0) > 0 ? 'stat-icon-red dark:bg-red-900/50' : 'stat-icon-green dark:bg-green-900/50' }}">
                         <span class="text-xl" id="lowStockEmoji">{{ ($lowStockCount ?? 0) > 0 ? '⚠️' : '✅' }}</span>
                     </div>
                 </div>
@@ -362,10 +387,14 @@
     // Sales Chart
     const ctx = document.getElementById('salesChart').getContext('2d');
     
-    // Create gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
-    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)');
-    gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
+    const formatCompactValue = (value, withCurrency = false) => {
+        const numericValue = Number(value) || 0;
+        const compactValue = Math.abs(numericValue) >= 1000
+            ? `${(numericValue / 1000).toFixed(1).replace(/\.0$/, '')}k`
+            : numericValue.toLocaleString();
+
+        return withCurrency ? `₱${compactValue}` : compactValue;
+    };
 
     const salesChart = new Chart(ctx, {
         type: 'line',
@@ -374,18 +403,28 @@
             datasets: [{
                 label: 'Sales (₱)',
                 data: {!! json_encode($dailySales ?? []) !!},
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: gradient,
+                borderColor: '#2DD4BF',
+                backgroundColor: (context) => {
+                    const chart = context.chart;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) {
+                        return 'rgba(45, 212, 191, 0.22)';
+                    }
+
+                    const areaGradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    areaGradient.addColorStop(0, 'rgba(45, 212, 191, 0.38)');
+                    areaGradient.addColorStop(0.58, 'rgba(45, 212, 191, 0.12)');
+                    areaGradient.addColorStop(1, 'rgba(45, 212, 191, 0.02)');
+                    return areaGradient;
+                },
                 borderWidth: 3,
                 fill: true,
-                tension: 0.4,
-                pointRadius: 6,
-                pointBackgroundColor: 'white',
-                pointBorderColor: 'rgb(34, 197, 94)',
-                pointBorderWidth: 3,
-                pointHoverRadius: 8,
-                pointHoverBackgroundColor: 'rgb(34, 197, 94)',
-                pointHoverBorderColor: 'white',
+                tension: 0.35,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHitRadius: 18,
+                pointHoverBackgroundColor: '#FFFFFF',
+                pointHoverBorderColor: '#2DD4BF',
                 pointHoverBorderWidth: 3
             }]
         },
@@ -401,20 +440,21 @@
                     display: false
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
                     titleColor: 'white',
                     bodyColor: 'white',
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: 'rgba(148, 163, 184, 0.2)',
                     borderWidth: 1,
-                    padding: 12,
+                    padding: 10,
                     cornerRadius: 12,
                     displayColors: false,
+                    caretPadding: 10,
                     callbacks: {
                         title: function(context) {
                             return context[0].label;
                         },
                         label: function(context) {
-                            return '₱' + context.raw.toLocaleString();
+                            return 'Value ' + Number(context.raw || 0).toLocaleString();
                         }
                     }
                 }
@@ -423,7 +463,8 @@
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.05)',
+                        color: 'rgba(15, 23, 42, 0.08)',
+                        borderDash: [4, 4],
                         drawBorder: false
                     },
                     border: {
@@ -431,8 +472,9 @@
                     },
                     ticks: {
                         callback: function(value) {
-                            return '₱' + value.toLocaleString();
+                            return formatCompactValue(value);
                         },
+                        maxTicksLimit: 5,
                         padding: 10
                     }
                 },
@@ -555,11 +597,14 @@
         document.getElementById('lowStockValue').className = `text-2xl font-bold mt-1 ${lowStock > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`;
         document.getElementById('lowStockEmoji').textContent = lowStock > 0 ? '⚠️' : '✅';
         const iconEl = document.getElementById('lowStockIcon');
-        iconEl.className = `w-10 h-10 ${lowStock > 0 ? 'bg-red-100 dark:bg-red-900/50' : 'bg-green-100 dark:bg-green-900/50'} rounded-xl flex items-center justify-center`;
+        iconEl.className = `stat-icon-box ${lowStock > 0 ? 'stat-icon-red dark:bg-red-900/50' : 'stat-icon-green dark:bg-green-900/50'}`;
 
         // Update Chart
         salesChart.data.labels = data.dailyLabels;
         salesChart.data.datasets[0].data = data.dailySales;
+        if (salesChart.data.datasets[1]) {
+            salesChart.data.datasets[1].data = data.dailySales;
+        }
         salesChart.update('none');
 
         // Update Top Products
@@ -923,6 +968,9 @@
             const todayIndex = salesChart.data.labels.length - 1;
             if (todayIndex >= 0) {
                 salesChart.data.datasets[0].data[todayIndex] += sale.amount;
+                if (salesChart.data.datasets[1]) {
+                    salesChart.data.datasets[1].data[todayIndex] += sale.amount;
+                }
                 salesChart.update('none');
             }
         }

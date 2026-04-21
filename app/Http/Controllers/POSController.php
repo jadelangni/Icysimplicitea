@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BranchSession;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Inventory;
@@ -39,6 +40,14 @@ class POSController extends Controller
             abort(403, 'Admin users do not have access to the POS system.');
         }
 
+        $branchSession = null;
+        if ($user->branch_id) {
+            $branchSession = BranchSession::getActiveSessionForUser($user->id);
+            if (!$branchSession) {
+                $branchSession = BranchSession::startSession($user->branch_id, $user->id);
+            }
+        }
+
         $categories = Category::where('is_active', true)->with('products')->get();
         $branchId = $user->branch_id;
         
@@ -68,7 +77,7 @@ class POSController extends Controller
 
         $paymongoConfigured = !empty(config('services.paymongo.secret_key'));
 
-        return view('pos.index', compact('categories', 'products', 'paymongoConfigured'));
+        return view('pos.index', compact('categories', 'products', 'paymongoConfigured', 'branchSession'));
     }
 
     public function processSale(Request $request)

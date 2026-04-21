@@ -48,15 +48,6 @@
             @endif
         </div>
 
-        @if(auth()->user()->isAdmin())
-        <div>
-            <x-input-label for="alert_email" :value="__('Notification Email (Low Stock Alerts)')" />
-            <x-text-input id="alert_email" name="alert_email" type="email" class="mt-1 block w-full" :value="old('alert_email', $user->alert_email)" placeholder="Enter email for stock alerts" autocomplete="email" />
-            <x-input-error class="mt-2" :messages="$errors->get('alert_email')" />
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Low stock alert emails will be sent to this address. Leave blank to use your login email.</p>
-        </div>
-        @endif
-
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 

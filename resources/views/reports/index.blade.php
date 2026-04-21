@@ -182,6 +182,13 @@
     <script>
         // Monthly Sales Chart
         const ctx = document.getElementById('monthlyChart').getContext('2d');
+        const formatCompactValue = (value) => {
+            const numericValue = Number(value) || 0;
+            return Math.abs(numericValue) >= 1000
+                ? `${(numericValue / 1000).toFixed(1).replace(/\.0$/, '')}k`
+                : numericValue.toLocaleString();
+        };
+
         const monthlyChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -189,36 +196,88 @@
                 datasets: [{
                     label: 'Monthly Sales (₱)',
                     data: {!! json_encode($monthlyData) !!},
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderColor: 'rgba(59, 130, 246, 1)',
-                    borderWidth: 2,
+                    borderColor: '#2DD4BF',
+                    backgroundColor: (context) => {
+                        const chart = context.chart;
+                        const { ctx, chartArea } = chart;
+                        if (!chartArea) {
+                            return 'rgba(45, 212, 191, 0.22)';
+                        }
+
+                        const areaGradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                        areaGradient.addColorStop(0, 'rgba(45, 212, 191, 0.38)');
+                        areaGradient.addColorStop(0.58, 'rgba(45, 212, 191, 0.12)');
+                        areaGradient.addColorStop(1, 'rgba(45, 212, 191, 0.02)');
+                        return areaGradient;
+                    },
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.35,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointHitRadius: 18,
+                    pointHoverBackgroundColor: '#FFFFFF',
+                    pointHoverBorderColor: '#2DD4BF',
+                    pointHoverBorderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: 'rgba(148, 163, 184, 0.2)',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 12,
+                        displayColors: false,
+                        caretPadding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Value ' + Number(context.raw || 0).toLocaleString();
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
+                            color: 'rgba(15, 23, 42, 0.08)',
+                            borderDash: [4, 4],
+                            drawBorder: false
+                        },
+                        border: {
+                            display: false
                         },
                         ticks: {
                             callback: function(value) {
-                                return '₱' + value.toLocaleString();
-                            }
+                                return formatCompactValue(value);
+                            },
+                            maxTicksLimit: 5,
+                            padding: 10
                         }
                     },
                     x: {
                         grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        border: {
                             display: false
+                        },
+                        ticks: {
+                            padding: 8
                         }
                     }
                 }

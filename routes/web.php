@@ -101,7 +101,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
     Route::get('/reports/cashier-logout-report', [ReportController::class, 'cashierLogoutReport'])->name('reports.cashier-logout-report');
 
     // Crew Session Management (check-in/out on shared device)
-    Route::prefix('crew-session')->name('crew-session.')->group(function () {
+    Route::middleware(['role:cashier,admin'])->prefix('crew-session')->name('crew-session.')->group(function () {
         Route::post('/check-in', [CrewSessionController::class, 'checkIn'])->name('check-in');
         Route::post('/check-out', [CrewSessionController::class, 'checkOut'])->name('check-out');
         Route::get('/active', [CrewSessionController::class, 'activeCrew'])->name('active');

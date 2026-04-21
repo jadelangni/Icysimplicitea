@@ -1,4 +1,8 @@
 <x-app-layout>
+    @php
+        $branchSession = \App\Models\BranchSession::getActiveSessionForUser(Auth::id());
+    @endphp
+
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
@@ -10,19 +14,21 @@
 
     <style>
         html:not(.dark) .my-attendance-theme {
-            background: linear-gradient(180deg, #9cb7ab 0%, #8ca79a 54%, #7b9689 100%) !important;
+            background:
+                linear-gradient(120deg, rgba(0, 91, 92, 0.10) 0%, rgba(0, 91, 92, 0.05) 36%, rgba(0, 91, 92, 0.02) 72%),
+                linear-gradient(180deg, #eaf4ef 0%, #deece5 52%, #d4e5dc 100%) !important;
         }
 
         html:not(.dark) .my-attendance-theme .bg-white {
-            background: rgba(226, 243, 235, 0.94) !important;
-            border-color: rgba(0, 91, 92, 0.22) !important;
-            box-shadow: 0 10px 24px rgba(0, 91, 92, 0.12) !important;
+            background: rgba(243, 250, 247, 0.95) !important;
+            border-color: rgba(0, 91, 92, 0.16) !important;
+            box-shadow: 0 10px 24px rgba(0, 91, 92, 0.08) !important;
         }
 
         html:not(.dark) .my-attendance-theme .bg-gray-50,
         html:not(.dark) .my-attendance-theme .bg-gray-100,
         html:not(.dark) .my-attendance-theme .dark\:bg-gray-700\/40 {
-            background: rgba(200, 224, 213, 0.75) !important;
+            background: rgba(223, 237, 229, 0.7) !important;
         }
 
         html:not(.dark) .my-attendance-theme .text-green-600,
@@ -31,7 +37,7 @@
         }
     </style>
 
-    <div class="my-attendance-theme py-6">
+    <div class="my-attendance-theme py-6 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -43,13 +49,25 @@
                             Period Total: <span class="font-semibold text-green-600 dark:text-green-400">{{ number_format($totalHours, 2) }} hrs</span>
                         </p>
                     </div>
-                    @if($isClockedIn)
-                        <div class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-xl">
-                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-                            <span id="live-running-timer" class="font-mono font-bold">00:00:00</span>
-                        </div>
-                    @endif
+                    <div class="flex items-center gap-2">
+                        @if($branchSession && $branchSession->is_cashier)
+                            <button type="button" onclick="openCrewCheckInModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-black rounded-lg font-medium text-sm">
+                                Crew Login
+                            </button>
+                        @endif
+
+                        @if($isClockedIn)
+                            <div class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-xl">
+                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                                <span id="live-running-timer" class="font-mono font-bold">00:00:00</span>
+                            </div>
+                        @endif
+                    </div>
                 </div>
+
+                @if($branchSession && $branchSession->is_cashier)
+                    <div id="crewListContainer" class="mt-4"></div>
+                @endif
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
@@ -80,6 +98,7 @@
                                 <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Clock In</th>
                                 <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Clock Out</th>
                                 <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Hours</th>
+                                <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Crew Team</th>
                                 <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Status</th>
                             </tr>
                         </thead>
@@ -90,6 +109,22 @@
                                     <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-200">{{ $session['clock_in']->format('h:i A') }}</td>
                                     <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-200">{{ $session['clock_out'] ? $session['clock_out']->format('h:i A') : '-' }}</td>
                                     <td class="px-5 py-4 text-sm font-medium text-gray-900 dark:text-black">{{ number_format($session['hours_worked'], 2) }} hrs</td>
+                                    <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                        @if(!empty($session['crew_team']))
+                                            <div class="space-y-1">
+                                                @foreach($session['crew_team'] as $crew)
+                                                    <div class="text-xs">
+                                                        {{ $crew['name'] }}
+                                                        @if(!empty($crew['checked_in_at']))
+                                                            <span class="text-gray-500">({{ $crew['checked_in_at'] }})</span>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">-</span>
+                                        @endif
+                                    </td>
                                     <td class="px-5 py-4">
                                         @if($session['is_running'])
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">On Duty</span>
@@ -100,7 +135,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-5 py-12 text-center text-gray-500 dark:text-gray-400">No attendance sessions found for this period.</td>
+                                    <td colspan="6" class="px-5 py-12 text-center text-gray-500 dark:text-gray-400">No attendance sessions found for this period.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -133,5 +168,9 @@
             setInterval(tick, 1000);
         })();
     </script>
+    @endif
+
+    @if($branchSession && $branchSession->is_cashier)
+        @include('attendance.partials.crew-session-tools')
     @endif
 </x-app-layout>

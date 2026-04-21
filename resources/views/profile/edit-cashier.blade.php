@@ -295,6 +295,7 @@
                                         <p class="text-sm text-gray-500">View your sales summary</p>
                                     </div>
                                 </a>
+
                             </div>
                         </div>
                     </div>

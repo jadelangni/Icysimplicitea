@@ -5,6 +5,24 @@
         </h2>
     </x-slot>
 
+<style>
+    .stat-icon-box {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+    .stat-icon-green { background-color: rgba(34, 197, 94, 0.35); }
+    .stat-icon-blue { background-color: rgba(59, 130, 246, 0.35); }
+    .stat-icon-purple { background-color: rgba(168, 85, 247, 0.35); }
+    .stat-icon-yellow { background-color: rgba(234, 179, 8, 0.35); }
+    .stat-icon-red { background-color: rgba(239, 68, 68, 0.35); }
+    html.dark .stat-icon-box { border-color: rgba(255, 255, 255, 0.2); }
+</style>
+
 <div class="py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
@@ -38,7 +56,7 @@
             <!-- Today's Sales -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center">
+                    <div class="stat-icon-box stat-icon-blue dark:bg-blue-900/50">
                         <span class="text-xl">📊</span>
                     </div>
                     <span id="salesChangeBadge" class="text-xs font-medium px-2 py-1 rounded-full {{ ($salesChange ?? 0) >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' }}">
@@ -52,7 +70,7 @@
             <!-- Orders -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center">
+                    <div class="stat-icon-box stat-icon-purple dark:bg-purple-900/50">
                         <span class="text-xl">🧾</span>
                     </div>
                     <span id="transactionsChangeBadge" class="text-xs font-medium px-2 py-1 rounded-full {{ ($transactionsChange ?? 0) >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' }}">
@@ -66,7 +84,7 @@
             <!-- Performance -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center">
+                    <div class="stat-icon-box stat-icon-yellow dark:bg-yellow-900/50">
                         <span class="text-xl">⭐</span>
                     </div>
                 </div>
@@ -79,7 +97,7 @@
             <!-- Low Stock -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div id="lowStockIcon" class="w-10 h-10 {{ ($lowStockCount ?? 0) > 0 ? 'bg-red-100 dark:bg-red-900/50' : 'bg-green-100 dark:bg-green-900/50' }} rounded-xl flex items-center justify-center">
+                    <div id="lowStockIcon" class="stat-icon-box {{ ($lowStockCount ?? 0) > 0 ? 'stat-icon-red dark:bg-red-900/50' : 'stat-icon-green dark:bg-green-900/50' }}">
                         <span class="text-xl" id="lowStockEmoji">{{ ($lowStockCount ?? 0) > 0 ? '⚠️' : '✅' }}</span>
                     </div>
                 </div>
@@ -301,10 +319,14 @@
     // Sales Chart
     const ctx = document.getElementById('salesChart').getContext('2d');
     
-    // Create gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
-    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)');
-    gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
+    const formatCompactValue = (value, withCurrency = false) => {
+        const numericValue = Number(value) || 0;
+        const compactValue = Math.abs(numericValue) >= 1000
+            ? `${(numericValue / 1000).toFixed(1).replace(/\.0$/, '')}k`
+            : numericValue.toLocaleString();
+
+        return withCurrency ? `₱${compactValue}` : compactValue;
+    };
 
     const salesChart = new Chart(ctx, {
         type: 'line',
@@ -313,18 +335,28 @@
             datasets: [{
                 label: 'Sales (₱)',
                 data: {!! json_encode($dailySales ?? []) !!},
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: gradient,
+                borderColor: '#2DD4BF',
+                backgroundColor: (context) => {
+                    const chart = context.chart;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) {
+                        return 'rgba(45, 212, 191, 0.22)';
+                    }
+
+                    const areaGradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    areaGradient.addColorStop(0, 'rgba(45, 212, 191, 0.38)');
+                    areaGradient.addColorStop(0.58, 'rgba(45, 212, 191, 0.12)');
+                    areaGradient.addColorStop(1, 'rgba(45, 212, 191, 0.02)');
+                    return areaGradient;
+                },
                 borderWidth: 3,
                 fill: true,
-                tension: 0.4,
-                pointRadius: 6,
-                pointBackgroundColor: 'white',
-                pointBorderColor: 'rgb(34, 197, 94)',
-                pointBorderWidth: 3,
-                pointHoverRadius: 8,
-                pointHoverBackgroundColor: 'rgb(34, 197, 94)',
-                pointHoverBorderColor: 'white',
+                tension: 0.35,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHitRadius: 18,
+                pointHoverBackgroundColor: '#FFFFFF',
+                pointHoverBorderColor: '#2DD4BF',
                 pointHoverBorderWidth: 3
             }]
         },
@@ -340,20 +372,21 @@
                     display: false
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
                     titleColor: 'white',
                     bodyColor: 'white',
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: 'rgba(148, 163, 184, 0.2)',
                     borderWidth: 1,
-                    padding: 12,
+                    padding: 10,
                     cornerRadius: 12,
                     displayColors: false,
+                    caretPadding: 10,
                     callbacks: {
                         title: function(context) {
                             return context[0].label;
                         },
                         label: function(context) {
-                            return '₱' + context.raw.toLocaleString();
+                            return 'Value ' + Number(context.raw || 0).toLocaleString();
                         }
                     }
                 }
@@ -362,7 +395,8 @@
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.05)',
+                        color: 'rgba(15, 23, 42, 0.08)',
+                        borderDash: [4, 4],
                         drawBorder: false
                     },
                     border: {
@@ -370,8 +404,9 @@
                     },
                     ticks: {
                         callback: function(value) {
-                            return '₱' + value.toLocaleString();
+                            return formatCompactValue(value);
                         },
+                        maxTicksLimit: 5,
                         padding: 10
                     }
                 },
@@ -454,11 +489,14 @@
         document.getElementById('lowStockValue').className = `text-2xl font-bold mt-1 ${lowStock > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`;
         document.getElementById('lowStockEmoji').textContent = lowStock > 0 ? '⚠️' : '✅';
         const iconEl = document.getElementById('lowStockIcon');
-        iconEl.className = `w-10 h-10 ${lowStock > 0 ? 'bg-red-100 dark:bg-red-900/50' : 'bg-green-100 dark:bg-green-900/50'} rounded-xl flex items-center justify-center`;
+        iconEl.className = `stat-icon-box ${lowStock > 0 ? 'stat-icon-red dark:bg-red-900/50' : 'stat-icon-green dark:bg-green-900/50'}`;
 
         // Update Chart
         salesChart.data.labels = data.dailyLabels;
         salesChart.data.datasets[0].data = data.dailySales;
+        if (salesChart.data.datasets[1]) {
+            salesChart.data.datasets[1].data = data.dailySales;
+        }
         salesChart.update('none');
 
         // Update last updated time
@@ -625,6 +663,9 @@
             const todayIndex = salesChart.data.labels.length - 1;
             if (todayIndex >= 0) {
                 salesChart.data.datasets[0].data[todayIndex] += sale.amount;
+                if (salesChart.data.datasets[1]) {
+                    salesChart.data.datasets[1].data[todayIndex] += sale.amount;
+                }
                 salesChart.update('none');
             }
         }

@@ -16,19 +16,21 @@
 
     <style>
         html:not(.dark) .employee-inventory-theme {
-            background: linear-gradient(180deg, #9cb7ab 0%, #8ca79a 54%, #7b9689 100%) !important;
+            background:
+                linear-gradient(120deg, rgba(0, 91, 92, 0.10) 0%, rgba(0, 91, 92, 0.05) 36%, rgba(0, 91, 92, 0.02) 72%),
+                linear-gradient(180deg, #eaf4ef 0%, #deece5 52%, #d4e5dc 100%) !important;
         }
 
         html:not(.dark) .employee-inventory-theme .bg-white {
-            background: rgba(226, 243, 235, 0.94) !important;
-            border-color: rgba(0, 91, 92, 0.22) !important;
-            box-shadow: 0 10px 24px rgba(0, 91, 92, 0.12) !important;
+            background: rgba(243, 250, 247, 0.95) !important;
+            border-color: rgba(0, 91, 92, 0.16) !important;
+            box-shadow: 0 10px 24px rgba(0, 91, 92, 0.08) !important;
         }
 
         html:not(.dark) .employee-inventory-theme .bg-gray-50,
         html:not(.dark) .employee-inventory-theme .bg-gray-100,
         html:not(.dark) .employee-inventory-theme .dark\:bg-gray-700\/50 {
-            background: rgba(200, 224, 213, 0.75) !important;
+            background: rgba(223, 237, 229, 0.7) !important;
         }
 
         html:not(.dark) .employee-inventory-theme .text-green-600,

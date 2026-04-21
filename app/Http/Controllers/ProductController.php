@@ -15,18 +15,31 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Show product management page
         $branchId = Auth::user()->branch_id;
+        $search = trim((string) $request->input('search', ''));
 
         $categories = Category::where('is_active', true)->get();
 
-        $products = Product::with(['category', 'inventory' => function($query) use ($branchId) {
+        $productsQuery = Product::with(['category', 'inventory' => function($query) use ($branchId) {
             $query->where('branch_id', $branchId);
-        }])->get();
+        }]);
 
-        return view('products.index', compact('products', 'categories'));
+        if ($search !== '') {
+            $productsQuery->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%')
+                    ->orWhereHas('category', function ($categoryQuery) use ($search) {
+                        $categoryQuery->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        $products = $productsQuery->orderBy('name')->get();
+
+        return view('products.index', compact('products', 'categories', 'search'));
     }
 
     /**
@@ -48,11 +61,31 @@ class ProductController extends Controller
             'custom_category' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'sometimes|boolean',
             'options' => 'nullable|json'
         ]);
+
+        $parsedOptions = $this->parseOptions($request->input('options'));
+        $requiresBasePrice = $this->optionsRequireBasePrice($parsedOptions);
+
+        if (($data['price'] === null || $data['price'] === '') && $requiresBasePrice) {
+            return back()->withErrors(['price' => 'Base price is required for products without fixed variant prices.'])->withInput();
+        }
+
+        if (($data['price'] === null || $data['price'] === '') && !$requiresBasePrice) {
+            $derivedPrice = $this->getMinimumVariantPrice($parsedOptions);
+            if ($derivedPrice !== null) {
+                $data['price'] = $derivedPrice;
+            }
+        }
+
+        if ($data['price'] === null || $data['price'] === '') {
+            $data['price'] = 0;
+        }
+
+        $data['options'] = $parsedOptions;
 
         // Handle custom category creation
         if (!empty($data['custom_category'])) {
@@ -125,10 +158,31 @@ class ProductController extends Controller
             'custom_category' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|max:2048',
-            'is_active' => 'sometimes|boolean'
+            'is_active' => 'sometimes|boolean',
+            'options' => 'nullable|json'
         ]);
+
+        $parsedOptions = $this->parseOptions($request->input('options'));
+        $requiresBasePrice = $this->optionsRequireBasePrice($parsedOptions);
+
+        if (($data['price'] === null || $data['price'] === '') && $requiresBasePrice) {
+            return back()->withErrors(['price' => 'Base price is required for products without fixed variant prices.'])->withInput();
+        }
+
+        if (($data['price'] === null || $data['price'] === '') && !$requiresBasePrice) {
+            $derivedPrice = $this->getMinimumVariantPrice($parsedOptions);
+            if ($derivedPrice !== null) {
+                $data['price'] = $derivedPrice;
+            }
+        }
+
+        if ($data['price'] === null || $data['price'] === '') {
+            $data['price'] = 0;
+        }
+
+        $data['options'] = $parsedOptions;
 
         // Handle custom category creation
         if (!empty($data['custom_category'])) {
@@ -156,11 +210,6 @@ class ProductController extends Controller
         }
 
         $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : false;
-        // handle options input (JSON string coming from form)
-        if ($request->filled('options')) {
-            $opts = json_decode($request->input('options'), true);
-            $data['options'] = $opts ?: null;
-        }
         $product->update($data);
 
         // Handle recipe/ingredients
@@ -211,5 +260,79 @@ class ProductController extends Controller
         $product->save();
 
         return back()->with('success', 'Product availability updated.');
+    }
+
+    private function parseOptions(?string $rawOptions): ?array
+    {
+        if (!$rawOptions) {
+            return null;
+        }
+
+        $decoded = json_decode($rawOptions, true);
+
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    private function optionsRequireBasePrice(?array $options): bool
+    {
+        if (empty($options)) {
+            return true;
+        }
+
+        $hasAnyValues = false;
+
+        foreach ($options as $option) {
+            $values = $option['values'] ?? [];
+            if (!is_array($values) || empty($values)) {
+                continue;
+            }
+
+            foreach ($values as $value) {
+                $hasAnyValues = true;
+
+                if (!is_array($value)) {
+                    return true;
+                }
+
+                if (!array_key_exists('price', $value) || $value['price'] === null || $value['price'] === '' || (float) $value['price'] == 0.0) {
+                    return true;
+                }
+            }
+        }
+
+        return !$hasAnyValues;
+    }
+
+    private function getMinimumVariantPrice(?array $options): ?float
+    {
+        if (empty($options)) {
+            return null;
+        }
+
+        $minPrice = null;
+
+        foreach ($options as $option) {
+            $values = $option['values'] ?? [];
+            if (!is_array($values)) {
+                continue;
+            }
+
+            foreach ($values as $value) {
+                if (!is_array($value) || !array_key_exists('price', $value)) {
+                    continue;
+                }
+
+                if ($value['price'] === null || $value['price'] === '') {
+                    continue;
+                }
+
+                $numericPrice = (float) $value['price'];
+                if ($minPrice === null || $numericPrice < $minPrice) {
+                    $minPrice = $numericPrice;
+                }
+            }
+        }
+
+        return $minPrice;
     }
 }

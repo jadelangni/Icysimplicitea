@@ -133,11 +133,14 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <!-- Daily Performance Chart -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Daily Performance</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Monthly revenue trend overview</p>
+                    </div>
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Daily Performance</h3>
                         <div class="h-64">
                             <canvas id="dailyChart"></canvas>
                         </div>
@@ -145,27 +148,33 @@
                 </div>
 
                 <!-- Product Performance -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-4">Top Products</h3>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top Products</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Bestsellers this month</p>
+                    </div>
+                    <div class="p-4">
                         @if($productPerformance->count() > 0)
                             <div class="space-y-3 max-h-64 overflow-y-auto">
                                 @foreach($productPerformance->take(8) as $item)
                                 @if($item->product)
-                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                                     <div>
-                                        <p class="font-medium text-gray-900 dark:text-black">{{ $item->product->name }}</p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ $item->total_sold }} units sold</p>
+                                        <p class="font-medium text-gray-900 dark:text-white">{{ $item->product->name }}</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $item->total_sold }} units sold</p>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-bold text-gray-900 dark:text-black">&#8369;{{ number_format($item->revenue, 2) }}</p>
+                                        <p class="font-bold text-gray-900 dark:text-white">&#8369;{{ number_format($item->revenue, 2) }}</p>
                                     </div>
                                 </div>
                                 @endif
                                 @endforeach
                             </div>
                         @else
-                            <p class="text-gray-500 dark:text-gray-400 text-center py-8">No product data available for selected month.</p>
+                            <div class="text-center py-8">
+                                <span class="text-4xl">📊</span>
+                                <p class="text-gray-500 dark:text-gray-400 mt-2">No product data available for selected month.</p>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -250,6 +259,13 @@
     <script>
         // Daily Performance Chart
         const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+        const formatCompactValue = (value) => {
+            const numericValue = Number(value) || 0;
+            return Math.abs(numericValue) >= 1000
+                ? `${(numericValue / 1000).toFixed(1).replace(/\.0$/, '')}k`
+                : numericValue.toLocaleString();
+        };
+
         const dailyChart = new Chart(dailyCtx, {
             type: 'line',
             data: {
@@ -257,32 +273,89 @@
                 datasets: [{
                     label: 'Daily Revenue (₱)',
                     data: {!! json_encode(collect($dailyBreakdown)->pluck('revenue')->toArray()) !!},
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderColor: 'rgba(59, 130, 246, 1)',
-                    borderWidth: 2,
+                    borderColor: '#2DD4BF',
+                    backgroundColor: (context) => {
+                        const chart = context.chart;
+                        const { ctx, chartArea } = chart;
+                        if (!chartArea) {
+                            return 'rgba(45, 212, 191, 0.22)';
+                        }
+
+                        const areaGradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                        areaGradient.addColorStop(0, 'rgba(45, 212, 191, 0.38)');
+                        areaGradient.addColorStop(0.58, 'rgba(45, 212, 191, 0.12)');
+                        areaGradient.addColorStop(1, 'rgba(45, 212, 191, 0.02)');
+                        return areaGradient;
+                    },
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.35,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointHitRadius: 18,
+                    pointHoverBackgroundColor: '#FFFFFF',
+                    pointHoverBorderColor: '#2DD4BF',
+                    pointHoverBorderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: 'rgba(148, 163, 184, 0.2)',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 12,
+                        displayColors: false,
+                        caretPadding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Value ' + Number(context.raw || 0).toLocaleString();
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(15, 23, 42, 0.08)',
+                            borderDash: [4, 4],
+                            drawBorder: false
+                        },
+                        border: {
+                            display: false
+                        },
                         ticks: {
                             callback: function(value) {
-                                return '₱' + value.toLocaleString();
-                            }
+                                return formatCompactValue(value);
+                            },
+                            maxTicksLimit: 5,
+                            padding: 10
                         }
                     },
                     x: {
-                        display: false // Hide x-axis labels to reduce clutter
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        border: {
+                            display: false
+                        },
+                        ticks: {
+                            display: false
+                        }
                     }
                 }
             }

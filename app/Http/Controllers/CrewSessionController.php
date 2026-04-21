@@ -22,10 +22,25 @@ class CrewSessionController extends Controller
     {
         $cashier = Auth::user();
 
+        if (!$cashier || !in_array($cashier->role, ['cashier', 'admin'], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This feature is only available to cashier/admin users.',
+            ], 403);
+        }
+
         if (!$cashier || !$cashier->branch_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'You must be logged in with a branch assigned.',
+            ], 403);
+        }
+
+        $cashierSession = BranchSession::getActiveSessionForUser($cashier->id);
+        if (!$cashierSession || !$cashierSession->is_cashier) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only the active cashier can check in crew members.',
             ], 403);
         }
 
@@ -122,11 +137,27 @@ class CrewSessionController extends Controller
      */
     public function checkOut(Request $request)
     {
+        $cashier = Auth::user();
+
+        if (!$cashier || !in_array($cashier->role, ['cashier', 'admin'], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This feature is only available to cashier/admin users.',
+            ], 403);
+        }
+
+        $cashierSession = BranchSession::getActiveSessionForUser($cashier->id);
+        if (!$cashierSession || !$cashierSession->is_cashier) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only the active cashier can check out crew members.',
+            ], 403);
+        }
+
         $request->validate([
             'session_id' => 'required|integer|exists:branch_sessions,id',
         ]);
 
-        $cashier = Auth::user();
         $session = BranchSession::where('id', $request->session_id)
             ->where('branch_id', $cashier->branch_id)
             ->where('is_active', true)
@@ -207,6 +238,15 @@ class CrewSessionController extends Controller
     public function activeCrew()
     {
         $user = Auth::user();
+
+        if (!$user || !in_array($user->role, ['cashier', 'admin'], true)) {
+            return response()->json(['crew' => []], 403);
+        }
+
+        $cashierSession = BranchSession::getActiveSessionForUser($user->id);
+        if (!$cashierSession || !$cashierSession->is_cashier) {
+            return response()->json(['crew' => []], 403);
+        }
 
         if (!$user->branch_id) {
             return response()->json(['crew' => []]);

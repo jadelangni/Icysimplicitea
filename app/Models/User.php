@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -20,6 +21,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'id_number',
         'name',
         'email',
         'alert_email',
@@ -45,6 +47,38 @@ class User extends Authenticatable
         'qr_token',
         'pin',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $user): void {
+            if (empty($user->id_number)) {
+                $user->id_number = self::generateNextIdNumber($user->created_at);
+            }
+        });
+    }
+
+    public static function generateNextIdNumber($createdAt = null): string
+    {
+        $date = $createdAt ? Carbon::parse($createdAt) : now();
+        $prefix = $date->format('ymd');
+
+        $maxForDate = self::where('id_number', 'like', $prefix . '%')
+            ->select('id_number')
+            ->orderByDesc('id_number')
+            ->first();
+
+        $nextSequence = 1;
+        if ($maxForDate && preg_match('/^' . preg_quote($prefix, '/') . '(\d+)$/', $maxForDate->id_number, $matches)) {
+            $nextSequence = (int) $matches[1] + 1;
+        }
+
+        do {
+            $idNumber = $prefix . str_pad((string) $nextSequence, 2, '0', STR_PAD_LEFT);
+            $nextSequence++;
+        } while (self::where('id_number', $idNumber)->exists());
+
+        return $idNumber;
+    }
 
     /**
      * Get the attributes that should be cast.

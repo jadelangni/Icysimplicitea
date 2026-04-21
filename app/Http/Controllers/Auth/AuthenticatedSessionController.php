@@ -158,7 +158,10 @@ class AuthenticatedSessionController extends Controller
                     if ($branchSession->is_cashier) {
                         if (!BranchSession::canCashierLogout($user->branch_id)) {
                             // There are still crew members logged in
-                            return redirect()->back()->with('error', 'You are the cashier. Other employees must log out first before you can log out.');
+                            $activeCrew = BranchSession::getActiveCrew($user->branch_id)->pluck('user.name')->filter()->values();
+                            $crewList = $activeCrew->isNotEmpty() ? (' Active crew: ' . $activeCrew->join(', ')) : '';
+
+                            return redirect()->back()->with('error', 'You are the cashier. Other employees must log out first before you can log out.' . $crewList);
                         }
 
                         // Cashier is last one - redirect to daily report (auto-print)
@@ -216,6 +219,13 @@ class AuthenticatedSessionController extends Controller
             if ($user->role === 'cashier' && $user->branch_id) {
                 $branchSession = BranchSession::getActiveSessionForUser($user->id);
                 if ($branchSession) {
+                    if ($branchSession->is_cashier && !BranchSession::canCashierLogout($user->branch_id)) {
+                        $activeCrew = BranchSession::getActiveCrew($user->branch_id)->pluck('user.name')->filter()->values();
+                        $crewList = $activeCrew->isNotEmpty() ? (' Active crew: ' . $activeCrew->join(', ')) : '';
+
+                        return redirect()->back()->with('error', 'You are the cashier. Other employees must log out first before you can log out.' . $crewList);
+                    }
+
                     $roleLabel = $branchSession->is_cashier ? 'Cashier' : 'Crew';
                     $branchSession->endSession();
 

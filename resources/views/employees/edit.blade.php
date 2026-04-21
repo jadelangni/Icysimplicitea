@@ -102,36 +102,6 @@
                         </div>
                     </div>
                     
-                    <!-- Attendance PIN -->
-                    <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-                        <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-3 flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
-                            </svg>
-                            Attendance PIN {{ $employee->pin ? '(Set ✓)' : '(Not Set)' }}
-                        </h4>
-                        <p class="text-xs text-blue-700 dark:text-blue-300 mb-3">Set a 4-6 digit PIN for clock-in/clock-out. Leave blank to keep the current PIN.</p>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="pin" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">New PIN</label>
-                                <input type="password" name="pin" id="pin" maxlength="6" minlength="4"
-                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm @error('pin') border-red-500 @enderror"
-                                    placeholder="4-6 digits">
-                                @error('pin')
-                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            
-                            <div>
-                                <label for="pin_confirmation" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Confirm PIN</label>
-                                <input type="password" name="pin_confirmation" id="pin_confirmation" maxlength="6" minlength="4"
-                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm"
-                                    placeholder="Confirm PIN">
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Role & Branch -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -248,6 +218,10 @@
                     Account Information
                 </h4>
                 <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">ID Number</p>
+                        <p class="text-gray-900 dark:text-black font-medium">{{ $employee->id_number ?? 'Pending' }}</p>
+                    </div>
                     <div>
                         <p class="text-gray-500 dark:text-gray-400">Created</p>
                         <p class="text-gray-900 dark:text-black font-medium">{{ $employee->created_at->format('M d, Y h:i A') }}</p>

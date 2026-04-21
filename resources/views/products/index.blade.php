@@ -9,24 +9,44 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl transition-colors duration-200">
                 <div class="p-6">
-                    <div class="flex items-center justify-between mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                         <div>
                             <h3 class="text-xl font-bold text-gray-900 dark:text-black">Product List</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your products and their sizes</p>
                         </div>
-                        <a href="{{ route('products.create') }}" class="inline-flex items-center px-5 py-2.5 bg-simplicitea-600 text-black rounded-xl hover:bg-simplicitea-700 font-medium transition-colors shadow-sm">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            New Product
-                        </a>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                            <div class="relative w-full sm:w-72">
+                                <input
+                                    id="productSearchInput"
+                                    type="text"
+                                    value="{{ $search ?? '' }}"
+                                    placeholder="Search products..."
+                                    class="w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500"
+                                >
+                                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                <button id="clearProductSearch" type="button" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm">✕</button>
+                            </div>
+
+                            <a href="{{ route('products.create') }}" class="inline-flex items-center justify-center px-5 py-2.5 bg-simplicitea-600 text-black rounded-xl hover:bg-simplicitea-700 font-medium transition-colors shadow-sm whitespace-nowrap">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                New Product
+                            </a>
+                        </div>
                     </div>
 
                     @if($products->isEmpty())
                         <div class="text-center py-16">
                             <div class="text-6xl mb-4">🧋</div>
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-2">No products yet</h3>
-                            <p class="text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first product</p>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-black mb-2">
+                                {{ !empty($search) ? 'No matching products' : 'No products yet' }}
+                            </h3>
+                            <p class="text-gray-500 dark:text-gray-400 mb-4">
+                                {{ !empty($search) ? 'Try a different search term.' : 'Get started by adding your first product' }}
+                            </p>
                             <a href="{{ route('products.create') }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700">
                                 Add Product
                             </a>
@@ -43,9 +63,9 @@
                                         <th class="py-4 px-4 font-semibold text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <tbody id="productsTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
                                     @foreach($products as $product)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                                    <tr class="product-row hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                                         <td class="py-4 px-4">
                                             <div class="flex items-center gap-3">
                                                 @if($product->image)
@@ -115,6 +135,11 @@
                                         </td>
                                     </tr>
                                     @endforeach
+                                    <tr id="liveSearchNoResults" class="hidden">
+                                        <td colspan="5" class="py-10 px-4 text-center text-gray-500 dark:text-gray-400">
+                                            No matching products found.
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -123,4 +148,53 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('productSearchInput');
+            const clearButton = document.getElementById('clearProductSearch');
+            const tableBody = document.getElementById('productsTableBody');
+
+            if (!searchInput || !tableBody) {
+                return;
+            }
+
+            const rows = Array.from(tableBody.querySelectorAll('tr.product-row'));
+            const noResultsRow = document.getElementById('liveSearchNoResults');
+
+            const applyFilter = () => {
+                const term = searchInput.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                rows.forEach((row) => {
+                    const rowText = row.textContent.toLowerCase();
+                    const isMatch = term === '' || rowText.includes(term);
+                    row.classList.toggle('hidden', !isMatch);
+                    if (isMatch) {
+                        visibleCount += 1;
+                    }
+                });
+
+                if (noResultsRow) {
+                    noResultsRow.classList.toggle('hidden', visibleCount > 0);
+                }
+
+                if (clearButton) {
+                    clearButton.classList.toggle('hidden', term === '');
+                }
+            };
+
+            searchInput.addEventListener('input', applyFilter);
+
+            if (clearButton) {
+                clearButton.addEventListener('click', () => {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    applyFilter();
+                });
+            }
+
+            applyFilter();
+        });
+    </script>
 </x-app-layout>

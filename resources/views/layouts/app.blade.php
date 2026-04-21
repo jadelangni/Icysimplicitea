@@ -24,15 +24,15 @@
         <style>
             * { box-sizing: border-box; }
             .app-wrapper { display: flex; min-height: 100vh; width: 100%; }
-            .app-sidebar { width: 240px; background: linear-gradient(180deg, #005b5c 0%, #014b4c 55%, #003536 100%); display: flex; flex-direction: column; color: black; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
+            .app-sidebar { width: 220px; background: linear-gradient(180deg, #005b5c 0%, #014b4c 55%, #003536 100%); display: flex; flex-direction: column; color: black; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
             .app-main {
                 flex: 1;
-                margin-left: 240px;
-                width: calc(100% - 240px);
+                margin-left: 220px;
+                width: calc(100% - 220px);
                 max-width: 100vw;
                 background:
-                    linear-gradient(120deg, rgba(0, 91, 92, 0.16) 0%, rgba(0, 91, 92, 0.08) 36%, rgba(0, 91, 92, 0.03) 72%),
-                    linear-gradient(180deg, #95b0a3 0%, #849f92 52%, #769186 100%);
+                    linear-gradient(120deg, rgba(0, 91, 92, 0.10) 0%, rgba(0, 91, 92, 0.05) 36%, rgba(0, 91, 92, 0.02) 72%),
+                    linear-gradient(180deg, #eaf4ef 0%, #deece5 52%, #d4e5dc 100%);
                 min-height: 100vh;
                 transition: background-color 0.3s;
             }
@@ -69,6 +69,22 @@
                 font-size: 0.75rem;
                 font-weight: 700;
                 line-height: 1;
+            }
+
+            .app-sidebar .sidebar-role-text {
+                color: #b2e8d8 !important;
+            }
+
+            /* Keep feature pages on one consistent body background */
+            .app-main > main > div.bg-gray-50,
+            .app-main > main > div.dark\:bg-gray-900 {
+                background-color: transparent !important;
+            }
+
+            .app-main > main > .inventory-theme,
+            .app-main > main > .employee-inventory-theme {
+                background: transparent !important;
+                background-image: none !important;
             }
             
             /* Hide scrollbar but allow scrolling */
@@ -117,13 +133,6 @@
 
                 <!-- Page Content -->
                 <main class="min-h-screen">
-                    @if (isset($header))
-                        <header class="app-page-header bg-white border-b border-gray-200">
-                            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                                {{ $header }}
-                            </div>
-                        </header>
-                    @endif
                     {{ $slot }}
                 </main>
             </div>

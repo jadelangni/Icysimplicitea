@@ -27,7 +27,7 @@
                     $navSessionRole = $navBranchSession ? ($navBranchSession->is_cashier ? 'Cashier' : 'Crew') : (Auth::user()->role === 'admin' ? 'Admin' : 'Cashier');
                     $navActiveCrew = Auth::user()->branch_id ? \App\Models\BranchSession::getActiveCrew(Auth::user()->branch_id) : collect();
                 @endphp
-                <p class="text-xs text-gray-400">
+                <p class="text-xs sidebar-role-text">
                     {{ $navSessionRole }}
                     @if($navBranchSession && $navBranchSession->is_cashier && $navActiveCrew->count() > 0)
                         <span class="text-yellow-400 ml-1">({{ $navActiveCrew->count() }} crew online)</span>
@@ -152,15 +152,6 @@
         </div>
         @endif
 
-        @if(isset($navBranchSession) && $navBranchSession && $navBranchSession->is_cashier && $navActiveCrew->count() > 0)
-        <div class="mb-3 p-2 bg-yellow-900/30 border border-yellow-500/30 rounded-lg">
-            <p class="text-yellow-300 text-xs font-semibold mb-1">Crew still logged in:</p>
-            @foreach($navActiveCrew as $crew)
-            <p class="text-yellow-200 text-xs">• {{ $crew->user->name }}</p>
-            @endforeach
-        </div>
-        @endif
-
         @if(Auth::user()->role === 'cashier')
         <button type="button" @click="$dispatch('open-logout-modal')" class="nav-item w-full text-red-400 hover:text-red-300 hover:bg-red-900/20">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +182,7 @@
         </a>
         @endif
         <div class="mt-4 text-center">
-            <p class="text-[10px] text-gray-500 uppercase tracking-wider">Powered by</p>
+            <p class="text-[10px] text-black uppercase tracking-wider">Powered by</p>
             <p class="text-sm font-semibold text-black flex items-center justify-center gap-2 mt-1">
                 <span class="sidebar-brand-badge">S</span>
                 Simplicitea

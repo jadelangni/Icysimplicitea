@@ -185,15 +185,15 @@ class DashboardController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
         
-        // Admin can select any branch, cashier only sees their own branch
+        // Admin can select any branch or all branches; non-admins are locked to their branch.
         if ($user->isAdmin()) {
-            $branchId = $request->get('branch_id', $user->branch_id);
+            $branchId = $request->get('branch_id', 'all');
         } else {
             $branchId = $user->branch_id;
         }
 
-        // Handle "all branches" case
-        $isAllBranches = $branchId === 'all' || $branchId === null;
+        // Handle "all branches" case (admin only)
+        $isAllBranches = $user->isAdmin() && ($branchId === 'all' || $branchId === null);
         $selectedBranch = $isAllBranches ? null : Branch::find($branchId);
         $branchName = $isAllBranches ? 'All Branches' : ($selectedBranch->name ?? 'Unknown');
 

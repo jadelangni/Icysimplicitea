@@ -58,7 +58,8 @@
 
                             <label class="block">
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Price</span>
-                                <input type="number" step="0.01" name="price" value="{{ old('price', $product->price) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black" required>
+                                <input id="base-price-input" type="number" step="0.01" name="price" value="{{ old('price', $product->price) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black" required>
+                                <p id="base-price-help" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Required for products without variants, or when a variant uses 0 (base price).</p>
                             </label>
 
                             <label class="block">
@@ -97,7 +98,10 @@
                                             <button type="button" id="add-value" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md">Add Value</button>
                                         </div>
                                         <div id="current-values-list" class="space-y-1"></div>
-                                        <button type="button" id="finish-option" class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-md">Finish Option</button>
+                                        <div class="flex gap-2">
+                                            <button type="button" id="finish-option" class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-md">Finish Option</button>
+                                            <button type="button" id="cancel-option-edit" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md">Cancel</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <input type="hidden" name="options" id="options-input" value='{{ old("options", json_encode($product->options ?? [])) }}'>
@@ -163,12 +167,63 @@
                             const addValueBtn = document.getElementById('add-value');
                             const currentValuesList = document.getElementById('current-values-list');
                             const finishOptionBtn = document.getElementById('finish-option');
+                            const cancelOptionEditBtn = document.getElementById('cancel-option-edit');
+                            const basePriceInput = document.getElementById('base-price-input');
+                            const basePriceHelp = document.getElementById('base-price-help');
                             
                             let currentOption = null;
                             let allOptions = [];
+                            let editingOptionIndex = null;
 
                             function rebuildHidden() {
                                 hidden.value = JSON.stringify(allOptions);
+                            }
+
+                            function getVariantPricingState() {
+                                let hasValues = false;
+                                let requiresBasePrice = false;
+                                let minFixedPrice = null;
+
+                                allOptions.forEach((opt) => {
+                                    const values = Array.isArray(opt.values) ? opt.values : [];
+                                    values.forEach((v) => {
+                                        hasValues = true;
+                                        if (!v || typeof v !== 'object' || v.price === null || v.price === undefined || v.price === '' || Number(v.price) === 0) {
+                                            requiresBasePrice = true;
+                                            return;
+                                        }
+
+                                        const parsed = Number(v.price);
+                                        if (!Number.isNaN(parsed)) {
+                                            minFixedPrice = minFixedPrice === null ? parsed : Math.min(minFixedPrice, parsed);
+                                        }
+                                    });
+                                });
+
+                                return { hasValues, requiresBasePrice, minFixedPrice };
+                            }
+
+                            function syncBasePriceBehavior() {
+                                if (!basePriceInput) return;
+                                const { hasValues, requiresBasePrice, minFixedPrice } = getVariantPricingState();
+
+                                if (hasValues && !requiresBasePrice && minFixedPrice !== null) {
+                                    basePriceInput.value = minFixedPrice;
+                                    basePriceInput.readOnly = true;
+                                    basePriceInput.required = false;
+                                    basePriceInput.classList.add('bg-gray-100');
+                                    if (basePriceHelp) {
+                                        basePriceHelp.textContent = 'Auto-set from variant prices. Base price is locked to avoid conflicts.';
+                                    }
+                                    return;
+                                }
+
+                                basePriceInput.readOnly = false;
+                                basePriceInput.required = true;
+                                basePriceInput.classList.remove('bg-gray-100');
+                                if (basePriceHelp) {
+                                    basePriceHelp.textContent = 'Required for products without variants, or when a variant uses 0 (base price).';
+                                }
                             }
 
                             function renderOptions() {
@@ -189,29 +244,99 @@
                                                 <div class="font-medium text-gray-900">${opt.name}</div>
                                                 <div class="text-sm text-gray-600">${valuesList}</div>
                                             </div>
-                                            <button type="button" class="text-red-600 hover:text-red-800" onclick="removeOption(${idx})">Remove</button>
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" class="text-blue-600 hover:text-blue-800" onclick="editOption(${idx})">Edit</button>
+                                                <button type="button" class="text-red-600 hover:text-red-800" onclick="removeOption(${idx})">Remove</button>
+                                            </div>
                                         </div>
                                     `;
                                     container.appendChild(optDiv);
                                 });
                             }
 
+                            function normalizeOptionValue(value) {
+                                if (value && typeof value === 'object') {
+                                    return {
+                                        label: value.label || value.value || value.name || '',
+                                        price: value.price ?? null,
+                                    };
+                                }
+
+                                return {
+                                    label: String(value || ''),
+                                    price: null,
+                                };
+                            }
+
+                            function renderCurrentValuesEditor() {
+                                currentValuesList.innerHTML = '';
+                                if (!currentOption) return;
+
+                                currentOption.values.forEach((rawValue, idx) => {
+                                    const value = normalizeOptionValue(rawValue);
+                                    const valueDiv = document.createElement('div');
+                                    valueDiv.className = 'flex justify-between items-center p-2 bg-white border rounded';
+                                    const hasPrice = value.price !== null && value.price !== '';
+                                    const priceText = hasPrice ? ` (\u20b1${Number(value.price) >= 0 ? '+' : ''}${value.price})` : '';
+
+                                    valueDiv.innerHTML = `
+                                        <span>${value.label}${priceText}</span>
+                                        <button type="button" class="text-red-600 text-sm" onclick="removeCurrentValue(${idx})">Remove</button>
+                                    `;
+                                    currentValuesList.appendChild(valueDiv);
+                                });
+                            }
+
+                            function openOptionEditor(option, index = null) {
+                                currentOption = option ? JSON.parse(JSON.stringify(option)) : { name: '', values: [] };
+                                editingOptionIndex = index;
+
+                                optionNameEl.value = currentOption.name || '';
+                                currentValuesDiv.classList.remove('hidden');
+                                addGroupBtn.disabled = true;
+                                finishOptionBtn.textContent = index === null ? 'Finish Option' : 'Save Changes';
+
+                                renderCurrentValuesEditor();
+                            }
+
+                            function closeOptionEditor() {
+                                currentOption = null;
+                                editingOptionIndex = null;
+                                currentValuesDiv.classList.add('hidden');
+                                currentValuesList.innerHTML = '';
+                                optionNameEl.value = '';
+                                valueNameEl.value = '';
+                                valuePriceEl.value = '';
+                                addGroupBtn.disabled = false;
+                                finishOptionBtn.textContent = 'Finish Option';
+                            }
+
                             window.removeOption = function(idx) {
                                 allOptions.splice(idx, 1);
                                 renderOptions();
                                 rebuildHidden();
+                                syncBasePriceBehavior();
+
+                                if (editingOptionIndex === idx) {
+                                    closeOptionEditor();
+                                } else if (editingOptionIndex !== null && editingOptionIndex > idx) {
+                                    editingOptionIndex -= 1;
+                                }
+                            };
+
+                            window.editOption = function(idx) {
+                                if (!allOptions[idx]) return;
+                                openOptionEditor(allOptions[idx], idx);
                             };
 
                             addGroupBtn.addEventListener('click', function() {
                                 const name = optionNameEl.value.trim();
                                 if (!name) return alert('Please enter option name');
-                                currentOption = { name, values: [] };
-                                currentValuesDiv.classList.remove('hidden');
-                                optionNameEl.disabled = true;
-                                addGroupBtn.disabled = true;
+                                openOptionEditor({ name, values: [] }, null);
                             });
 
                             addValueBtn.addEventListener('click', function() {
+                                if (!currentOption) return alert('Create or edit an option group first');
                                 const valueName = valueNameEl.value.trim();
                                 if (!valueName) return alert('Please enter value name');
                                 const priceVal = valuePriceEl.value.trim();
@@ -219,37 +344,41 @@
                                 
                                 const valueObj = price !== null ? { label: valueName, price } : valueName;
                                 currentOption.values.push(valueObj);
-                                
-                                const valueDiv = document.createElement('div');
-                                valueDiv.className = 'flex justify-between items-center p-2 bg-white border rounded';
-                                const priceText = price !== null ? ` (₱${price >= 0 ? '+' : ''}${price})` : '';
-                                valueDiv.innerHTML = `
-                                    <span>${valueName}${priceText}</span>
-                                    <button type="button" class="text-red-600 text-sm" onclick="removeCurrentValue(${currentOption.values.length - 1})">Remove</button>
-                                `;
-                                currentValuesList.appendChild(valueDiv);
+                                renderCurrentValuesEditor();
                                 
                                 valueNameEl.value = '';
                                 valuePriceEl.value = '';
                             });
 
                             window.removeCurrentValue = function(idx) {
+                                if (!currentOption) return;
                                 currentOption.values.splice(idx, 1);
-                                currentValuesList.children[idx].remove();
+                                renderCurrentValuesEditor();
                             };
 
                             finishOptionBtn.addEventListener('click', function() {
+                                if (!currentOption) return;
+                                currentOption.name = optionNameEl.value.trim();
+                                if (!currentOption.name) return alert('Please enter option name');
                                 if (currentOption.values.length === 0) return alert('Please add at least one value');
-                                allOptions.push(currentOption);
-                                currentOption = null;
-                                currentValuesDiv.classList.add('hidden');
-                                currentValuesList.innerHTML = '';
-                                optionNameEl.value = '';
-                                optionNameEl.disabled = false;
-                                addGroupBtn.disabled = false;
+
+                                if (editingOptionIndex === null) {
+                                    allOptions.push(currentOption);
+                                } else {
+                                    allOptions[editingOptionIndex] = currentOption;
+                                }
+
                                 renderOptions();
                                 rebuildHidden();
+                                syncBasePriceBehavior();
+                                closeOptionEditor();
                             });
+
+                            if (cancelOptionEditBtn) {
+                                cancelOptionEditBtn.addEventListener('click', function() {
+                                    closeOptionEditor();
+                                });
+                            }
 
                             // Load existing options
                             try {
@@ -257,8 +386,11 @@
                                 if (Array.isArray(existing)) {
                                     allOptions = existing;
                                     renderOptions();
+                                    syncBasePriceBehavior();
                                 }
                             } catch (err) {}
+
+                            syncBasePriceBehavior();
                         })();
 
                         // Category selection handler

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Branch;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
@@ -37,7 +38,8 @@ class EmployeeController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('id_number', 'like', "%{$search}%");
             });
         }
         
@@ -170,7 +172,7 @@ class EmployeeController extends Controller
     public function destroy(User $employee)
     {
         // Prevent deleting self
-        if ($employee->id === auth()->id()) {
+        if ($employee->id === Auth::id()) {
             return redirect()->route('employees.index')
                 ->with('error', 'You cannot delete your own account!');
         }

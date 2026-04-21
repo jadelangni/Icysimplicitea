@@ -304,7 +304,7 @@
         .field-input:focus {
             border-color: rgba(0, 91, 92, 0.45);
             box-shadow: 0 0 0 4px rgba(0, 91, 92, 0.12);
-            background: #000000;
+            background: #ffffff;
         }
 
         .field-action {

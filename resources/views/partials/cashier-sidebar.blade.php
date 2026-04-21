@@ -24,7 +24,7 @@
             </div>
             <div class="flex-1 min-w-0">
                 <p class="font-semibold text-black text-sm truncate">{{ Auth::user()->name }}</p>
-                <p class="text-xs text-gray-400">
+                <p class="text-xs sidebar-role-text">
                     {{ $sidebarSessionRole }}
                     @if($sidebarBranchSession && $sidebarBranchSession->is_cashier && $sidebarActiveCrew->count() > 0)
                         <span class="text-yellow-400 ml-1">({{ $sidebarActiveCrew->count() }} crew online)</span>
@@ -141,16 +141,9 @@
 
     </nav>
 
-    <!-- Footer -->
-    <div class="p-4 border-t border-gray-700">
-        @if(session('error'))
-        <div class="mb-3 p-2 bg-red-900/40 border border-red-500/50 rounded-lg text-red-300 text-xs">
-            {{ session('error') }}
-        </div>
-        @endif
-
-        @if($sidebarBranchSession && $sidebarBranchSession->is_cashier && $sidebarActiveCrew->count() > 0)
-        <div class="mb-3 p-2 bg-yellow-900/30 border border-yellow-500/30 rounded-lg">
+    @if($sidebarBranchSession && $sidebarBranchSession->is_cashier && $sidebarActiveCrew->count() > 0)
+    <div class="px-4 pb-3">
+        <div class="p-2 bg-yellow-900/30 border border-yellow-500/30 rounded-lg">
             <p class="text-yellow-300 text-xs font-semibold mb-1">Active Crew Members:</p>
             @foreach($sidebarActiveCrew as $crew)
             <div class="flex items-center justify-between py-1">
@@ -158,6 +151,15 @@
                 <button type="button" onclick="if(typeof handleCrewCheckOut==='function'){handleCrewCheckOut({{ $crew->id }})}else{alert('Use POS page to check out crew.')}" class="text-red-400 hover:text-red-300 text-xs underline">Check Out</button>
             </div>
             @endforeach
+        </div>
+    </div>
+    @endif
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-gray-700">
+        @if(session('error'))
+        <div class="mb-3 p-2 bg-red-900/40 border border-red-500/50 rounded-lg text-red-300 text-xs">
+            {{ session('error') }}
         </div>
         @endif
 
@@ -175,7 +177,7 @@
             <span class="flex-1 text-left">Settings</span>
         </a>
         <div class="mt-4 text-center">
-            <p class="text-[10px] text-gray-500 uppercase tracking-wider">Powered by</p>
+            <p class="text-[10px] text-black uppercase tracking-wider">Powered by</p>
             <p class="text-sm font-semibold text-black flex items-center justify-center gap-2 mt-1">
                 <span class="sidebar-brand-badge">S</span>
                 Simplicitea
@@ -199,7 +201,7 @@
     color: #000000;
 }
 
-#cashierSidebar .text-gray-400 {
+#cashierSidebar .sidebar-role-text {
     color: #b2e8d8 !important;
 }
 
