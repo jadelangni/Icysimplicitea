@@ -90,6 +90,11 @@ For production deployment on Laravel Forge, follow:
 
 - DEPLOY_FORGE.md
 
+Deployment scripts:
+
+- scripts/forge-deploy.sh
+- scripts/forge-verify.sh
+
 ### Available Commands
 
 ```bash

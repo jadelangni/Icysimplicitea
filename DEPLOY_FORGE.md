@@ -90,6 +90,13 @@ Reference script location in this repository:
 
 scripts/forge-deploy.sh
 
+This script now includes:
+- Automatic recovery from maintenance mode on failures
+- Dependency and build steps
+- Migration + cache optimization
+- Queue restart
+- Post-deploy verification via scripts/forge-verify.sh
+
 ## 5. Scheduler Setup
 
 This app runs scheduled stock alerts from bootstrap/app.php. In Forge, enable Scheduler for the site.
@@ -143,3 +150,42 @@ Confirm these headers are present (Forge usually includes them):
 - Restrict SSH access to known IPs.
 - Configure daily database backups in Forge.
 - Add uptime monitoring for /up endpoint.
+
+## 10. DigitalOcean Production Baseline
+
+Use this baseline for stable production hosting on DigitalOcean:
+
+1. Droplet size
+- Minimum 2 vCPU / 4 GB RAM for POS workloads with queue + scheduler.
+
+2. Storage
+- Use Premium SSD.
+- Keep at least 30% free disk space for logs, cache, and deployment artifacts.
+
+3. Firewall
+- Allow inbound only: 22 (restricted to your IP), 80, 443.
+- Deny all other inbound ports.
+
+4. Database
+- Prefer managed database for easier backups and failover.
+- If local MySQL is used, enable automated backups and strong passwords.
+
+5. Backups
+- Enable Droplet backups in DigitalOcean.
+- Enable database backups (daily).
+
+6. Monitoring
+- Enable DigitalOcean monitoring/alerts for CPU, RAM, disk, and uptime.
+- Add a Forge monitor for https://your-domain.com/up
+
+## 11. First Production Deploy (Exact Order)
+
+1. Create server and site in Forge.
+2. Configure SSL and force HTTPS in Forge.
+3. Set Forge environment using .env.forge.example.
+4. Ensure APP_KEY is generated in Forge.
+5. Configure scheduler in Forge (* * * * *).
+6. Configure queue daemon in Forge.
+7. Set deployment script to run scripts/forge-deploy.sh.
+8. Run first deploy.
+9. Verify login, POS flow, reports, and queue processing.
