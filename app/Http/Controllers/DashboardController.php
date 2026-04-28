@@ -22,6 +22,10 @@ class DashboardController extends Controller
         if (!$user instanceof User) {
             abort(403);
         }
+
+        if (!$user->isAdmin()) {
+            return redirect()->route('pos.index');
+        }
         
         // Admin can select any branch or view all branches, cashier only sees their own branch
         $branches = collect();

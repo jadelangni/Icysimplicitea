@@ -16,6 +16,7 @@ use App\Http\Controllers\PermissionOverrideController;
 use App\Http\Controllers\ProductInventoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\CrewSessionController;
 use App\Http\Controllers\EmployeeInventoryController;
@@ -120,6 +121,10 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
         Route::resource('employees', EmployeeController::class);
         Route::patch('/employees/{employee}/branch', [EmployeeController::class, 'updateBranch'])->name('employees.update-branch');
         Route::patch('/employees/{employee}/toggle-status', [EmployeeController::class, 'toggleStatus'])->name('employees.toggle-status');
+        Route::post('/branches', [BranchController::class, 'store'])->name('branches.store');
+        Route::patch('/branches/{branch}', [BranchController::class, 'update'])->name('branches.update');
+        Route::patch('/branches/{branch}/archive', [BranchController::class, 'archive'])->name('branches.archive');
+        Route::delete('/branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy');
         
     Route::resource('products', ProductController::class);
     // Toggle availability without requiring full update payload

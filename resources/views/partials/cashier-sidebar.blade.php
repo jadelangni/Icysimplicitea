@@ -1,9 +1,6 @@
 {{-- Cashier Sidebar Navigation - Reusable Component --}}
 @php
     $currentRoute = request()->route()->getName();
-    $sidebarBranchSession = \App\Models\BranchSession::getActiveSessionForUser(Auth::id());
-    $sidebarSessionRole = $sidebarBranchSession ? ($sidebarBranchSession->is_cashier ? 'Cashier' : 'Crew') : (Auth::user()->role === 'admin' ? 'Admin' : 'Cashier');
-    $sidebarActiveCrew = Auth::user()->branch_id ? \App\Models\BranchSession::getActiveCrew(Auth::user()->branch_id) : collect();
 @endphp
 
 <button type="button" id="cashierSidebarToggle" class="cashier-sidebar-toggle no-print p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 bg-white dark:bg-gray-800" aria-label="Open navigation menu" aria-expanded="false" data-hide-toggle-on-open="{{ str_starts_with($currentRoute, 'pos.') ? 'true' : 'false' }}">
@@ -16,26 +13,21 @@
 
 <!-- LEFT SIDEBAR -->
 <div id="cashierSidebar" class="sidebar cashier-sidebar">
-    <!-- User Profile -->
+    <!-- Panel Branding -->
     <div class="p-4 border-b border-gray-700">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-[#00B140] to-[#005B5C] rounded-lg flex items-center justify-center overflow-hidden">
-                <span class="text-black font-bold text-lg">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white/90">
+                <img src="{{ asset('images/logo.png') }}" alt="Icy's Simplicitea logo" class="w-9 h-9 object-contain">
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-semibold text-black text-sm truncate">{{ Auth::user()->name }}</p>
-                <p class="text-xs sidebar-role-text">
-                    {{ $sidebarSessionRole }}
-                    @if($sidebarBranchSession && $sidebarBranchSession->is_cashier && $sidebarActiveCrew->count() > 0)
-                        <span class="text-yellow-400 ml-1">({{ $sidebarActiveCrew->count() }} crew online)</span>
-                    @endif
-                </p>
+                <p class="font-semibold text-black text-sm truncate">Icy's Simplicitea</p>
             </div>
         </div>
     </div>
 
     <!-- Navigation -->
     <nav class="flex-1 px-3 py-4 overflow-y-auto hide-scrollbar" id="cashierSidebarNav">
+        @if(Auth::user()->role === 'admin')
         <!-- Dashboard -->
         <a href="{{ route('dashboard') }}" class="nav-item {{ $currentRoute === 'dashboard' ? 'active' : '' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,6 +36,7 @@
             </svg>
             <span class="flex-1">Dashboard</span>
         </a>
+        @endif
 
         <!-- Point of Sale -->
         <a href="{{ route('pos.index') }}" class="nav-item {{ str_starts_with($currentRoute, 'pos.') ? 'active' : '' }}">
@@ -96,18 +89,18 @@
             <span class="flex-1">Reports</span>
         </a>
 
-        <!-- Employees -->
+        <!-- Employee -->
         <a href="{{ route('employees.index') }}" class="nav-item {{ str_starts_with($currentRoute, 'employees.') ? 'active' : '' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
-            <span class="flex-1">Employees</span>
+            <span class="flex-1">Employee List</span>
         </a>
 
         <!-- Cashier Sales -->
         <a href="{{ route('activity-logs.index') }}" class="nav-item {{ str_starts_with($currentRoute, 'activity-logs.') ? 'active' : '' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
             </svg>
             <span class="flex-1">Cashier Sales</span>
         </a>
@@ -115,7 +108,7 @@
         <!-- Staff Attendance -->
         <a href="{{ route('attendance.index') }}" class="nav-item {{ $currentRoute === 'attendance.index' ? 'active' : '' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
             <span class="flex-1">Staff Attendance</span>
         </a>
@@ -141,7 +134,7 @@
 
     </nav>
 
-    @if($sidebarBranchSession && $sidebarBranchSession->is_cashier && $sidebarActiveCrew->count() > 0)
+    @if(isset($sidebarBranchSession) && $sidebarBranchSession && $sidebarBranchSession->is_cashier && isset($sidebarActiveCrew) && $sidebarActiveCrew->count() > 0)
     <div class="px-4 pb-3">
         <div class="p-2 bg-yellow-900/30 border border-yellow-500/30 rounded-lg">
             <p class="text-yellow-300 text-xs font-semibold mb-1">Active Crew Members:</p>
@@ -199,6 +192,43 @@
 #cashierSidebar .nav-item:hover {
     background: rgba(152, 255, 152, 0.15);
     color: #000000;
+}
+
+#cashierSidebar .employee-parent {
+    width: 100%;
+}
+
+#cashierSidebar .employee-chevron {
+    transition: transform 0.2s ease;
+}
+
+#cashierSidebar .employee-submenu {
+    margin-left: 2rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+#cashierSidebar .employee-subitem {
+    display: block;
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.5rem;
+    color: #b2e8d8;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+#cashierSidebar .employee-subitem:hover {
+    background: rgba(152, 255, 152, 0.12);
+    color: #ffffff;
+}
+
+#cashierSidebar .employee-subitem.active {
+    background: #00B140;
+    color: #000000;
+    font-weight: 600;
 }
 
 #cashierSidebar .sidebar-role-text {
@@ -281,6 +311,66 @@
         display: none;
     }
 }
+
+body.cashier-pos-layout .cashier-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(86vw, 280px);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.32);
+    z-index: 60;
+}
+
+body.cashier-pos-layout .cashier-sidebar.open {
+    transform: translateX(0);
+}
+
+body.cashier-pos-layout .cashier-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(1px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 55;
+}
+
+body.cashier-pos-layout .cashier-sidebar-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body.cashier-pos-layout .cashier-sidebar-toggle {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 65;
+}
+
+body.cashier-pos-layout .cashier-sidebar-toggle.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+body.cashier-pos-layout .mobile-sidebar-safe-start {
+    padding-left: 4rem;
+    padding-top: 0.25rem;
+}
+
+@media (min-width: 1024px) {
+    body.cashier-pos-layout .cashier-sidebar-toggle,
+    body.cashier-pos-layout .cashier-sidebar-overlay {
+        display: block;
+    }
+}
 </style>
 
 <script>
@@ -289,8 +379,9 @@ function setCashierSidebar(open) {
     const overlay = document.getElementById('cashierSidebarOverlay');
     const toggle = document.getElementById('cashierSidebarToggle');
     const isMobile = window.innerWidth < 1024;
+    const isPosDrawerLayout = document.body.classList.contains('cashier-pos-layout');
 
-    if (!sidebar || !overlay || !toggle || !isMobile) return;
+    if (!sidebar || !overlay || !toggle || (!isMobile && !isPosDrawerLayout)) return;
 
     sidebar.classList.toggle('open', open);
     overlay.classList.toggle('show', open);
@@ -315,6 +406,22 @@ document.addEventListener('DOMContentLoaded', function () {
     const toggle = document.getElementById('cashierSidebarToggle');
     const overlay = document.getElementById('cashierSidebarOverlay');
     const nav = document.getElementById('cashierSidebarNav');
+    const employeeToggle = document.querySelector('[data-employee-toggle]');
+    const employeeSubmenu = document.querySelector('[data-employee-submenu]');
+
+    if (employeeToggle && employeeSubmenu) {
+        employeeToggle.addEventListener('click', function () {
+            const isExpanded = employeeToggle.getAttribute('aria-expanded') === 'true';
+            const shouldExpand = !isExpanded;
+            employeeToggle.setAttribute('aria-expanded', shouldExpand ? 'true' : 'false');
+            employeeSubmenu.classList.toggle('hidden', !shouldExpand);
+
+            const chevron = employeeToggle.querySelector('.employee-chevron');
+            if (chevron) {
+                chevron.classList.toggle('rotate-180', shouldExpand);
+            }
+        });
+    }
 
     if (toggle) {
         toggle.addEventListener('click', function () {
@@ -330,14 +437,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (nav) {
         nav.addEventListener('click', function (event) {
-            if (window.innerWidth < 1024 && event.target.closest('a.nav-item')) {
+            if (window.innerWidth < 1024 && event.target.closest('a.nav-item, a.employee-subitem')) {
                 closeCashierSidebar();
             }
         });
     }
 
     window.addEventListener('resize', function () {
-        if (window.innerWidth >= 1024) {
+        if (window.innerWidth >= 1024 && !document.body.classList.contains('cashier-pos-layout')) {
             const sidebar = document.getElementById('cashierSidebar');
             const overlayEl = document.getElementById('cashierSidebarOverlay');
             if (sidebar) sidebar.classList.remove('open');

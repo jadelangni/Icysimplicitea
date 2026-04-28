@@ -30,7 +30,7 @@
         <div class="mb-8">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome back! 👋</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-900">Welcome {{ Auth::user()->name }}</h1>
                     @php
                         $isAdminAllBranches = auth()->user()->isAdmin() && (($branchId ?? null) === 'all' || ($branchId ?? null) === null);
                     @endphp
@@ -53,7 +53,7 @@
                     <div class="relative w-full sm:w-auto">
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Select Branch</label>
                         <div class="relative">
-                            <select id="branchSelector" class="appearance-none w-full sm:w-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-4 pr-10 py-2.5 text-sm font-medium text-gray-900 dark:text-white focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer min-w-0 sm:min-w-[180px]">
+                            <select id="branchSelector" class="appearance-none w-full sm:w-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-4 pr-10 py-2.5 text-sm font-medium text-gray-900 dark:text-gray-900 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer min-w-0 sm:min-w-[180px]">
                                 <option value="all" {{ $branchId === 'all' ? 'selected' : '' }}>
                                     🌐 All Branches
                                 </option>
@@ -62,6 +62,7 @@
                                         📍 {{ $branch->name }}
                                     </option>
                                 @endforeach
+                                <option value="add-branch">➕ Add Branch</option>
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,71 +89,66 @@
         </div>
 
         <!-- Top Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <!-- Weekly Revenue -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="stat-icon-box stat-icon-green dark:bg-green-900/50">
-                        <span class="text-xl">💰</span>
+                    <div class="flex items-center gap-3">
+                        <div class="stat-icon-box stat-icon-green dark:bg-green-900/50">
+                            <span class="text-xl">💰</span>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1" id="weeklyRevenueValue">₱{{ number_format($weeklyRevenue ?? 0, 0) }}</p>
                     </div>
                     <span id="weeklyChangeBadge" class="text-xs font-medium px-2 py-1 rounded-full {{ ($weeklyChange ?? 0) >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' }}">
                         {{ ($weeklyChange ?? 0) >= 0 ? '↑' : '↓' }} <span id="weeklyChangeValue">{{ abs($weeklyChange ?? 0) }}</span>%
                     </span>
                 </div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Weekly Revenue</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1" id="weeklyRevenueValue">₱{{ number_format($weeklyRevenue ?? 0, 0) }}</p>
             </div>
 
             <!-- Today's Sales -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="stat-icon-box stat-icon-blue dark:bg-blue-900/50">
-                        <span class="text-xl">📊</span>
+                    <div class="flex items-center gap-3">
+                        <div class="stat-icon-box stat-icon-blue dark:bg-blue-900/50">
+                            <span class="text-xl">📊</span>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1" id="todaysSalesValue">₱{{ number_format($todaysSales ?? 0, 0) }}</p>
                     </div>
                     <span id="salesChangeBadge" class="text-xs font-medium px-2 py-1 rounded-full {{ ($salesChange ?? 0) >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' }}">
                         {{ ($salesChange ?? 0) >= 0 ? '↑' : '↓' }} <span id="salesChangeValue">{{ abs($salesChange ?? 0) }}</span>%
                     </span>
                 </div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Today's Sales</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1" id="todaysSalesValue">₱{{ number_format($todaysSales ?? 0, 0) }}</p>
             </div>
 
             <!-- Orders -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="stat-icon-box stat-icon-purple dark:bg-purple-900/50">
-                        <span class="text-xl">🧾</span>
+                    <div class="flex items-center gap-3">
+                        <div class="stat-icon-box stat-icon-purple dark:bg-purple-900/50">
+                            <span class="text-xl">🧾</span>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1" id="todaysTransactionsValue">{{ $todaysTransactions ?? 0 }}</p>
                     </div>
                     <span id="transactionsChangeBadge" class="text-xs font-medium px-2 py-1 rounded-full {{ ($transactionsChange ?? 0) >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' }}">
                         {{ ($transactionsChange ?? 0) >= 0 ? '↑' : '↓' }} <span id="transactionsChangeValue">{{ abs($transactionsChange ?? 0) }}</span>%
                     </span>
                 </div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Today's Orders</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1" id="todaysTransactionsValue">{{ $todaysTransactions ?? 0 }}</p>
-            </div>
-
-            <!-- Performance -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="stat-icon-box stat-icon-yellow dark:bg-yellow-900/50">
-                        <span class="text-xl">⭐</span>
-                    </div>
-                </div>
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Performance</p>
-                <p class="text-2xl font-bold mt-1" id="performanceValue" data-score="{{ $performanceScore ?? 0 }}">
-                    {{ ($performanceScore ?? 0) >= 80 ? 'Great' : (($performanceScore ?? 0) >= 50 ? 'Good' : 'Low') }}
-                </p>
             </div>
 
             <!-- Stock Alerts -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div class="flex items-center justify-between mb-3">
-                    <div id="lowStockIcon" class="stat-icon-box {{ ($lowStockCount ?? 0) > 0 ? 'stat-icon-red dark:bg-red-900/50' : 'stat-icon-green dark:bg-green-900/50' }}">
-                        <span class="text-xl" id="lowStockEmoji">{{ ($lowStockCount ?? 0) > 0 ? '⚠️' : '✅' }}</span>
+                    <div class="flex items-center gap-3">
+                        <div id="lowStockIcon" class="stat-icon-box {{ ($lowStockCount ?? 0) > 0 ? 'stat-icon-red dark:bg-red-900/50' : 'stat-icon-green dark:bg-green-900/50' }}">
+                            <span class="text-xl" id="lowStockEmoji">{{ ($lowStockCount ?? 0) > 0 ? '⚠️' : '✅' }}</span>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1" id="lowStockValue">{{ $lowStockCount ?? 0 }} Items</p>
                     </div>
                 </div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Low Stock</p>
-                <p class="text-2xl font-bold mt-1" id="lowStockValue">{{ $lowStockCount ?? 0 }} Items</p>
             </div>
         </div>
 
@@ -163,7 +159,7 @@
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Sales Statistics</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">Sales Statistics</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Last 7 days overview</p>
                         </div>
                         <div class="flex items-center gap-4">
@@ -195,7 +191,7 @@
             <!-- Top Products - 1 column -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">🏆 Top Products</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">🏆 Top Products</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">This week's bestsellers</p>
                 </div>
                 <div id="topProductsContainer" class="p-4">
@@ -209,11 +205,11 @@
                                     </span>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $item->product->name ?? 'Unknown' }}</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-900 truncate">{{ $item->product->name ?? 'Unknown' }}</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ $item->total_qty }} sold</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-sm font-bold text-gray-900 dark:text-white">₱{{ number_format($item->total_sales, 0) }}</p>
+                                    <p class="text-sm font-bold text-gray-900 dark:text-gray-900">₱{{ number_format($item->total_sales, 0) }}</p>
                                 </div>
                             </div>
                             @endforeach
@@ -234,7 +230,7 @@
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Transactions</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">Recent Transactions</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Latest orders from selected branch</p>
                         </div>
                         <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
@@ -266,7 +262,7 @@
                                                 @if($index === 0)
                                                     <span class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                                                 @endif
-                                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $sale->receipt_number }}</span>
+                                                <span class="text-sm font-medium text-gray-900 dark:text-gray-900">{{ $sale->receipt_number }}</span>
                                             </div>
                                         </td>
                                         <td class="py-3">
@@ -293,7 +289,7 @@
                                             </span>
                                         </td>
                                         <td class="py-3">
-                                            <span class="text-sm font-bold text-gray-900 dark:text-white">₱{{ number_format($sale->total_amount, 0) }}</span>
+                                            <span class="text-sm font-bold text-gray-900 dark:text-gray-900">₱{{ number_format($sale->total_amount, 0) }}</span>
                                         </td>
                                         <td class="py-3 pr-3">
                                             <div class="flex items-center gap-2">
@@ -330,7 +326,7 @@
         <!-- Quick Actions -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
             <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">⚡ Quick Actions</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">⚡ Quick Actions</h3>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -506,6 +502,10 @@
         const branchSelector = document.getElementById('branchSelector');
         if (branchSelector) {
             branchSelector.addEventListener('change', function() {
+                if (this.value === 'add-branch') {
+                    window.location.href = "{{ route('employees.index', ['open' => 'add-branch']) }}";
+                    return;
+                }
                 loadBranchData(this.value);
             });
         }
@@ -584,13 +584,6 @@
         document.getElementById('todaysTransactionsValue').textContent = data.todaysTransactions;
         updateChangeBadge('transactionsChangeBadge', 'transactionsChangeValue', data.transactionsChange);
 
-        // Update Performance
-        const perfEl = document.getElementById('performanceValue');
-        const score = data.performanceScore;
-        perfEl.dataset.score = score;
-        perfEl.textContent = score >= 80 ? 'Great' : (score >= 50 ? 'Good' : 'Low');
-        perfEl.className = `text-2xl font-bold mt-1 ${score >= 80 ? 'text-green-600 dark:text-green-400' : (score >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400')}`;
-
         // Update Low Stock
         const lowStock = data.lowStockCount;
         document.getElementById('lowStockValue').textContent = lowStock + ' Items';
@@ -659,11 +652,11 @@
                         <span class="text-sm font-bold">${medal}</span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">${item.product?.name || 'Unknown'}</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-900 truncate">${item.product?.name || 'Unknown'}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">${item.total_qty} sold</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm font-bold text-gray-900 dark:text-white">₱${parseFloat(item.total_sales).toLocaleString()}</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-gray-900">₱${parseFloat(item.total_sales).toLocaleString()}</p>
                     </div>
                 </div>
             `;
@@ -731,7 +724,7 @@
                     <td class="py-3 pl-3">
                         <div class="flex items-center gap-2">
                             ${index === 0 ? '<span class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>' : ''}
-                            <span class="text-sm font-medium text-gray-900 dark:text-white">${sale.receipt_number}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-900">${sale.receipt_number}</span>
                         </div>
                     </td>
                     <td class="py-3">
@@ -743,7 +736,7 @@
                         </span>
                     </td>
                     <td class="py-3">
-                        <span class="text-sm font-bold text-gray-900 dark:text-white">₱${parseFloat(sale.total_amount).toLocaleString()}</span>
+                        <span class="text-sm font-bold text-gray-900 dark:text-gray-900">₱${parseFloat(sale.total_amount).toLocaleString()}</span>
                     </td>
                     <td class="py-3 pr-3">
                         <div class="flex items-center gap-2">
@@ -852,7 +845,7 @@
                         </span>
                         <span class="text-xs text-gray-500 dark:text-gray-400">${sale.time_ago || 'Just now'}</span>
                     </div>
-                    <p class="text-sm font-semibold text-gray-900 dark:text-white mb-0.5">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-900 mb-0.5">
                         New Sale at ${sale.branch_name}!
                     </p>
                     <p class="text-lg font-bold text-green-600 dark:text-green-400">
@@ -1098,7 +1091,7 @@
                             ${alert.urgency === 'critical' ? 'CRITICAL' : 'LOW STOCK'}
                         </span>
                     </div>
-                    <p class="text-sm font-semibold text-gray-900 dark:text-white mb-0.5">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-900 mb-0.5">
                         Low Stock Alert: ${alert.branch_name}
                     </p>
                     <p class="text-sm text-gray-600 dark:text-gray-400">

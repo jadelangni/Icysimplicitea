@@ -8,6 +8,7 @@ use App\Models\ProductIngredient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class RecipeController extends Controller
 {
@@ -80,9 +81,34 @@ class RecipeController extends Controller
                     // Build the sync array
                     $syncData = [];
                     foreach ($validated['ingredients'] as $ingredientData) {
+                        $ingredient = Ingredient::find($ingredientData['ingredient_id']);
+                        if (!$ingredient) {
+                            throw ValidationException::withMessages([
+                                'ingredients' => ["Invalid ingredient ID: {$ingredientData['ingredient_id']}"]
+                            ]);
+                        }
+
+                        $recipeUnit = Ingredient::normalizeUnit($ingredientData['unit'] ?? $ingredient->unit);
+                        if (!$recipeUnit) {
+                            throw ValidationException::withMessages([
+                                'ingredients' => ["Please select a valid unit for {$ingredient->name}."]
+                            ]);
+                        }
+
+                        $isConvertible = $ingredient->convertRecipeQuantityToStockUnit(
+                            (float) $ingredientData['quantity_required'],
+                            $recipeUnit
+                        ) !== null;
+
+                        if (!$isConvertible) {
+                            throw ValidationException::withMessages([
+                                'ingredients' => ["Unit '{$recipeUnit}' is not compatible with {$ingredient->name} stock unit '{$ingredient->unit}'."]
+                            ]);
+                        }
+
                         $syncData[$ingredientData['ingredient_id']] = [
                             'quantity_required' => $ingredientData['quantity_required'],
-                            'unit' => $ingredientData['unit'] ?? null
+                            'unit' => $recipeUnit
                         ];
                     }
                     
@@ -98,6 +124,11 @@ class RecipeController extends Controller
                 'message' => 'Recipe updated successfully!'
             ]);
 
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => collect($e->errors())->flatten()->first() ?? 'Invalid recipe data.'
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Recipe update failed: ' . $e->getMessage());
             return response()->json([
@@ -215,8 +246,19 @@ class RecipeController extends Controller
         $limitingIngredient = null;
 
         foreach ($product->ingredients as $ingredient) {
-            $required = $ingredient->pivot->quantity_required;
+            $required = $ingredient->convertRecipeQuantityToStockUnit(
+                (float) $ingredient->pivot->quantity_required,
+                $ingredient->pivot->unit
+            );
             $available = $ingredient->getQuantityForBranch($branchId);
+
+            if ($required === null) {
+                return response()->json([
+                    'success' => false,
+                    'error' => "Unit mismatch in recipe for {$ingredient->name}: '{$ingredient->pivot->unit}' is not compatible with '{$ingredient->unit}'."
+                ], 422);
+            }
+
             if ($required > 0) {
                 $possibleServings = floor($available / $required);
                 if ($possibleServings < $maxServings) {
@@ -233,13 +275,17 @@ class RecipeController extends Controller
             'limiting_ingredient' => $limitingIngredient,
             'ingredients' => $product->ingredients->map(function ($ing) use ($branchId) {
                 $available = $ing->getQuantityForBranch($branchId);
-                $required = $ing->pivot->quantity_required;
+                $required = $ing->convertRecipeQuantityToStockUnit(
+                    (float) $ing->pivot->quantity_required,
+                    $ing->pivot->unit
+                );
                 return [
                     'name' => $ing->name,
                     'available' => $available,
-                    'required_per_unit' => $required,
+                    'required_per_unit' => $required ?? 0,
                     'unit' => $ing->unit,
-                    'possible_servings' => $required > 0 ? floor($available / $required) : 0
+                    'possible_servings' => $required && $required > 0 ? floor($available / $required) : 0,
+                    'recipe_unit' => $ing->pivot->unit ?? $ing->unit
                 ];
             })
         ]);

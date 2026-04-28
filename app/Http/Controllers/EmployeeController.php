@@ -45,8 +45,9 @@ class EmployeeController extends Controller
         
         $employees = $query->orderBy('name')->paginate(10)->withQueryString();
         $branches = Branch::where('is_active', true)->get();
+        $managedBranches = Branch::orderBy('name')->get();
         
-        return view('employees.index', compact('employees', 'branches'));
+        return view('employees.index', compact('employees', 'branches', 'managedBranches'));
     }
 
     /**
@@ -72,6 +73,7 @@ class EmployeeController extends Controller
         ]);
 
         $user = User::create([
+            'id_number' => User::generateNextIdNumber(),
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),

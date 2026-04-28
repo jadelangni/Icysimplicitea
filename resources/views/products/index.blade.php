@@ -29,12 +29,12 @@
                                 <button id="clearProductSearch" type="button" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm">✕</button>
                             </div>
 
-                            <a href="{{ route('products.create') }}" class="inline-flex items-center justify-center px-5 py-2.5 bg-simplicitea-600 text-black rounded-xl hover:bg-simplicitea-700 font-medium transition-colors shadow-sm whitespace-nowrap">
+                            <button type="button" id="openCreateProductModal" class="inline-flex items-center justify-center px-5 py-2.5 bg-simplicitea-600 text-black rounded-xl hover:bg-simplicitea-700 font-medium transition-colors shadow-sm whitespace-nowrap">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
                                 New Product
-                            </a>
+                            </button>
                         </div>
                     </div>
 
@@ -47,9 +47,9 @@
                             <p class="text-gray-500 dark:text-gray-400 mb-4">
                                 {{ !empty($search) ? 'Try a different search term.' : 'Get started by adding your first product' }}
                             </p>
-                            <a href="{{ route('products.create') }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700">
+                            <button type="button" id="openCreateProductModalEmpty" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 text-black rounded-lg hover:bg-simplicitea-700">
                                 Add Product
-                            </a>
+                            </button>
                         </div>
                     @else
                         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
@@ -149,8 +149,68 @@
         </div>
     </div>
 
+    <div id="createProductModal" class="fixed inset-0 z-50 hidden">
+        <div id="createProductBackdrop" class="absolute inset-0 bg-black/60"></div>
+        <div class="relative h-full w-full flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
+                <div class="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Create Product</h3>
+                    <button type="button" id="closeCreateProductModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    @include('products.partials.form', ['categories' => $categories, 'isModal' => true])
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const createModal = document.getElementById('createProductModal');
+            const openCreateButton = document.getElementById('openCreateProductModal');
+            const openCreateButtonEmpty = document.getElementById('openCreateProductModalEmpty');
+            const closeCreateButton = document.getElementById('closeCreateProductModal');
+            const createBackdrop = document.getElementById('createProductBackdrop');
+
+            window.openCreateProductModal = function () {
+                if (!createModal) return;
+                createModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            };
+
+            window.closeCreateProductModal = function () {
+                if (!createModal) return;
+                createModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            };
+
+            if (openCreateButton) {
+                openCreateButton.addEventListener('click', window.openCreateProductModal);
+            }
+            if (openCreateButtonEmpty) {
+                openCreateButtonEmpty.addEventListener('click', window.openCreateProductModal);
+            }
+            if (closeCreateButton) {
+                closeCreateButton.addEventListener('click', window.closeCreateProductModal);
+            }
+            if (createBackdrop) {
+                createBackdrop.addEventListener('click', window.closeCreateProductModal);
+            }
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    window.closeCreateProductModal();
+                }
+            });
+
+            @if($errors->any())
+            window.openCreateProductModal();
+            @endif
+
             const searchInput = document.getElementById('productSearchInput');
             const clearButton = document.getElementById('clearProductSearch');
             const tableBody = document.getElementById('productsTableBody');

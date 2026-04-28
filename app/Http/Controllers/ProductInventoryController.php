@@ -23,49 +23,56 @@ class ProductInventoryController extends Controller
     {
         $user = Auth::user();
         $branches = Branch::where('is_active', true)->get();
+        $selectedBranchId = (int) $request->get('branch_id', 0);
+        $selectedBranch = $branches->firstWhere('id', $selectedBranchId) ?? $branches->first();
+        $selectedBranchId = $selectedBranch?->id;
+        $displayBranches = $selectedBranch ? collect([$selectedBranch]) : collect();
         $categories = Category::where('is_active', true)->get();
         
-        // Get products with inventory for all branches and their ingredients
+        // Raw Product tab only shows ready-for-resale (direct) products.
         $products = Product::with(['category', 'inventory.branch', 'ingredients.inventories'])
             ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('product_type')
+                    ->orWhere('product_type', Product::TYPE_DIRECT);
+            })
             ->orderBy('name')
             ->get();
         
         // Get low stock alerts across all branches (for admin)
         $lowStockAlerts = [];
         if ($user->isAdmin()) {
-            $lowStockAlerts = Inventory::with(['product', 'branch'])
+            $lowStockAlertsQuery = Inventory::with(['product', 'branch'])
+                ->whereHas('product', function ($query) {
+                    $query->where('is_active', true)
+                        ->where(function ($innerQuery) {
+                            $innerQuery->whereNull('product_type')
+                                ->orWhere('product_type', Product::TYPE_DIRECT);
+                        });
+                })
                 ->whereRaw('quantity <= min_stock_level')
-                ->orderBy('quantity', 'asc')
-                ->get();
+                ->orderBy('quantity', 'asc');
+
+            if ($selectedBranchId) {
+                $lowStockAlertsQuery->where('branch_id', $selectedBranchId);
+            }
+
+            $lowStockAlerts = $lowStockAlertsQuery->get();
         }
         
-        // Get ingredients for the Ingredients tab with aggregated inventory data
-        $allBranches = Branch::all();
-        $ingredients = Ingredient::with('inventories')->orderBy('name')->get()->map(function($ingredient) use ($allBranches) {
-            // Aggregate inventory across all branches
-            $totalQuantity = 0;
-            $totalMinStock = 0;
-            $branchCount = 0;
-            $hasLowStock = false;
-            $hasOutOfStock = false;
+        // Get ingredients for the Ingredients tab (display branch-specific values)
+        $allBranches = $branches;
+        $ingredients = Ingredient::with('inventories')->orderBy('name')->get()->map(function($ingredient) use ($allBranches, $selectedBranchId, $selectedBranch) {
             $branchData = [];
             
             foreach ($allBranches as $branch) {
                 $inv = $ingredient->inventories->where('branch_id', $branch->id)->first();
                 $qty = $inv ? (float)$inv->quantity : 0;
                 $minStock = $inv ? (float)$inv->min_stock_level : 10;
-                
-                $totalQuantity += $qty;
-                $totalMinStock += $minStock;
-                $branchCount++;
-                
+
                 $isOut = $qty <= 0;
                 $isLow = !$isOut && $qty <= $minStock;
-                
-                if ($isOut) $hasOutOfStock = true;
-                if ($isLow) $hasLowStock = true;
-                
+
                 $branchData[$branch->id] = [
                     'inventory_id' => $inv ? $inv->id : null,
                     'quantity' => $qty,
@@ -75,12 +82,24 @@ class ProductInventoryController extends Controller
                     'branch_name' => $branch->name,
                 ];
             }
+
+            $selectedBranchData = $branchData[$selectedBranchId] ?? [
+                'quantity' => 0,
+                'min_stock_level' => 10,
+                'is_low_stock' => false,
+                'is_out_of_stock' => true,
+            ];
+
+            $selectedQuantity = (float) $selectedBranchData['quantity'];
+            $selectedMinStock = (float) $selectedBranchData['min_stock_level'];
+            $isOutOfStock = (bool) $selectedBranchData['is_out_of_stock'];
+            $isLowStock = (bool) $selectedBranchData['is_low_stock'];
             
-            // Determine overall status
-            if ($hasOutOfStock) {
+            // Determine status for selected branch
+            if ($isOutOfStock) {
                 $status = 'Out of Stock';
                 $statusColor = 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400';
-            } elseif ($hasLowStock) {
+            } elseif ($isLowStock) {
                 $status = 'Low Stock';
                 $statusColor = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400';
             } else {
@@ -94,13 +113,15 @@ class ProductInventoryController extends Controller
                 'description' => $ingredient->description,
                 'unit' => $ingredient->unit,
                 'is_active' => $ingredient->is_active,
-                'quantity' => $totalQuantity, // Total across all branches
-                'min_stock_level' => $totalMinStock / max($branchCount, 1), // Average threshold
+                'quantity' => $selectedQuantity,
+                'min_stock_level' => $selectedMinStock,
                 'status' => $status,
                 'status_color' => $statusColor,
-                'is_low_stock' => $hasLowStock && !$hasOutOfStock,
-                'is_out_of_stock' => $hasOutOfStock,
+                'is_low_stock' => $isLowStock,
+                'is_out_of_stock' => $isOutOfStock,
                 'branches' => $branchData,
+                'selected_branch_id' => $selectedBranchId,
+                'selected_branch_name' => $selectedBranch?->name,
                 'updated_at' => $ingredient->updated_at,
             ];
         });
@@ -125,7 +146,10 @@ class ProductInventoryController extends Controller
                 'inStockIngredients',
                 'outOfStockIngredients',
                 'allBranches',
-                'activeTab'
+                'activeTab',
+                'selectedBranch',
+                'selectedBranchId',
+                'displayBranches'
             ))
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
@@ -137,7 +161,9 @@ class ProductInventoryController extends Controller
      */
     public function show(Product $product)
     {
+        $product->load(['category', 'ingredients.inventories']);
         $branches = Branch::where('is_active', true)->get();
+        $isCompositeProduct = $product->isCompositeProduct() || $product->ingredients->isNotEmpty();
         
         // Get inventory for each branch
         $branchInventory = [];
@@ -145,6 +171,26 @@ class ProductInventoryController extends Controller
             $inventory = Inventory::where('product_id', $product->id)
                 ->where('branch_id', $branch->id)
                 ->first();
+
+            $ingredientIssueNames = [];
+            $ingredientLowCount = 0;
+            $ingredientOutCount = 0;
+
+            if ($isCompositeProduct) {
+                foreach ($product->ingredients as $ingredient) {
+                    $ingredientInventory = $ingredient->inventories->firstWhere('branch_id', $branch->id);
+                    $qty = $ingredientInventory ? (float) $ingredientInventory->quantity : 0;
+                    $minStock = $ingredientInventory ? (float) $ingredientInventory->min_stock_level : 10;
+
+                    if ($qty <= 0) {
+                        $ingredientOutCount++;
+                        $ingredientIssueNames[] = $ingredient->name;
+                    } elseif ($qty <= $minStock) {
+                        $ingredientLowCount++;
+                        $ingredientIssueNames[] = $ingredient->name;
+                    }
+                }
+            }
             
             $branchInventory[] = [
                 'branch_id' => $branch->id,
@@ -152,6 +198,12 @@ class ProductInventoryController extends Controller
                 'quantity' => $inventory ? $inventory->quantity : 0,
                 'min_stock_level' => $inventory ? $inventory->min_stock_level : 10,
                 'is_low_stock' => $inventory ? $inventory->isLowStock() : false,
+                'has_low_ingredients' => ($ingredientLowCount + $ingredientOutCount) > 0,
+                'ingredient_issue_count' => $ingredientLowCount + $ingredientOutCount,
+                'ingredient_low_count' => $ingredientLowCount,
+                'ingredient_out_count' => $ingredientOutCount,
+                'ingredient_issue_names' => array_slice($ingredientIssueNames, 0, 4),
+                'ingredient_total_count' => $product->ingredients->count(),
             ];
         }
         
@@ -166,6 +218,10 @@ class ProductInventoryController extends Controller
                 'category_name' => $product->category->name ?? 'Uncategorized',
                 'is_active' => $product->is_active,
                 'image' => $product->image,
+                'product_type' => $product->product_type,
+                'is_direct' => $product->isDirectProduct(),
+                'is_composite' => $isCompositeProduct,
+                'ingredient_count' => $product->ingredients->count(),
             ],
             'branch_inventory' => $branchInventory,
         ]);

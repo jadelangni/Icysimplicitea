@@ -85,7 +85,7 @@
                             {{ $view === 'products' ? $totalItems : '' }}
                         </span>
                     </a>
-                    <a href="{{ route('inventory.index', ['view' => 'ingredients']) }}" 
+                          <a href="{{ route('inventory.index', ['view' => 'ingredients']) }}" 
                        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
                               {{ $view === 'ingredients' 
                                  ? 'bg-simplicitea-600 text-black shadow-md' 
@@ -94,9 +94,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
                         </svg>
                         <span>Raw Materials</span>
-                        <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ $view === 'ingredients' ? 'bg-white/20' : 'bg-gray-200 dark:bg-gray-600' }}">
-                            {{ $view === 'ingredients' ? $totalItems : '' }}
-                        </span>
                     </a>
                 </div>
             </div>
@@ -245,6 +242,33 @@
                     </div>
                 @else
                     <div class="overflow-x-auto">
+                        @php
+                            $sortedInventoryItems = $inventoryItems->sortByDesc(function ($item) use ($view) {
+                                if ($view === 'ingredients') {
+                                    $hasOut = false;
+                                    $hasLow = false;
+                                    foreach (($item->branches ?? []) as $branchData) {
+                                        if (!empty($branchData['is_out_of_stock'])) {
+                                            $hasOut = true;
+                                            break;
+                                        }
+                                        if (!empty($branchData['is_low_stock'])) {
+                                            $hasLow = true;
+                                        }
+                                    }
+                                    return $hasOut ? 2 : ($hasLow ? 1 : 0);
+                                }
+
+                                $status = strtolower($item->status ?? '');
+                                if (str_contains($status, 'out')) {
+                                    return 2;
+                                }
+                                if (str_contains($status, 'low')) {
+                                    return 1;
+                                }
+                                return 0;
+                            });
+                        @endphp
                         @if($view === 'ingredients')
                             {{-- Multi-Branch Ingredients Table --}}
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -275,7 +299,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
-                                    @foreach($inventoryItems as $item)
+                                    @foreach($sortedInventoryItems as $item)
                                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center gap-3">
@@ -305,9 +329,9 @@
                                                             {{ number_format($qty, 1) }}
                                                         </span>
                                                         @if($isOut)
-                                                            <span class="text-xs text-red-500">Out</span>
+                                                            <span>Out</span>
                                                         @elseif($isLow)
-                                                            <span class="text-xs text-yellow-500">Low</span>
+                                                            <span>Low</span>
                                                         @endif
                                                         @if($invId)
                                                             <button onclick="openBranchRestockModal({{ $invId }}, '{{ $item->name }}', '{{ $item->unit }}', '{{ $branch->name }}')" 
@@ -349,7 +373,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
-                                    @foreach($inventoryItems as $item)
+                                    @foreach($sortedInventoryItems as $item)
                                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center gap-3">

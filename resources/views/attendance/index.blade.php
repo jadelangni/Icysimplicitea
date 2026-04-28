@@ -10,12 +10,12 @@
         </div>
 
         <!-- Filters -->
-        <div class="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+        <div class="mb-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
             <form id="attendance-filters" method="GET" action="{{ route('attendance.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 @if(auth()->user()->isAdmin() && $branches->count() > 0)
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Branch</label>
-                        <select name="branch_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Branch</label>
+                        <select name="branch_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                             <option value="" {{ $branchId === '' ? 'selected' : '' }}>All Branches</option>
                             @foreach($branches as $branch)
                                 <option value="{{ $branch->id }}" {{ $branchId == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -24,8 +24,8 @@
                     </div>
                 @endif
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Staff Member</label>
-                    <select name="user_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Staff Member</label>
+                    <select name="user_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                         <option value="">All Staff</option>
                         @foreach($staff as $member)
                             <option value="{{ $member->id }}" {{ $userId == $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
@@ -33,14 +33,14 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Start Date</label>
                     <input type="date" name="start_date" value="{{ $startDate }}"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
+                        class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">End Date</label>
                     <input type="date" name="end_date" value="{{ $endDate }}"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-simplicitea-500 focus:border-simplicitea-500 dark:bg-gray-700 dark:text-black">
+                        class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                 </div>
             </form>
         </div>

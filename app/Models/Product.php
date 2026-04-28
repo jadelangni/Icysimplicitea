@@ -65,7 +65,7 @@ class Product extends Model
      */
     public function isDirectProduct(): bool
     {
-        return $this->product_type === self::TYPE_DIRECT;
+        return $this->product_type !== self::TYPE_COMPOSITE;
     }
 
     /**

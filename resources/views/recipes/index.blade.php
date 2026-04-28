@@ -240,6 +240,14 @@
     <script>
         let currentProductId = null;
         const allIngredients = @json($ingredients);
+        const recipeUnitOptions = [
+            { value: 'mg', label: 'mg' },
+            { value: 'g', label: 'g' },
+            { value: 'kg', label: 'kg' },
+            { value: 'ml', label: 'ml' },
+            { value: 'l', label: 'L' },
+            { value: 'pieces', label: 'pieces' },
+        ];
 
         // Product search functionality
         document.getElementById('productSearch').addEventListener('input', function() {
@@ -371,6 +379,11 @@
                 options += `<option value="${ing.id}" data-unit="${ing.unit}" ${ing.id == selectedId ? 'selected' : ''}>${ing.name} (${ing.quantity} ${ing.unit} available)</option>`;
             });
 
+            let unitOptions = '<option value="">Select unit</option>';
+            recipeUnitOptions.forEach(option => {
+                unitOptions += `<option value="${option.value}" ${option.value === unit ? 'selected' : ''}>${option.label}</option>`;
+            });
+
             return `
                 <div class="ingredient-row flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                     <div class="flex-1">
@@ -381,8 +394,10 @@
                     <div class="w-28">
                         <input type="number" name="ingredients[${rowIndex}][quantity_required]" value="${quantity}" step="0.01" min="0.01" required placeholder="Qty" class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
                     </div>
-                    <div class="w-24">
-                        <input type="text" name="ingredients[${rowIndex}][unit]" id="unit_${rowIndex}" value="${unit}" placeholder="Unit" class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-400" readonly>
+                    <div class="w-32">
+                        <select name="ingredients[${rowIndex}][unit]" id="unit_${rowIndex}" required class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
+                            ${unitOptions}
+                        </select>
                     </div>
                     <button type="button" onclick="removeIngredientRow(this)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -408,8 +423,12 @@
 
         function updateUnit(select, index) {
             const option = select.options[select.selectedIndex];
-            const unit = option.dataset.unit || '';
-            document.getElementById(`unit_${index}`).value = unit;
+            const ingredientUnit = option.dataset.unit || '';
+            const unitSelect = document.getElementById(`unit_${index}`);
+
+            if (unitSelect && !unitSelect.value) {
+                unitSelect.value = ingredientUnit;
+            }
         }
 
         function selectProductType(type) {

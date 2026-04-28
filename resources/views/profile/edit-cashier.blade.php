@@ -25,7 +25,7 @@
         }
         .content-area { flex: 1; overflow-y: auto; padding: 24px; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #9ca3af; text-decoration: none; }
-        .nav-item:hover { background: rgba(255,255,255,0.1); color: black; }
+        .nav-item:hover { background: rgba(173, 46, 46, 0.1); color: black; }
         .nav-item.active { background: #00B140; color: black; }
 
         .main-content .bg-white {

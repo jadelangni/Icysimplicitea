@@ -39,6 +39,9 @@
             overflow: hidden;
             transition: background-color 0.3s;
         }
+        body.cashier-pos-layout .main-content {
+            padding-left: 4.25rem;
+        }
         .products-panel {
             flex: 1;
             display: flex;
@@ -274,7 +277,7 @@
         
         /* Search & Filter */
         html.dark #product-search { background: #374151 !important; border-color: #4b5563 !important; color: #f3f4f6 !important; }
-        html.dark #product-search::placeholder { color: #9ca3af !important; }
+        html.dark #product-search::placeholder { color: #9da4af !important; }
         html.dark .products-panel h1 { color: #f3f4f6 !important; }
         html.dark .products-panel p { color: #9ca3af !important; }
         html.dark button[type="button"] { color: #d1d5db !important; }
@@ -393,7 +396,7 @@
         }
     </style>
 </head>
-<body class="cashier-mint-theme font-sans antialiased h-full">
+<body class="cashier-mint-theme cashier-pos-layout font-sans antialiased h-full">
     <div class="pos-wrapper">
         @include('partials.cashier-sidebar')
 
@@ -593,15 +596,14 @@
                             </svg>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-1.5 mb-0.5">
-                                <span class="text-[10px] text-gray-400">Cashier {{ Auth::user()->id }}</span>
-                                <span class="flex items-center gap-1 text-[10px] text-green-600 font-medium">
+                            <div class="flex items-center gap-2 mb-0.5">
+                                <span class="text-sm font-semibold text-gray-900 truncate">{{ Auth::user()->name }}</span>
+                                <span class="flex items-center gap-1 text-[10px] text-green-600 font-medium shrink-0">
                                     <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                                     Online
                                 </span>
                             </div>
-                            <p class="font-semibold text-gray-900 text-sm truncate">{{ Auth::user()->name }}</p>
-                            <p class="text-[10px] text-gray-400">ID : #{{ str_pad(Auth::user()->id, 7, '0', STR_PAD_LEFT) }}</p>
+                            <p class="text-[10px] text-gray-400">ID: {{ Auth::user()->id_number ?? ('#' . str_pad(Auth::user()->id, 7, '0', STR_PAD_LEFT)) }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-[10px] text-gray-400">{{ now()->format('d M Y') }}</p>

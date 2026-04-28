@@ -189,3 +189,42 @@ Use this baseline for stable production hosting on DigitalOcean:
 7. Set deployment script to run scripts/forge-deploy.sh.
 8. Run first deploy.
 9. Verify login, POS flow, reports, and queue processing.
+
+## 12. Create Admin And Employee Accounts On Forge
+
+Use this after first deploy (or any time you need to reset default credentials).
+
+1. Add these environment variables in Forge (Site > Environment):
+
+FORGE_ADMIN_EMAIL=admin@simplicitea.com
+FORGE_ADMIN_PASSWORD=your_strong_admin_password
+FORGE_EMPLOYEE_EMAIL=employee@simplicitea.com
+FORGE_EMPLOYEE_PASSWORD=your_strong_employee_password
+
+2. Run the seeder from Forge server (recommended):
+
+php artisan db:seed --class=Database\\Seeders\\ForgeUserSeeder --force
+
+Notes:
+- Employee account is created with role cashier (the app's employee role).
+- Seeder is idempotent and uses updateOrCreate by email.
+
+3. Tinker fallback (single command) if you do not want to run db:seed:
+
+php artisan tinker --execute="(new \\Database\\Seeders\\ForgeUserSeeder())->run();"
+
+## 13. Fix Missing Branches In Production
+
+If branch dropdowns/selectors are empty, the `branches` table is likely empty or all rows are inactive.
+
+1. Create/update the default branches from Forge command line:
+
+php artisan tinker --execute='\App\Models\Branch::updateOrCreate(["name"=>"Oslob Main"],["address"=>"Main Street, Oslob, Cebu","phone"=>"+63 912 345 6789","manager_name"=>"Maria Santos","is_active"=>true]); \App\Models\Branch::updateOrCreate(["name"=>"Santander Poblacion"],["address"=>"Poblacion, Santander, Cebu","phone"=>"+63 912 345 6788","manager_name"=>"Juan dela Cruz","is_active"=>true]); \App\Models\Branch::updateOrCreate(["name"=>"Looc Branch"],["address"=>"Looc, Oslob, Cebu","phone"=>"+63 912 345 6787","manager_name"=>"Ana Garcia","is_active"=>true]); echo "BRANCH_SEEDED".PHP_EOL;'
+
+2. Verify at least one active branch exists:
+
+php artisan tinker --execute='echo "ACTIVE_BRANCHES=".\App\Models\Branch::where("is_active", true)->count().PHP_EOL;'
+
+3. Clear caches if UI still does not show branches:
+
+php artisan optimize:clear

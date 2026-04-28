@@ -46,7 +46,7 @@ class InventorySyncService
                     $quantity = $saleItem->quantity;
                     $branchId = $sale->branch_id;
 
-                    if ($product->product_type === 'direct') {
+                    if ($product->isDirectProduct()) {
                         // Direct product (finished goods): Deduct from product inventory
                         $deduction = $this->deductProductInventory($product, $branchId, $quantity);
                         if ($deduction['success']) {
@@ -159,6 +159,16 @@ class InventorySyncService
         }
 
         foreach ($recipe as $ingredientPivot) {
+            $ingredient = Ingredient::find($ingredientPivot->id);
+
+            if (!$ingredient) {
+                $deductions[] = [
+                    'success' => false,
+                    'error' => "Ingredient not found for recipe item ID {$ingredientPivot->id}"
+                ];
+                continue;
+            }
+
             // Get the branch-specific inventory for this ingredient
             $ingredientInventory = IngredientInventory::where('ingredient_id', $ingredientPivot->id)
                 ->where('branch_id', $branchId)
@@ -173,7 +183,20 @@ class InventorySyncService
                 continue;
             }
 
-            $amountToDeduct = $ingredientPivot->pivot->quantity_required * $productQuantity;
+            $amountPerProductInStockUnit = $ingredient->convertRecipeQuantityToStockUnit(
+                (float) $ingredientPivot->pivot->quantity_required,
+                $ingredientPivot->pivot->unit
+            );
+
+            if ($amountPerProductInStockUnit === null) {
+                $deductions[] = [
+                    'success' => false,
+                    'error' => "Unit mismatch for {$ingredient->name}: recipe uses '{$ingredientPivot->pivot->unit}', stock uses '{$ingredient->unit}'."
+                ];
+                continue;
+            }
+
+            $amountToDeduct = $amountPerProductInStockUnit * $productQuantity;
             $newQuantity = max(0, $ingredientInventory->quantity - $amountToDeduct);
             $ingredientInventory->quantity = $newQuantity;
             $ingredientInventory->save();
@@ -184,7 +207,7 @@ class InventorySyncService
                 'ingredient_name' => $ingredientPivot->name,
                 'ingredient_id' => $ingredientPivot->id,
                 'deducted' => $amountToDeduct,
-                'unit' => $ingredientPivot->unit,
+                'unit' => $ingredient->unit,
                 'new_quantity' => $newQuantity,
                 'min_stock_level' => $ingredientInventory->min_stock_level,
                 'is_low_stock' => $newQuantity <= $ingredientInventory->min_stock_level
@@ -221,7 +244,7 @@ class InventorySyncService
                     $quantity = $saleItem->quantity;
                     $branchId = $sale->branch_id;
 
-                    if ($product->product_type === 'direct') {
+                    if ($product->isDirectProduct()) {
                         // Restore product inventory
                         $restoration = $this->restoreProductInventory($product, $branchId, $quantity);
                         $result['restorations'][] = $restoration;
@@ -286,6 +309,16 @@ class InventorySyncService
         $recipe = $product->ingredients;
 
         foreach ($recipe as $ingredientPivot) {
+            $ingredient = Ingredient::find($ingredientPivot->id);
+
+            if (!$ingredient) {
+                $restorations[] = [
+                    'success' => false,
+                    'error' => "Ingredient not found for recipe item ID {$ingredientPivot->id}"
+                ];
+                continue;
+            }
+
             // Get the branch-specific inventory for this ingredient
             $ingredientInventory = IngredientInventory::where('ingredient_id', $ingredientPivot->id)
                 ->where('branch_id', $branchId)
@@ -300,12 +333,22 @@ class InventorySyncService
                 continue;
             }
 
-            $amountToRestore = $ingredientPivot->pivot->quantity_required * $productQuantity;
+            $amountPerProductInStockUnit = $ingredient->convertRecipeQuantityToStockUnit(
+                (float) $ingredientPivot->pivot->quantity_required,
+                $ingredientPivot->pivot->unit
+            );
+
+            if ($amountPerProductInStockUnit === null) {
+                $restorations[] = [
+                    'success' => false,
+                    'error' => "Unit mismatch for {$ingredient->name}: recipe uses '{$ingredientPivot->pivot->unit}', stock uses '{$ingredient->unit}'."
+                ];
+                continue;
+            }
+
+            $amountToRestore = $amountPerProductInStockUnit * $productQuantity;
             $ingredientInventory->quantity += $amountToRestore;
             $ingredientInventory->save();
-
-            // Get ingredient for unit info
-            $ingredient = Ingredient::find($ingredientPivot->id);
 
             $restorations[] = [
                 'success' => true,
@@ -387,7 +430,7 @@ class InventorySyncService
      */
     public function checkProductAvailability(Product $product, int $branchId, int $quantity = 1): array
     {
-        if ($product->product_type === 'direct') {
+        if ($product->isDirectProduct()) {
             $inventory = Inventory::where('product_id', $product->id)
                 ->where('branch_id', $branchId)
                 ->first();
@@ -426,8 +469,36 @@ class InventorySyncService
                 ->where('branch_id', $branchId)
                 ->first();
 
-            $requiredAmount = $ingredientPivot->pivot->quantity_required * $quantity;
             $ingredient = Ingredient::find($ingredientPivot->id);
+
+            if (!$ingredient) {
+                $insufficientIngredients[] = [
+                    'name' => $ingredientPivot->name,
+                    'required' => 0,
+                    'available' => $ingredientInventory ? $ingredientInventory->quantity : 0,
+                    'unit' => '',
+                    'reason' => 'Ingredient not found'
+                ];
+                continue;
+            }
+
+            $requiredPerProductInStockUnit = $ingredient->convertRecipeQuantityToStockUnit(
+                (float) $ingredientPivot->pivot->quantity_required,
+                $ingredientPivot->pivot->unit
+            );
+
+            if ($requiredPerProductInStockUnit === null) {
+                $insufficientIngredients[] = [
+                    'name' => $ingredient->name,
+                    'required' => 0,
+                    'available' => $ingredientInventory ? $ingredientInventory->quantity : 0,
+                    'unit' => $ingredient->unit,
+                    'reason' => "Unit mismatch: recipe '{$ingredientPivot->pivot->unit}' vs stock '{$ingredient->unit}'"
+                ];
+                continue;
+            }
+
+            $requiredAmount = $requiredPerProductInStockUnit * $quantity;
 
             if (!$ingredientInventory || $ingredientInventory->quantity < $requiredAmount) {
                 $insufficientIngredients[] = [

@@ -14,31 +14,21 @@
 
 <!-- Sidebar -->
 <div class="app-sidebar" :class="{ 'open': sidebarOpen }" @click.stop>
-    <!-- User Profile -->
+    <!-- Panel Branding -->
     <div class="p-4 border-b border-gray-700">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-[#00B140] to-[#005B5C] rounded-lg flex items-center justify-center overflow-hidden">
-                <span class="text-black font-bold text-lg">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white/90">
+                <img src="{{ asset('images/logo.png') }}" alt="Icy's Simplicitea logo" class="w-9 h-9 object-contain">
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-semibold text-black text-sm truncate">{{ Auth::user()->name }}</p>
-                @php
-                    $navBranchSession = \App\Models\BranchSession::getActiveSessionForUser(Auth::id());
-                    $navSessionRole = $navBranchSession ? ($navBranchSession->is_cashier ? 'Cashier' : 'Crew') : (Auth::user()->role === 'admin' ? 'Admin' : 'Cashier');
-                    $navActiveCrew = Auth::user()->branch_id ? \App\Models\BranchSession::getActiveCrew(Auth::user()->branch_id) : collect();
-                @endphp
-                <p class="text-xs sidebar-role-text">
-                    {{ $navSessionRole }}
-                    @if($navBranchSession && $navBranchSession->is_cashier && $navActiveCrew->count() > 0)
-                        <span class="text-yellow-400 ml-1">({{ $navActiveCrew->count() }} crew online)</span>
-                    @endif
-                </p>
+                <p class="font-semibold text-black text-sm truncate">Icy's Simplicitea</p>
             </div>
         </div>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 px-3 py-4 overflow-y-auto hide-scrollbar" @click="if (window.innerWidth < 1024 && $event.target.closest('a.nav-item')) closeSidebar()">
+    <nav class="flex-1 px-3 py-4 overflow-y-auto hide-scrollbar" @click="if (window.innerWidth < 1024 && $event.target.closest('a.nav-item, a.employee-subitem')) closeSidebar()">
+        @if(auth()->user()->isAdmin())
         <!-- Dashboard -->
         <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,6 +37,7 @@
             </svg>
             <span class="flex-1">Dashboard</span>
         </a>
+        @endif
 
         @if(!auth()->user()->isAdmin())
         <!-- Point of Sale -->
@@ -91,18 +82,18 @@
             <span class="flex-1">Reports</span>
         </a>
 
-        <!-- Employees -->
+        <!-- Employee -->
         <a href="{{ route('employees.index') }}" class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
-            <span class="flex-1">Employees</span>
+            <span class="flex-1">Employee List</span>
         </a>
 
         <!-- Cashier Sales -->
         <a href="{{ route('activity-logs.index') }}" class="nav-item {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
             </svg>
             <span class="flex-1">Cashier Sales</span>
         </a>
@@ -110,7 +101,7 @@
         <!-- Staff Attendance -->
         <a href="{{ route('attendance.index') }}" class="nav-item {{ request()->routeIs('attendance.index') || request()->routeIs('attendance.schedules*') ? 'active' : '' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
             <span class="flex-1">Staff Attendance</span>
         </a>

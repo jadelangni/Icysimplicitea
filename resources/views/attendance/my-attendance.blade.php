@@ -50,12 +50,6 @@
                         </p>
                     </div>
                     <div class="flex items-center gap-2">
-                        @if($branchSession && $branchSession->is_cashier)
-                            <button type="button" onclick="openCrewCheckInModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-black rounded-lg font-medium text-sm">
-                                Crew Login
-                            </button>
-                        @endif
-
                         @if($isClockedIn)
                             <div class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-xl">
                                 <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
@@ -64,10 +58,6 @@
                         @endif
                     </div>
                 </div>
-
-                @if($branchSession && $branchSession->is_cashier)
-                    <div id="crewListContainer" class="mt-4"></div>
-                @endif
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
@@ -168,9 +158,5 @@
             setInterval(tick, 1000);
         })();
     </script>
-    @endif
-
-    @if($branchSession && $branchSession->is_cashier)
-        @include('attendance.partials.crew-session-tools')
     @endif
 </x-app-layout>

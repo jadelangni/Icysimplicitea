@@ -1,4 +1,11 @@
-<x-guest-layout>
+<x-auth-portal-layout
+    :pageTitle="__('Set Password')"
+    :appleTitle="__('Set Password')"
+    :heroTitle="__('Account Security')"
+    :heroSubtitle="__('Please set a new password to continue')"
+    :portalHeading="__('Welcome!')"
+    :portalCopy="__('Please set a new password for your account')"
+>
     <!-- Header -->
     <div class="text-center mb-6">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-black">Welcome!</h2>
@@ -77,4 +84,4 @@
             </button>
         </form>
     </div>
-</x-guest-layout>
+</x-auth-portal-layout>

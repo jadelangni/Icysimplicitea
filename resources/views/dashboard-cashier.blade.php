@@ -29,7 +29,7 @@
         <div class="mb-8">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome back! 👋</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome {{ Auth::user()->name }}</h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">
                         Here's what's happening at <span class="font-semibold text-simplicitea-600 dark:text-simplicitea-400">{{ $selectedBranch->name ?? 'your branch' }}</span> today.
                     </p>
@@ -79,19 +79,6 @@
                 </div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Today's Orders</p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1" id="todaysTransactionsValue">{{ $todaysTransactions ?? 0 }}</p>
-            </div>
-
-            <!-- Performance -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="stat-icon-box stat-icon-yellow dark:bg-yellow-900/50">
-                        <span class="text-xl">⭐</span>
-                    </div>
-                </div>
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Performance</p>
-                <p class="text-2xl font-bold mt-1" id="performanceValue" data-score="{{ $performanceScore ?? 0 }}">
-                    {{ ($performanceScore ?? 0) >= 80 ? 'Great' : (($performanceScore ?? 0) >= 50 ? 'Good' : 'Low') }}
-                </p>
             </div>
 
             <!-- Low Stock -->
@@ -475,13 +462,6 @@
         // Update Today's Orders
         document.getElementById('todaysTransactionsValue').textContent = data.todaysTransactions;
         updateChangeBadge('transactionsChangeBadge', 'transactionsChangeValue', data.transactionsChange);
-
-        // Update Performance
-        const perfEl = document.getElementById('performanceValue');
-        const score = data.performanceScore;
-        perfEl.dataset.score = score;
-        perfEl.textContent = score >= 80 ? 'Great' : (score >= 50 ? 'Good' : 'Low');
-        perfEl.className = `text-2xl font-bold mt-1 ${score >= 80 ? 'text-green-600 dark:text-green-400' : (score >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400')}`;
 
         // Update Low Stock
         const lowStock = data.lowStockCount;

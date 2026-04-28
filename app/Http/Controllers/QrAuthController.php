@@ -110,7 +110,7 @@ class QrAuthController extends Controller
                     'role' => ucfirst($user->role),
                     'branch' => $user->branch?->name,
                 ],
-                'redirect' => route('dashboard'),
+                'redirect' => route('pos.index'),
             ]);
         } else {
             // Logout action

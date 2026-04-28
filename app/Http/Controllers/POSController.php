@@ -743,6 +743,11 @@ class POSController extends Controller
     {
         $base = $product->price;
 
+        // Quick SKU workaround: direct/raw products use one SKU per size, so ignore option pricing.
+        if ($product->isDirectProduct()) {
+            return $base;
+        }
+
         $options = $product->options ?? [];
         if (empty($options) || empty($selectedOptions) || !is_array($selectedOptions)) {
             return $base;

@@ -6,7 +6,17 @@ export default {
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
+        './app/**/*.php',
+        './resources/js/**/*.js',
+        './resources/js/**/*.ts',
+        './resources/js/**/*.vue',
         './resources/views/**/*.blade.php',
+    ],
+    safelist: [
+        {
+            pattern: /(bg|text|border)-(simplicitea|green|blue|red|yellow|purple|gray)-(50|100|200|300|400|500|600|700|800|900)(\/(10|20|30|40|50|60|70|80|90))?/,
+            variants: ['dark', 'hover'],
+        },
     ],
 
     theme: {

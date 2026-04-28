@@ -17,56 +17,9 @@
         </div>
     </x-slot>
 
+
     <div class="py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <!-- Inventory Type Tabs (Segmented Control) -->
-            <div class="mb-6 flex items-center justify-between">
-                <div class="inline-flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                    <button onclick="switchTab('products')" id="tab-products"
-                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'products' ? 'bg-white dark:bg-gray-700 text-simplicitea-700 dark:text-simplicitea-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-black' }}">
-                        <span class="text-lg">🧋</span>
-                        Products
-                        <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ ($activeTab ?? 'products') === 'products' ? 'bg-simplicitea-100 dark:bg-simplicitea-900/50 text-simplicitea-700 dark:text-simplicitea-300' : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400' }}">{{ $products->count() }}</span>
-                    </button>
-                    <button onclick="switchTab('ingredients')" id="tab-ingredients"
-                        class="tab-btn px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-white dark:bg-gray-700 text-simplicitea-700 dark:text-simplicitea-300 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-black' }}">
-                        <span class="text-lg">🧪</span>
-                        Ingredients
-                        <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-simplicitea-100 dark:bg-simplicitea-900/50 text-simplicitea-700 dark:text-simplicitea-300' : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400' }}">{{ $ingredients->count() }}</span>
-                        @if($lowStockIngredients > 0)
-                        <span class="ml-1 px-2 py-0.5 text-xs rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300">{{ $lowStockIngredients }} low</span>
-                        @endif
-                    </button>
-                </div>
-                
-                <!-- Export Button -->
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" type="button"
-                        class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-black text-sm font-semibold rounded-xl transition-colors shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        Export
-                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div x-show="open" @click.away="open = false" x-cloak
-                        class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
-                        <a href="{{ route('product-inventory.export', ['type' => 'products']) }}"
-                            class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <span class="text-lg">🧋</span>
-                            Export Products
-                        </a>
-                        <a href="{{ route('product-inventory.export', ['type' => 'ingredients']) }}"
-                            class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-t border-gray-100 dark:border-gray-700">
-                            <span class="text-lg">🧪</span>
-                            Export Ingredients
-                        </a>
-                    </div>
-                </div>
-            </div>
 
             <!-- Success/Error Messages -->
             @if(session('success'))
@@ -99,12 +52,6 @@
                                     <span class="font-medium text-gray-900 dark:text-black">{{ $alert->product->name ?? 'Unknown' }}</span>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">@ {{ $alert->branch->name ?? 'Unknown' }}</span>
                                 </div>
-                                <div class="flex items-center gap-3">
-                                    <button onclick="openRestockModal({{ $alert->product_id }}, {{ $alert->branch_id }})" 
-                                        class="px-3 py-1 bg-red-600 text-black text-xs font-medium rounded-lg hover:bg-red-700 transition">
-                                        Restock
-                                    </button>
-                                </div>
                             </div>
                             @endforeach
                         </div>
@@ -118,73 +65,39 @@
             </div>
             @endif
 
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center">
-                            <span class="text-xl">🧋</span>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ $products->count() }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center">
-                            <span class="text-xl">✅</span>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Fully Synced</p>
-                            <p class="text-2xl font-bold text-green-600 dark:text-green-400" id="syncedCount">
-                                {{ $products->filter(fn($p) => $p->inventory->count() >= $branches->count())->count() }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center">
-                            <span class="text-xl">⚠️</span>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Low Stock Items</p>
-                            <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400" id="lowStockCount">{{ count($lowStockAlerts) }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center">
-                            <span class="text-xl">🏪</span>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Branches</p>
-                            <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ $branches->count() }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Product Inventory Table -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
-                <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-black flex items-center gap-2">
-                            <span class="text-xl">📦</span>
-                            Product Inventory Management
-                        </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage prices globally and stock per branch</p>
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-sm text-gray-600 dark:text-gray-300">
+                            <span class="font-medium">Inventory Type:</span>
+                            <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-2 py-1">
+                                <button type="button" onclick="applyInventoryFilter('products')" class="px-3 py-1 text-sm font-semibold rounded-full {{ ($activeTab ?? 'products') === 'products' ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-black shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200' }}">Raw Product</button>
+                                <span class="text-gray-300">|</span>
+                                <button type="button" onclick="applyInventoryFilter('ingredients')" class="px-3 py-1 text-sm font-semibold rounded-full {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-black shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200' }}">Ingredients</button>
+                            </div>
+                            @if(count($lowStockAlerts) > 0)
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300">{{ count($lowStockAlerts) }} low</span>
+                            @endif
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Ready-for-resale products only. Manage prices globally and stock per branch.</p>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <div class="relative">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <form method="GET" action="{{ route('product-inventory.index') }}" class="flex flex-wrap items-center gap-2">
+                            <input type="hidden" name="tab" value="products">
+                            <label for="inventoryBranchFilter" class="text-sm font-medium text-gray-600 dark:text-gray-300">Branch</label>
+                            <select id="inventoryBranchFilter" name="branch_id" onchange="this.form.submit()"
+                                class="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                                @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}" {{ (int) $selectedBranchId === (int) $branch->id ? 'selected' : '' }}>
+                                        {{ $branch->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
+                        <div class="relative w-full sm:w-auto">
                             <input type="text" id="productSearch" placeholder="Search products..." 
-                                class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                                class="w-full sm:w-auto pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                             <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
@@ -198,9 +111,8 @@
                             <tr class="bg-gray-50 dark:bg-gray-700/50">
                                 <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
                                 <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Base Price</th>
                                 <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sync Status</th>
-                                @foreach($branches as $branch)
+                                @foreach($displayBranches as $branch)
                                 <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                     📍 {{ $branch->name }}
                                 </th>
@@ -220,8 +132,11 @@
                                 $hasIngredients = $product->ingredients->count() > 0;
                                 $isDirectProduct = !$hasIngredients;
                                 
-                                // For direct products: check product inventory stock
-                                $hasLowProductStock = $product->inventory->filter(fn($inv) => $inv->isLowStock())->count() > 0;
+                                // For direct products: check product inventory stock (selected branch only)
+                                $hasLowProductStock = $displayBranches->contains(function($branch) use ($inventoryByBranch) {
+                                    $inv = $inventoryByBranch->get($branch->id);
+                                    return $inv ? $inv->isLowStock() : false;
+                                });
                                 
                                 // For composite products: check ingredient stock per branch
                                 $hasLowIngredientStock = false;
@@ -240,8 +155,11 @@
                                     }
                                 }
                                 
-                                // Determine overall low stock status
-                                $hasLowStock = $isDirectProduct ? $hasLowProductStock : $hasLowIngredientStock;
+                                // Determine low stock status based on selected branch view
+                                $hasLowIngredientStockForDisplay = $displayBranches->contains(function($branch) use ($lowIngredientBranches) {
+                                    return isset($lowIngredientBranches[$branch->id]);
+                                });
+                                $hasLowStock = $isDirectProduct ? $hasLowProductStock : $hasLowIngredientStockForDisplay;
                             @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150 product-row" data-name="{{ strtolower($product->name) }}">
                                 <td class="px-5 py-4">
@@ -266,9 +184,6 @@
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                                         {{ $product->category->name ?? 'Uncategorized' }}
                                     </span>
-                                </td>
-                                <td class="px-5 py-4 text-center">
-                                    <span class="text-lg font-bold text-gray-900 dark:text-black">₱{{ number_format($product->price, 2) }}</span>
                                 </td>
                                 <td class="px-5 py-4 text-center">
                                     @if($isSynced && !$hasLowStock)
@@ -301,7 +216,7 @@
                                         </span>
                                     @endif
                                 </td>
-                                @foreach($branches as $branch)
+                                @foreach($displayBranches as $branch)
                                 @php
                                     $inv = $inventoryByBranch->get($branch->id);
                                     $qty = $inv ? $inv->quantity : 0;
@@ -356,7 +271,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="{{ 5 + $branches->count() }}" class="px-5 py-12 text-center">
+                                <td colspan="{{ 4 + $displayBranches->count() }}" class="px-5 py-12 text-center">
                                     <div class="text-gray-500 dark:text-gray-400">
                                         <span class="text-4xl">📦</span>
                                         <p class="mt-2">No products found</p>
@@ -372,57 +287,6 @@
 
             <!-- ==================== INGREDIENTS TAB ==================== -->
             <div id="content-ingredients" class="tab-content {{ ($activeTab ?? 'products') === 'ingredients' ? '' : 'hidden' }}">
-                
-                <!-- Ingredients Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center">
-                                <span class="text-xl">🧪</span>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Total Ingredients</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ $ingredients->count() }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center">
-                                <span class="text-xl">⚠️</span>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Low Stock Alerts</p>
-                                <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ $lowStockIngredients ?? 0 }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center">
-                                <span class="text-xl">✅</span>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">In Stock</p>
-                                <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ $inStockIngredients ?? 0 }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center">
-                                <span class="text-xl">📦</span>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Quick Actions</p>
-                                <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" class="text-sm font-medium text-simplicitea-600 hover:text-simplicitea-700 dark:text-simplicitea-400">+ Add Ingredient</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 
                 <!-- Low Stock Ingredients Alert -->
                 @if($lowStockIngredients > 0)
@@ -446,18 +310,38 @@
 
                 <!-- Ingredients Table -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
-                    <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                    <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex flex-wrap items-center justify-between gap-4">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-black flex items-center gap-2">
-                                <span class="text-xl">🧪</span>
-                                Raw Materials & Ingredients
-                            </h3>
+                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-sm text-gray-600 dark:text-gray-300">
+                                <span class="font-medium">Inventory Type:</span>
+                                <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-2 py-1">
+                                    <button type="button" onclick="applyInventoryFilter('products')" class="px-3 py-1 text-sm font-semibold rounded-full {{ ($activeTab ?? 'products') === 'products' ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-black shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200' }}">Raw Product</button>
+                                    <span class="text-gray-300">|</span>
+                                    <button type="button" onclick="applyInventoryFilter('ingredients')" class="px-3 py-1 text-sm font-semibold rounded-full {{ ($activeTab ?? 'products') === 'ingredients' ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-black shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200' }}">Ingredients</button>
+                                </div>
+                                @if($lowStockIngredients > 0)
+                                    <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300">{{ $lowStockIngredients }} low</span>
+                                @endif
+                            </div>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage bulk ingredients like tea leaves, pearls, syrups, and more</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Showing inventory for: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ $selectedBranch->name ?? 'Selected Branch' }}</span></p>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="relative">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <form method="GET" action="{{ route('product-inventory.index') }}" class="flex flex-wrap items-center gap-2">
+                                <input type="hidden" name="tab" value="ingredients">
+                                <label for="ingredientBranchFilter" class="text-sm font-medium text-gray-600 dark:text-gray-300">Branch</label>
+                                <select id="ingredientBranchFilter" name="branch_id" onchange="this.form.submit()"
+                                    class="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                                    @foreach($branches as $branch)
+                                        <option value="{{ $branch->id }}" {{ (int) $selectedBranchId === (int) $branch->id ? 'selected' : '' }}>
+                                            {{ $branch->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </form>
+                            <div class="relative w-full sm:w-auto">
                                 <input type="text" id="ingredientSearch" placeholder="Search ingredients..." 
-                                    class="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                                    class="w-full sm:w-auto pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black placeholder-gray-400 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
                                 <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                 </svg>
@@ -468,7 +352,6 @@
                                 </svg>
                                 Add Ingredient
                             </button>
-                            </a>
                         </div>
                     </div>
                     
@@ -478,7 +361,7 @@
                                 <tr class="bg-gray-50 dark:bg-gray-700/50">
                                     <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ingredient</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                                    <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</th>
+                                    <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity ({{ $selectedBranch->name ?? 'Branch' }})</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Unit</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Updated</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
@@ -528,9 +411,9 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-5 py-4 text-center">
+                                    <td class="px-5 py-4 text-center" data-ingredient-branch-stock="{{ $ingredient->id }}-{{ $selectedBranchId }}">
                                         <span class="text-lg font-bold {{ $isOutOfStock ? 'text-red-600 dark:text-red-400' : ($isLowStock ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-black') }}">
-                                            {{ number_format($ingredient->quantity, 1) }}
+                                            <span class="stock-value">{{ number_format($ingredient->quantity, 2) }}</span>
                                         </span>
                                     </td>
                                     <td class="px-5 py-4 text-center">
@@ -775,42 +658,30 @@
             
             // Show selected tab content
             document.getElementById('content-' + tab).classList.remove('hidden');
-            
-            // Update tab button styles
-            const activeClasses = ['bg-white', 'dark:bg-gray-700', 'text-simplicitea-700', 'dark:text-simplicitea-300', 'shadow-sm'];
-            const inactiveClasses = ['text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-black'];
-            
-            document.getElementById('tab-products').classList.remove(...activeClasses);
-            document.getElementById('tab-products').classList.add(...inactiveClasses);
-            document.getElementById('tab-ingredients').classList.remove(...activeClasses);
-            document.getElementById('tab-ingredients').classList.add(...inactiveClasses);
-            
-            document.getElementById('tab-' + tab).classList.remove(...inactiveClasses);
-            document.getElementById('tab-' + tab).classList.add(...activeClasses);
-            
-            // Update tab badge styles
-            const tabBadges = document.querySelectorAll('#tab-' + tab + ' span.ml-1');
-            tabBadges.forEach(badge => {
-                if (!badge.classList.contains('bg-red-100')) { // Don't update the "low" warning badge
-                    badge.classList.remove('bg-gray-200', 'dark:bg-gray-600', 'text-gray-600', 'dark:text-gray-400');
-                    badge.classList.add('bg-simplicitea-100', 'dark:bg-simplicitea-900/50', 'text-simplicitea-700', 'dark:text-simplicitea-300');
-                }
-            });
-            
-            // Reset other tab's badge
-            const otherTab = tab === 'products' ? 'ingredients' : 'products';
-            const otherBadges = document.querySelectorAll('#tab-' + otherTab + ' span.ml-1');
-            otherBadges.forEach(badge => {
-                if (!badge.classList.contains('bg-red-100')) {
-                    badge.classList.remove('bg-simplicitea-100', 'dark:bg-simplicitea-900/50', 'text-simplicitea-700', 'dark:text-simplicitea-300');
-                    badge.classList.add('bg-gray-200', 'dark:bg-gray-600', 'text-gray-600', 'dark:text-gray-400');
-                }
+
+            document.querySelectorAll('.inventory-type-select').forEach(select => {
+                select.value = tab;
             });
             
             // Update URL without page reload
             const url = new URL(window.location);
             url.searchParams.set('tab', tab);
             window.history.replaceState({}, '', url);
+        }
+
+        function applyInventoryFilter(tab) {
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tab);
+
+            const branchSelect = tab === 'products'
+                ? document.getElementById('inventoryBranchFilter')
+                : document.getElementById('ingredientBranchFilter');
+
+            if (branchSelect && branchSelect.value) {
+                url.searchParams.set('branch_id', branchSelect.value);
+            }
+
+            window.location.href = url.toString();
         }
         
         // ==================== MODAL TAB SWITCHING ====================
@@ -908,6 +779,7 @@
         function renderModalContent(data) {
             const product = data.product;
             const branchInventory = data.branch_inventory;
+            const isCompositeProduct = !!product.is_composite;
             
             const branches = @json($branches);
             const categories = @json($categories);
@@ -917,26 +789,93 @@
             document.getElementById('modalProductCategory').textContent = product.category_name || 'Uncategorized';
             document.getElementById('modalProductIcon').innerHTML = `<span class="text-2xl">${product.name.charAt(0).toUpperCase()}</span>`;
             
-            // Calculate total stock and stats
+            // Calculate modal stats
             let totalStock = 0;
             let lowStockBranches = 0;
             let outOfStockBranches = 0;
+            let lowIngredientBranches = 0;
+            let outIngredientBranches = 0;
             branchInventory.forEach(inv => {
                 totalStock += inv.quantity;
                 if (inv.quantity <= 0) outOfStockBranches++;
                 else if (inv.quantity <= inv.min_stock_level) lowStockBranches++;
+
+                if (inv.has_low_ingredients) lowIngredientBranches++;
+                if ((inv.ingredient_out_count || 0) > 0) outIngredientBranches++;
             });
+
+            const summaryPrimaryValue = isCompositeProduct ? branchInventory.length : totalStock;
+            const summaryPrimaryLabel = isCompositeProduct ? 'Branches Tracked' : 'Total Stock';
+            const summaryThirdValue = isCompositeProduct ? lowIngredientBranches : lowStockBranches;
+            const summaryThirdLabel = isCompositeProduct ? 'Low Ingredients' : 'Low Stock';
+            const summaryFourthValue = isCompositeProduct ? outIngredientBranches : outOfStockBranches;
+            const summaryFourthLabel = isCompositeProduct ? 'Out Ingredients' : 'Out of Stock';
             
             // Build branch cards HTML
             let branchCardsHtml = branchInventory.map(inv => {
+                if (isCompositeProduct) {
+                    const hasIssue = !!inv.has_low_ingredients;
+                    const hasOut = (inv.ingredient_out_count || 0) > 0;
+                    const statusText = hasOut ? 'INGREDIENT SHORTAGE' : (hasIssue ? 'LOW INGREDIENTS' : 'READY');
+                    const statusIcon = hasOut ? '🚫' : (hasIssue ? '⚠️' : '✅');
+                    const statusClass = hasOut
+                        ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300'
+                        : (hasIssue
+                            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300'
+                            : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300');
+                    const cardClass = hasOut
+                        ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20'
+                        : (hasIssue
+                            ? 'border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20'
+                            : 'border-gray-100 dark:border-gray-600');
+
+                    const issueNames = (inv.ingredient_issue_names || []).length
+                        ? inv.ingredient_issue_names.join(', ')
+                        : 'All required ingredients are healthy in this branch.';
+
+                    return `
+                        <div class="bg-white dark:bg-gray-700/50 rounded-2xl border-2 ${cardClass} overflow-hidden transition-all hover:shadow-lg">
+                            <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">📍</span>
+                                        <span class="font-semibold text-gray-900 dark:text-black">${inv.branch_name}</span>
+                                    </div>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${statusClass}">
+                                        ${statusIcon} ${statusText}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="p-4 space-y-3">
+                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                    <div class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-center">
+                                        <p class="text-gray-500 dark:text-gray-400">Tracked</p>
+                                        <p class="font-semibold text-gray-900 dark:text-black">${inv.ingredient_total_count || 0}</p>
+                                    </div>
+                                    <div class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-center">
+                                        <p class="text-gray-500 dark:text-gray-400">Issues</p>
+                                        <p class="font-semibold ${hasIssue ? 'text-yellow-700 dark:text-yellow-300' : 'text-green-700 dark:text-green-300'}">${inv.ingredient_issue_count || 0}</p>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-600 dark:text-gray-300">
+                                    <p class="font-medium mb-1">Affected ingredients:</p>
+                                    <p>${issueNames}</p>
+                                </div>
+                                <div class="text-[11px] text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg px-2 py-1">
+                                    Recipe-based product: adjust ingredient stocks in Ingredients tab.
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 const isLow = inv.quantity > 0 && inv.quantity <= inv.min_stock_level;
                 const isOut = inv.quantity <= 0;
                 const percentage = Math.min(100, (inv.quantity / Math.max(inv.min_stock_level * 2, 50)) * 100);
-                
-                const statusColor = isOut ? 'red' : (isLow ? 'yellow' : 'green');
                 const statusText = isOut ? 'OUT OF STOCK' : (isLow ? 'LOW STOCK' : 'In Stock');
                 const statusIcon = isOut ? '🚫' : (isLow ? '⚠️' : '✅');
-                
+
                 return `
                     <div class="bg-white dark:bg-gray-700/50 rounded-2xl border-2 ${isOut ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20' : (isLow ? 'border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-100 dark:border-gray-600')} overflow-hidden transition-all hover:shadow-lg">
                         <!-- Branch Header -->
@@ -1002,7 +941,7 @@
                     </div>
                 `;
             }).join('');
-            
+
             // Build category options
             let categoryOptions = '<option value="">Select Category</option>';
             categories.forEach(cat => {
@@ -1011,23 +950,24 @@
             
             const html = `
                 <form id="productForm" onsubmit="saveProduct(event, ${product.id})">
+                    <input type="hidden" name="product_type" value="${product.product_type || (isCompositeProduct ? 'composite' : 'direct')}">
                     <!-- Stats Summary -->
                     <div class="grid grid-cols-4 gap-3 mb-6">
                         <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl p-4 text-center">
-                            <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">${totalStock}</p>
-                            <p class="text-xs text-blue-600/70 dark:text-blue-400/70 mt-1">Total Stock</p>
+                            <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">${summaryPrimaryValue}</p>
+                            <p class="text-xs text-blue-600/70 dark:text-blue-400/70 mt-1">${summaryPrimaryLabel}</p>
                         </div>
                         <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-4 text-center">
                             <p class="text-3xl font-bold text-green-600 dark:text-green-400">₱${parseFloat(product.price).toFixed(2)}</p>
                             <p class="text-xs text-green-600/70 dark:text-green-400/70 mt-1">Base Price</p>
                         </div>
                         <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 rounded-xl p-4 text-center">
-                            <p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400">${lowStockBranches}</p>
-                            <p class="text-xs text-yellow-600/70 dark:text-yellow-400/70 mt-1">Low Stock</p>
+                            <p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400">${summaryThirdValue}</p>
+                            <p class="text-xs text-yellow-600/70 dark:text-yellow-400/70 mt-1">${summaryThirdLabel}</p>
                         </div>
                         <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 rounded-xl p-4 text-center">
-                            <p class="text-3xl font-bold text-red-600 dark:text-red-400">${outOfStockBranches}</p>
-                            <p class="text-xs text-red-600/70 dark:text-red-400/70 mt-1">Out of Stock</p>
+                            <p class="text-3xl font-bold text-red-600 dark:text-red-400">${summaryFourthValue}</p>
+                            <p class="text-xs text-red-600/70 dark:text-red-400/70 mt-1">${summaryFourthLabel}</p>
                         </div>
                     </div>
                     
@@ -1094,22 +1034,6 @@
                     
                     <!-- Branch Stock Tab -->
                     <div id="panelBranches" class="modal-internal-tab-panel hidden">
-                        <!-- Bulk Actions -->
-                        <div class="flex items-center justify-between mb-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Actions for All Branches</span>
-                            <div class="flex items-center gap-2">
-                                <button type="button" onclick="bulkAdjustStock(-10)" class="px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition">
-                                    -10 All
-                                </button>
-                                <button type="button" onclick="bulkAdjustStock(10)" class="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-sm font-medium rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition">
-                                    +10 All
-                                </button>
-                                <button type="button" onclick="bulkAdjustStock(50)" class="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition">
-                                    +50 All
-                                </button>
-                            </div>
-                        </div>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             ${branchCardsHtml}
                         </div>
@@ -1165,19 +1089,12 @@
             }
         }
         
-        // Bulk adjust all stocks
-        function bulkAdjustStock(amount) {
-            const branches = @json($branches);
-            branches.forEach(branch => {
-                adjustStock(branch.id, amount);
-            });
-        }
-
         async function saveProduct(event, productId) {
             event.preventDefault();
             
             const form = event.target;
             const formData = new FormData(form);
+            const isCompositeProduct = (formData.get('product_type') || '') === 'composite';
             
             // Prepare the data
             const branches = @json($branches);
@@ -1202,20 +1119,27 @@
                         category_id: formData.get('category_id')
                     })
                 });
+
+                let stockResponseOk = true;
+                if (!isCompositeProduct) {
+                    // Direct products use per-branch product stock
+                    const stockResponse = await fetch(`/product-inventory/${productId}/all-stocks`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ stocks })
+                    });
+                    stockResponseOk = stockResponse.ok;
+                }
                 
-                // Update branch stocks
-                const stockResponse = await fetch(`/product-inventory/${productId}/all-stocks`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ stocks })
-                });
-                
-                if (priceResponse.ok && stockResponse.ok) {
-                    showToast('Product updated successfully!', 'success');
+                if (priceResponse.ok && stockResponseOk) {
+                    const successMessage = isCompositeProduct
+                        ? 'Product updated. Ingredient stock is managed in the Ingredients tab.'
+                        : 'Product updated successfully!';
+                    showToast(successMessage, 'success');
                     closeProductModal();
                     // Reload page to see changes
                     setTimeout(() => location.reload(), 1000);

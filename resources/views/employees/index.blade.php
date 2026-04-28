@@ -1,4 +1,6 @@
 <x-app-layout>
+    @php($showAddBranchModal = $errors->addBranch->any() || request('open') === 'add-branch')
+    @php($showBranchManagerModal = request('open') === 'manage-branches')
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Employee Management') }}
@@ -159,12 +161,26 @@
                         Employee List
                         <span class="ml-2 px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">{{ $employees->total() }} total</span>
                     </h3>
-                    <a href="{{ route('employees.create') }}" class="inline-flex w-full sm:w-auto justify-center items-center px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-sm font-medium rounded-xl transition-colors duration-200 shadow-lg shadow-simplicitea-500/30">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        Create Employee Account
-                    </a>
+                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <div class="relative w-full sm:w-auto">
+                            <select id="branchActionsSelect" class="w-full sm:w-auto appearance-none px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer">
+                                <option value="">Branch Actions</option>
+                                <option value="add">Add Branch</option>
+                                <option value="manage">Manage Branches</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <a href="{{ route('employees.create') }}" class="inline-flex w-full sm:w-auto justify-center items-center px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-sm font-medium rounded-xl transition-colors duration-200 shadow-lg shadow-simplicitea-500/30">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            Create Employee Account
+                        </a>
+                    </div>
                 </div>
                 
                 @if($employees->count() > 0)
@@ -305,6 +321,139 @@
         </div>
     </div>
 
+    <!-- Add Branch Modal -->
+    <div id="addBranchModal" class="fixed inset-0 z-50 hidden">
+        <div id="addBranchModalBackdrop" class="absolute inset-0 bg-gray-900/50"></div>
+        <div class="relative z-10 flex min-h-full items-center justify-center p-4">
+            <div class="w-full max-w-xl bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl">
+                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-black">Add New Branch</h4>
+                    <button type="button" id="closeAddBranchModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <form method="POST" action="{{ route('branches.store') }}" class="px-6 py-5 space-y-4">
+                    @csrf
+
+                    <div>
+                        <label for="branch_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Branch Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="branch_name" name="name" value="{{ old('name') }}" required
+                               class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border {{ $errors->addBranch->has('name') ? 'border-red-500' : 'border-gray-200 dark:border-gray-600' }} rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500"
+                               placeholder="e.g., Oslob Main">
+                        @if($errors->addBranch->has('name'))
+                            <p class="mt-1 text-sm text-red-600">{{ $errors->addBranch->first('name') }}</p>
+                        @endif
+                    </div>
+
+                    <div>
+                        <label for="branch_address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address <span class="text-red-500">*</span></label>
+                        <input type="text" id="branch_address" name="address" value="{{ old('address') }}" required
+                               class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border {{ $errors->addBranch->has('address') ? 'border-red-500' : 'border-gray-200 dark:border-gray-600' }} rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500"
+                               placeholder="Branch location">
+                        @if($errors->addBranch->has('address'))
+                            <p class="mt-1 text-sm text-red-600">{{ $errors->addBranch->first('address') }}</p>
+                        @endif
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="branch_phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                            <input type="text" id="branch_phone" name="phone" value="{{ old('phone') }}"
+                                   class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border {{ $errors->addBranch->has('phone') ? 'border-red-500' : 'border-gray-200 dark:border-gray-600' }} rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500"
+                                   placeholder="Optional">
+                            @if($errors->addBranch->has('phone'))
+                                <p class="mt-1 text-sm text-red-600">{{ $errors->addBranch->first('phone') }}</p>
+                            @endif
+                        </div>
+
+                        <div>
+                            <label for="branch_manager_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Manager Name</label>
+                            <input type="text" id="branch_manager_name" name="manager_name" value="{{ old('manager_name') }}"
+                                   class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border {{ $errors->addBranch->has('manager_name') ? 'border-red-500' : 'border-gray-200 dark:border-gray-600' }} rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500"
+                                   placeholder="Optional">
+                            @if($errors->addBranch->has('manager_name'))
+                                <p class="mt-1 text-sm text-red-600">{{ $errors->addBranch->first('manager_name') }}</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="branch_is_active" name="is_active" value="1" {{ old('is_active', '1') ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-simplicitea-600 shadow-sm focus:ring-simplicitea-500">
+                        <label for="branch_is_active" class="text-sm text-gray-700 dark:text-gray-300">Set as active branch</label>
+                    </div>
+
+                    <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                        <button type="button" id="cancelAddBranchModal" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-black bg-simplicitea-600 hover:bg-simplicitea-700 rounded-xl">
+                            Save Branch
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Branch Manager Modal -->
+    <div id="branchManagerModal" class="fixed inset-0 z-50 hidden">
+        <div id="branchManagerModalBackdrop" class="absolute inset-0 bg-gray-900/50"></div>
+        <div class="relative z-10 flex min-h-full items-center justify-center p-4">
+            <div class="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-black">Branch Manager</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Add, archive, or delete branches from a single place.</p>
+                    </div>
+                    <button type="button" id="closeBranchManagerModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $managedBranches->count() }} branches total</p>
+                        <button type="button" id="openAddBranchFromManager" class="px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-sm font-medium rounded-xl transition-colors duration-200">
+                            Add Branch
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        @foreach($managedBranches as $branch)
+                            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/40 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div>
+                                    <p class="font-semibold text-gray-900 dark:text-black">{{ $branch->name }}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ $branch->address }}</p>
+                                    <p class="text-xs text-gray-400 mt-1">{{ $branch->manager_name ?? 'No manager assigned' }}</p>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <form method="POST" action="{{ route('branches.archive', $branch) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                            {{ $branch->is_active ? 'Archive' : 'Restore' }}
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ route('branches.destroy', $branch) }}" onsubmit="return confirm('Delete this branch? Employees will be unassigned from it.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors border border-red-200 dark:border-red-800">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-4 right-4 z-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3 min-w-[300px]">
@@ -397,6 +546,79 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            const addBranchModal = document.getElementById('addBranchModal');
+            const branchManagerModal = document.getElementById('branchManagerModal');
+            const openAddBranchModalBtn = document.getElementById('openAddBranchModal');
+            const openAddBranchFromManagerBtn = document.getElementById('openAddBranchFromManager');
+            const branchActionsSelect = document.getElementById('branchActionsSelect');
+            const closeAddBranchModalBtn = document.getElementById('closeAddBranchModal');
+            const closeBranchManagerModalBtn = document.getElementById('closeBranchManagerModal');
+            const cancelAddBranchModalBtn = document.getElementById('cancelAddBranchModal');
+            const addBranchModalBackdrop = document.getElementById('addBranchModalBackdrop');
+            const branchManagerModalBackdrop = document.getElementById('branchManagerModalBackdrop');
+
+            const openAddBranchModal = () => {
+                if (!addBranchModal) return;
+                addBranchModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            };
+
+            const closeAddBranchModal = () => {
+                if (!addBranchModal) return;
+                addBranchModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            };
+
+            const openBranchManagerModal = () => {
+                if (!branchManagerModal) return;
+                branchManagerModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            };
+
+            const closeBranchManagerModal = () => {
+                if (!branchManagerModal) return;
+                branchManagerModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            };
+
+            if (openAddBranchModalBtn) openAddBranchModalBtn.addEventListener('click', openAddBranchModal);
+            if (openAddBranchFromManagerBtn) openAddBranchFromManagerBtn.addEventListener('click', () => {
+                closeBranchManagerModal();
+                openAddBranchModal();
+            });
+            if (branchActionsSelect) {
+                branchActionsSelect.addEventListener('change', function() {
+                    if (this.value === 'add') {
+                        openAddBranchModal();
+                    } else if (this.value === 'manage') {
+                        openBranchManagerModal();
+                    }
+                    this.value = '';
+                });
+            }
+            if (closeAddBranchModalBtn) closeAddBranchModalBtn.addEventListener('click', closeAddBranchModal);
+            if (cancelAddBranchModalBtn) cancelAddBranchModalBtn.addEventListener('click', closeAddBranchModal);
+            if (addBranchModalBackdrop) addBranchModalBackdrop.addEventListener('click', closeAddBranchModal);
+            if (closeBranchManagerModalBtn) closeBranchManagerModalBtn.addEventListener('click', closeBranchManagerModal);
+            if (branchManagerModalBackdrop) branchManagerModalBackdrop.addEventListener('click', closeBranchManagerModal);
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && addBranchModal && !addBranchModal.classList.contains('hidden')) {
+                    closeAddBranchModal();
+                }
+                if (event.key === 'Escape' && branchManagerModal && !branchManagerModal.classList.contains('hidden')) {
+                    closeBranchManagerModal();
+                }
+            });
+
+            if ({{ $showAddBranchModal ? 'true' : 'false' }}) {
+                openAddBranchModal();
+            }
+
+            if ({{ $showBranchManagerModal ? 'true' : 'false' }}) {
+                openBranchManagerModal();
+            }
+
             const filtersForm = document.getElementById('employeesFiltersForm');
             if (!filtersForm) return;
 

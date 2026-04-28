@@ -8,6 +8,43 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ingredient extends Model
 {
+    private const UNIT_ALIASES = [
+        'milligram' => 'mg',
+        'milligrams' => 'mg',
+        'mg' => 'mg',
+        'gram' => 'g',
+        'grams' => 'g',
+        'g' => 'g',
+        'kilogram' => 'kg',
+        'kilograms' => 'kg',
+        'kg' => 'kg',
+        'milliliter' => 'ml',
+        'milliliters' => 'ml',
+        'millilitre' => 'ml',
+        'millilitres' => 'ml',
+        'ml' => 'ml',
+        'liter' => 'l',
+        'liters' => 'l',
+        'litre' => 'l',
+        'litres' => 'l',
+        'l' => 'l',
+        'piece' => 'pieces',
+        'pieces' => 'pieces',
+        'pc' => 'pieces',
+        'pcs' => 'pieces',
+        'unit' => 'pieces',
+        'units' => 'pieces',
+    ];
+
+    private const UNIT_FACTORS = [
+        'mg' => ['type' => 'weight', 'factor' => 0.001],
+        'g' => ['type' => 'weight', 'factor' => 1],
+        'kg' => ['type' => 'weight', 'factor' => 1000],
+        'ml' => ['type' => 'volume', 'factor' => 1],
+        'l' => ['type' => 'volume', 'factor' => 1000],
+        'pieces' => ['type' => 'count', 'factor' => 1],
+    ];
+
     protected $fillable = [
         'name',
         'description',
@@ -130,5 +167,48 @@ class Ingredient extends Model
     {
         $inventory = $this->inventoryForBranch($branchId);
         return $inventory ? $inventory->status_color : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400';
+    }
+
+    /**
+     * Convert a recipe quantity into this ingredient's stock unit.
+     * Returns null when units are incompatible or unknown.
+     */
+    public function convertRecipeQuantityToStockUnit(float $quantity, ?string $recipeUnit): ?float
+    {
+        $from = self::normalizeUnit($recipeUnit ?: $this->unit);
+        $to = self::normalizeUnit($this->unit);
+
+        if (!$from || !$to) {
+            return null;
+        }
+
+        if ($from === $to) {
+            return $quantity;
+        }
+
+        $fromMeta = self::UNIT_FACTORS[$from] ?? null;
+        $toMeta = self::UNIT_FACTORS[$to] ?? null;
+
+        if (!$fromMeta || !$toMeta || $fromMeta['type'] !== $toMeta['type']) {
+            return null;
+        }
+
+        $baseQuantity = $quantity * $fromMeta['factor'];
+
+        return $baseQuantity / $toMeta['factor'];
+    }
+
+    public static function normalizeUnit(?string $unit): ?string
+    {
+        if ($unit === null) {
+            return null;
+        }
+
+        $normalized = strtolower(trim($unit));
+        if ($normalized === '') {
+            return null;
+        }
+
+        return self::UNIT_ALIASES[$normalized] ?? $normalized;
     }
 }

@@ -10,15 +10,15 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Filters -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
-                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-6 border border-gray-100 dark:border-gray-700">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-black">Filters</h3>
                 </div>
-                <form id="cashierFiltersForm" method="GET" action="{{ route('activity-logs.index') }}" class="p-4">
+                <form id="cashierFiltersForm" method="GET" action="{{ route('activity-logs.index') }}" class="p-5">
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div>
-                            <label for="branch_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Branch</label>
-                            <select name="branch_id" id="branch_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
+                            <label for="branch_id" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Branch</label>
+                            <select name="branch_id" id="branch_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm">
                                 <option value="">All Branches</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
@@ -29,8 +29,8 @@
                         </div>
 
                         <div>
-                            <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
-                            <select name="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
+                            <label for="role" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Role</label>
+                            <select name="role" id="role" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm">
                                 <option value="">All Roles</option>
                                 <option value="cashier" {{ request('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
                                 <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
@@ -38,17 +38,17 @@
                         </div>
 
                         <div>
-                            <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+                            <label for="start_date" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Start Date</label>
                             <input type="date" name="start_date" id="start_date" 
                                 value="{{ request('start_date', now()->setTimezone('Asia/Manila')->format('Y-m-d')) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
+                                class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm">
                         </div>
 
                         <div>
-                            <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
+                            <label for="end_date" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">End Date</label>
                             <input type="date" name="end_date" id="end_date" 
                                 value="{{ request('end_date', now()->setTimezone('Asia/Manila')->format('Y-m-d')) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500 text-sm">
+                                class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm">
                         </div>
 
                     </div>
@@ -80,7 +80,7 @@
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             @forelse($cashiers as $cashier)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <tr class="hover:bg-gray-200 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
@@ -361,7 +361,7 @@
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
                             ${receipt.items.map(item => `
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                <tr class="hover:bg-gray-200 transition-colors">
                                     <td class="px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-black">${item.product_name}</td>
                                     <td class="px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400 text-center">${item.quantity}</td>
                                     <td class="px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400 text-right">₱${item.unit_price}</td>

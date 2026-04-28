@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Ingredient;
+use App\Models\Branch;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use App\Models\Inventory;
 
 class ProductController extends Controller
@@ -109,10 +111,49 @@ class ProductController extends Controller
         }
 
         $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : true;
+        $data['product_type'] = $data['product_type'] ?? Product::TYPE_DIRECT;
 
-        $product = Product::create($data);
+        $result = DB::transaction(function () use ($data) {
+            $product = Product::create($data);
+            $initializedBranchCount = 0;
 
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+            // Ready-for-resale (direct) products need inventory rows in every active branch.
+            if ($product->isDirectProduct()) {
+                $branchIds = Branch::where('is_active', true)->pluck('id');
+                if ($branchIds->isEmpty()) {
+                    $branchIds = Branch::pluck('id');
+                }
+
+                foreach ($branchIds as $branchId) {
+                    $inventory = Inventory::firstOrCreate(
+                        [
+                            'branch_id' => $branchId,
+                            'product_id' => $product->id,
+                        ],
+                        [
+                            'quantity' => 0,
+                            'min_stock_level' => 10,
+                        ]
+                    );
+
+                    if ($inventory->wasRecentlyCreated) {
+                        $initializedBranchCount++;
+                    }
+                }
+            }
+
+            return [
+                'product' => $product,
+                'initialized_branch_count' => $initializedBranchCount,
+            ];
+        });
+
+        $successMessage = 'Product created successfully.';
+        if ($result['product']->isDirectProduct()) {
+            $successMessage .= ' Inventory initialized in ' . $result['initialized_branch_count'] . ' branch(es).';
+        }
+
+        return redirect()->route('products.index')->with('success', $successMessage);
     }
 
     /**
