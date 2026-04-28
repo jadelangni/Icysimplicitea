@@ -4,9 +4,9 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700">
+                <div class="p-4 sm:p-6">
                     <div class="mb-4">
                         @php $qty = isset($branchStock) ? $branchStock : ($product->inventory->first()->quantity ?? 0); @endphp
                         @if($product->is_active && $qty > 0)
@@ -120,8 +120,8 @@
                                     <!-- Recipe items will be added here -->
                                 </div>
                                 
-                                <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg">
-                                    <div class="flex gap-2 items-end">
+                                <div class="mt-3 p-3 bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg">
+                                    <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_110px_90px_auto] gap-2 sm:items-end">
                                         <div class="flex-1">
                                             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Ingredient</label>
                                             <select id="recipe-ingredient" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black text-sm">
@@ -133,11 +133,11 @@
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="w-24">
+                                        <div>
                                             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Quantity</label>
                                             <input id="recipe-quantity" type="number" step="0.01" min="0.01" placeholder="0.00" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black text-sm">
                                         </div>
-                                        <div class="w-20">
+                                        <div>
                                             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Unit</label>
                                             <input id="recipe-unit" type="text" readonly class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-300 text-sm bg-gray-100">
                                         </div>

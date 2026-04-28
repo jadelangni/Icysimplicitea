@@ -127,7 +127,7 @@
 
             <!-- Content Area -->
             <div class="content-area">
-                <div class="max-w-2xl mx-auto space-y-6">
+                <div class="max-w-full sm:max-w-2xl mx-auto space-y-6">
                     <!-- Profile Information Card -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in">
                         <div class="p-6 border-b border-gray-200 bg-gray-50">

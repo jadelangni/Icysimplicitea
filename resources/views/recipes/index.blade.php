@@ -202,7 +202,7 @@
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
             <div class="fixed inset-0 transition-opacity bg-gray-900/80 backdrop-blur-sm" onclick="closeRecipeModal()"></div>
             
-            <div class="relative z-10 w-full max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transform transition-all">
+            <div class="relative z-10 w-full max-w-full sm:max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transform transition-all">
                 <!-- Modal Header -->
                 <div class="relative px-6 py-5 bg-gradient-to-r from-simplicitea-600 via-simplicitea-500 to-teal-500 rounded-t-3xl">
                     <div class="flex items-start justify-between">
@@ -391,10 +391,10 @@
                             ${options}
                         </select>
                     </div>
-                    <div class="w-28">
+                    <div class="w-full sm:w-28">
                         <input type="number" name="ingredients[${rowIndex}][quantity_required]" value="${quantity}" step="0.01" min="0.01" required placeholder="Qty" class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
                     </div>
-                    <div class="w-32">
+                    <div class="w-full sm:w-32">
                         <select name="ingredients[${rowIndex}][unit]" id="unit_${rowIndex}" required class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
                             ${unitOptions}
                         </select>

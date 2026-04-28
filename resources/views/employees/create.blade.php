@@ -13,7 +13,7 @@
     </x-slot>
 
     <div class="py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-full sm:max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-simplicitea-500 to-simplicitea-600">
                     <h3 class="text-lg font-semibold text-black flex items-center gap-2">
@@ -28,12 +28,6 @@
                 <form action="{{ route('employees.store') }}" method="POST" class="p-6 space-y-6">
                     @csrf
 
-                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg">
-                        <p class="text-xs text-gray-600 dark:text-gray-300">
-                            ID Number is auto-generated on account creation using date format (YYMMDD) plus a same-day sequence (e.g., 26041501).
-                        </p>
-                    </div>
-                    
                     <!-- Name -->
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

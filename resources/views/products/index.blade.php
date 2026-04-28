@@ -152,7 +152,7 @@
     <div id="createProductModal" class="fixed inset-0 z-50 hidden">
         <div id="createProductBackdrop" class="absolute inset-0 bg-black/60"></div>
         <div class="relative h-full w-full flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-gray-800 w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
+            <div class="bg-white dark:bg-gray-800 w-full max-w-full sm:max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
                 <div class="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Create Product</h3>
                     <button type="button" id="closeCreateProductModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">

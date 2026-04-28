@@ -66,22 +66,22 @@
             <div id="options-container" class="space-y-3 mt-2">
                 <!-- option groups will be added here -->
             </div>
-            <div class="mt-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
-                <div class="flex gap-2 mb-2">
-                    <input id="option-name" type="text" placeholder="Option name (e.g. Size)" class="block w-1/3 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black px-2 py-1">
-                    <button type="button" id="add-option-group" class="px-3 py-1 bg-simplicitea-100 dark:bg-simplicitea-900 text-simplicitea-700 dark:text-simplicitea-300 rounded-md">Create Option Group</button>
+            <div class="mt-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
+                <div class="flex flex-col md:flex-row gap-2 mb-2">
+                    <input id="option-name" type="text" placeholder="Option name (e.g. Size)" class="block w-full md:w-1/2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black px-2 py-1">
+                    <button type="button" id="add-option-group" class="px-3 py-2 bg-simplicitea-100 dark:bg-simplicitea-900 text-simplicitea-700 dark:text-simplicitea-300 rounded-md whitespace-nowrap">Create Option Group</button>
                 </div>
                 <div id="current-option-values" class="space-y-2 hidden">
                     <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Add values for this option:</div>
-                    <div class="flex gap-2">
-                        <input id="value-name" type="text" placeholder="Value name" class="block w-1/2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black px-2 py-1">
-                        <input id="value-price" type="number" step="0.01" placeholder="Fixed price (0 = base)" class="block w-1/3 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black px-2 py-1">
-                        <button type="button" id="add-value" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md">Add Value</button>
+                    <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,140px)_auto] gap-2">
+                        <input id="value-name" type="text" placeholder="Value name" class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black px-2 py-1">
+                        <input id="value-price" type="number" step="0.01" placeholder="Fixed price (0 = base)" class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black px-2 py-1">
+                        <button type="button" id="add-value" class="px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md whitespace-nowrap">Add Value</button>
                     </div>
                     <div id="current-values-list" class="space-y-1"></div>
-                    <div class="flex gap-2">
-                        <button type="button" id="finish-option" class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-md">Finish Option</button>
-                        <button type="button" id="cancel-option-edit" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md">Cancel</button>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button type="button" id="finish-option" class="px-3 py-2 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-md whitespace-nowrap">Finish Option</button>
+                        <button type="button" id="cancel-option-edit" class="px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md whitespace-nowrap">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -162,7 +162,7 @@
                 basePriceInput.value = minFixedPrice;
                 basePriceInput.readOnly = true;
                 basePriceInput.required = false;
-                basePriceInput.classList.add('bg-gray-100');
+                basePriceInput.classList.add('bg-white');
                 if (basePriceHelp) {
                     basePriceHelp.textContent = 'Auto-set from variant prices. Base price is locked to avoid conflicts.';
                 }
@@ -171,7 +171,7 @@
 
             basePriceInput.readOnly = false;
             basePriceInput.required = true;
-            basePriceInput.classList.remove('bg-gray-100');
+            basePriceInput.classList.remove('bg-white');
             if (basePriceHelp) {
                 basePriceHelp.textContent = 'Required for products without variants, or when a variant uses 0 (base price).';
             }
@@ -181,7 +181,7 @@
             container.innerHTML = '';
             allOptions.forEach((opt, idx) => {
                 const optDiv = document.createElement('div');
-                optDiv.className = 'p-3 bg-gray-50 rounded border';
+                optDiv.className = 'p-3 bg-white dark:bg-gray-700/40 rounded border border-gray-200 dark:border-gray-700';
                 const valuesList = (opt.values || []).map(v => {
                     if (v && typeof v === 'object') {
                         const mod = v.price ? (v.price > 0 ? `+₱${v.price}` : `-₱${Math.abs(v.price)}`) : '₱0';
@@ -226,7 +226,7 @@
             currentOption.values.forEach((rawValue, idx) => {
                 const value = normalizeOptionValue(rawValue);
                 const valueDiv = document.createElement('div');
-                valueDiv.className = 'flex justify-between items-center p-2 bg-white border rounded';
+                valueDiv.className = 'flex justify-between items-center gap-3 p-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded';
                 const hasPrice = value.price !== null && value.price !== '';
                 const priceText = hasPrice ? ` (₱${Number(value.price) >= 0 ? '+' : ''}${value.price})` : '';
 
