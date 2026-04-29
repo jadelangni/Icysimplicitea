@@ -30,11 +30,13 @@
                 margin-left: 220px;
                 width: calc(100% - 220px);
                 max-width: 100vw;
-                background:
-                    linear-gradient(120deg, rgba(0, 91, 92, 0.10) 0%, rgba(0, 91, 92, 0.05) 36%, rgba(0, 91, 92, 0.02) 72%),
-                    linear-gradient(180deg, #eaf4ef 0%, #deece5 52%, #d4e5dc 100%);
+                background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
                 min-height: 100vh;
                 transition: background-color 0.3s;
+            }
+
+            .dark .app-main {
+                background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
             }
             .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #9ca3af; text-decoration: none; }
             .nav-item:hover { background: rgba(178, 232, 216, 0.18); color: black; }
