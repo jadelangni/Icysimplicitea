@@ -24,7 +24,7 @@
         <style>
             * { box-sizing: border-box; }
             .app-wrapper { display: flex; min-height: 100vh; width: 100%; }
-            .app-sidebar { width: 220px; background: linear-gradient(180deg, #005b5c 0%, #014b4c 55%, #003536 100%); display: flex; flex-direction: column; color: black; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
+            .app-sidebar { width: 220px; background: linear-gradient(180deg, #157476 0%, #0f6264 52%, #0a5152 100%); display: flex; flex-direction: column; color: black; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
             .app-main {
                 flex: 1;
                 margin-left: 220px;
@@ -37,8 +37,8 @@
                 transition: background-color 0.3s;
             }
             .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #9ca3af; text-decoration: none; }
-            .nav-item:hover { background: rgba(152, 255, 152, 0.15); color: black; }
-            .nav-item.active { background: #00b140; color: black; }
+            .nav-item:hover { background: rgba(178, 232, 216, 0.18); color: black; }
+            .nav-item.active { background: #69d1b1; color: #053b3c; }
 
             .app-mobile-header,
             .app-page-header {
@@ -93,7 +93,7 @@
             
             /* Mobile responsive */
             @media (max-width: 1023px) {
-                .app-sidebar { width: min(86vw, 280px); transform: translateX(-100%); transition: transform 0.3s ease; box-shadow: 0 24px 48px rgba(15, 23, 42, 0.32); }
+                .app-sidebar { width: min(86vw, 280px); transform: translateX(-100%); transition: transform 0.3s ease; box-shadow: 0 24px 48px rgba(15, 23, 42, 0.26); }
                 .app-sidebar.open { transform: translateX(0); }
                 .app-main { margin-left: 0; width: 100%; }
             }

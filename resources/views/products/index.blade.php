@@ -53,20 +53,21 @@
                         </div>
                     @else
                         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div style="min-width: 940px; width: max-content;">
                             <table class="w-full text-left text-sm">
                                 <thead class="bg-gray-50 dark:bg-gray-700/50">
                                     <tr class="text-gray-600 dark:text-gray-300">
-                                        <th class="py-4 px-4 font-semibold">Product</th>
-                                        <th class="py-4 px-4 font-semibold">Category</th>
-                                        <th class="py-4 px-4 font-semibold">Sizes / Price</th>
-                                        <th class="py-4 px-4 font-semibold">Status</th>
-                                        <th class="py-4 px-4 font-semibold text-right">Actions</th>
+                                        <th class="py-4 px-4 font-semibold whitespace-nowrap">Product</th>
+                                        <th class="py-4 px-4 font-semibold whitespace-nowrap">Category</th>
+                                        <th class="py-4 px-4 font-semibold whitespace-nowrap">Sizes / Price</th>
+                                        <th class="py-4 px-4 font-semibold whitespace-nowrap">Status</th>
+                                        <th class="py-4 px-4 font-semibold text-right whitespace-nowrap">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="productsTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
                                     @foreach($products as $product)
                                     <tr class="product-row hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                        <td class="py-4 px-4">
+                                        <td class="py-4 px-4 whitespace-nowrap">
                                             <div class="flex items-center gap-3">
                                                 @if($product->image)
                                                     <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
@@ -78,12 +79,12 @@
                                                 <span class="font-medium text-gray-900 dark:text-black">{{ $product->name }}</span>
                                             </div>
                                         </td>
-                                        <td class="py-4 px-4">
+                                        <td class="py-4 px-4 whitespace-nowrap">
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                                                 {{ $product->category->name ?? '-' }}
                                             </span>
                                         </td>
-                                        <td class="py-4 px-4">
+                                        <td class="py-4 px-4 whitespace-nowrap">
                                             @if($product->options && is_array($product->options) && !empty($product->options))
                                                 @foreach($product->options as $option)
                                                     @if(isset($option['name']) && $option['name'] === 'Size' && isset($option['values']) && is_array($option['values']))
@@ -106,7 +107,7 @@
                                             @endif
                                         </td>
                                         @php $qty = $product->inventory->first()->quantity ?? 0; @endphp
-                                        <td class="py-4 px-4">
+                                        <td class="py-4 px-4 whitespace-nowrap">
                                             @if($product->is_active && $qty > 0)
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">
                                                     <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
@@ -119,11 +120,28 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="py-4 px-4 text-right">
+                                        <td class="py-4 px-4 text-right whitespace-nowrap">
                                             <div class="flex items-center justify-end gap-2">
-                                                <a href="{{ route('products.edit', $product->id) }}" class="inline-flex items-center px-3 py-1.5 bg-simplicitea-50 dark:bg-simplicitea-900/30 text-simplicitea-700 dark:text-simplicitea-300 rounded-lg text-xs font-medium hover:bg-simplicitea-100 dark:hover:bg-simplicitea-900/50 transition-colors">
+                                                @php
+                                                    $productModalData = [
+                                                        'id' => $product->id,
+                                                        'name' => $product->name,
+                                                        'description' => $product->description,
+                                                        'price' => $product->price,
+                                                        'category_id' => $product->category_id,
+                                                        'is_active' => $product->is_active,
+                                                        'options' => $product->options ?? [],
+                                                        'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+                                                        'update_url' => route('products.update', $product->id),
+                                                    ];
+                                                @endphp
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-simplicitea-50 dark:bg-simplicitea-900/30 text-simplicitea-700 dark:text-simplicitea-300 rounded-lg text-xs font-medium hover:bg-simplicitea-100 dark:hover:bg-simplicitea-900/50 transition-colors"
+                                                    data-product='@json($productModalData)'
+                                                    onclick="openEditProductModal(this)">
                                                     Edit
-                                                </a>
+                                                </button>
                                                 <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Delete this product?');">
                                                     @csrf
                                                     @method('DELETE')
@@ -142,6 +160,7 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -152,9 +171,12 @@
     <div id="createProductModal" class="fixed inset-0 z-50 hidden">
         <div id="createProductBackdrop" class="absolute inset-0 bg-black/60"></div>
         <div class="relative h-full w-full flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-gray-800 w-full max-w-full sm:max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
-                <div class="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Create Product</h3>
+            <div class="bg-white dark:bg-gray-800 w-full max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700">
+                <div class="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-simplicitea-600 via-simplicitea-500 to-teal-500 rounded-t-3xl">
+                    <div>
+                        <h3 id="productModalTitle" class="text-lg font-semibold text-black">Create Product</h3>
+                        <p class="text-sm text-black/70 mt-0.5">Add or update product details and variants</p>
+                    </div>
                     <button type="button" id="closeCreateProductModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -162,7 +184,7 @@
                     </button>
                 </div>
                 <div class="p-6">
-                    @include('products.partials.form', ['categories' => $categories, 'isModal' => true])
+                    @include('products.partials.form', ['categories' => $categories, 'isModal' => true, 'submitLabel' => 'Create Product'])
                 </div>
             </div>
         </div>
@@ -176,8 +198,25 @@
             const closeCreateButton = document.getElementById('closeCreateProductModal');
             const createBackdrop = document.getElementById('createProductBackdrop');
 
+            const modalTitle = document.getElementById('productModalTitle');
+
             window.openCreateProductModal = function () {
                 if (!createModal) return;
+                if (modalTitle) modalTitle.textContent = 'Create Product';
+                if (window.productFormReset) {
+                    window.productFormReset();
+                }
+                createModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            };
+
+            window.openEditProductModal = function (button) {
+                if (!createModal || !button) return;
+                const product = JSON.parse(button.dataset.product || '{}');
+                if (modalTitle) modalTitle.textContent = 'Edit Product';
+                if (window.productFormLoad) {
+                    window.productFormLoad(product);
+                }
                 createModal.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
             };
@@ -187,6 +226,8 @@
                 createModal.classList.add('hidden');
                 document.body.classList.remove('overflow-hidden');
             };
+
+            window.closeProductModal = window.closeCreateProductModal;
 
             if (openCreateButton) {
                 openCreateButton.addEventListener('click', window.openCreateProductModal);
@@ -203,7 +244,7 @@
 
             document.addEventListener('keydown', function (event) {
                 if (event.key === 'Escape') {
-                    window.closeCreateProductModal();
+                    window.closeProductModal();
                 }
             });
 

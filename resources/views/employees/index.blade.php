@@ -33,65 +33,6 @@
             </div>
             @endif
 
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Total Employees</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-black">{{ \App\Models\User::count() }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Active</p>
-                            <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ \App\Models\User::where('is_active', true)->count() }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Admins</p>
-                            <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ \App\Models\User::where('role', 'admin')->count() }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-simplicitea-100 dark:bg-simplicitea-900/50 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-simplicitea-600 dark:text-simplicitea-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Cashiers</p>
-                            <p class="text-2xl font-bold text-simplicitea-600 dark:text-simplicitea-400">{{ \App\Models\User::where('role', 'cashier')->count() }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Filters -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-6">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700">
@@ -103,7 +44,7 @@
                     </h3>
                 </div>
                 <div class="p-5">
-                    <form id="employeesFiltersForm" action="{{ route('employees.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <form id="employeesFiltersForm" action="{{ route('employees.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <!-- Search -->
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Search</label>
@@ -124,16 +65,6 @@
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
                                 @endforeach
-                            </select>
-                        </div>
-                        
-                        <!-- Role Filter -->
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Role</label>
-                            <select name="role" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
-                                <option value="">All Roles</option>
-                                <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="cashier" {{ request('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
                             </select>
                         </div>
                         
@@ -162,18 +93,12 @@
                         <span class="ml-2 px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">{{ $employees->total() }} total</span>
                     </h3>
                     <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                        <div class="relative w-full sm:w-auto">
-                            <select id="branchActionsSelect" class="w-full sm:w-auto appearance-none px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer">
-                                <option value="">Branch Actions</option>
-                                <option value="add">Add Branch</option>
-                                <option value="manage">Manage Branches</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-                            </div>
-                        </div>
+                        <button id="openManageBranchesBtn" class="inline-flex w-full sm:w-auto justify-center items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-xl transition-colors duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                            </svg>
+                            Manage Branches
+                        </button>
                         <a href="{{ route('employees.create') }}" class="inline-flex w-full sm:w-auto justify-center items-center px-4 py-2 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-sm font-medium rounded-xl transition-colors duration-200 shadow-lg shadow-simplicitea-500/30">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -431,20 +356,12 @@
                                     <p class="text-xs text-gray-400 mt-1">{{ $branch->manager_name ?? 'No manager assigned' }}</p>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
-                                    <form method="POST" action="{{ route('branches.archive', $branch) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                            {{ $branch->is_active ? 'Archive' : 'Restore' }}
-                                        </button>
-                                    </form>
-                                    <form method="POST" action="{{ route('branches.destroy', $branch) }}" onsubmit="return confirm('Delete this branch? Employees will be unassigned from it.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors border border-red-200 dark:border-red-800">
-                                            Delete
-                                        </button>
-                                    </form>
+                                    <button type="button" onclick="archiveBranch({{ $branch->id }})" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                        {{ $branch->is_active ? 'Archive' : 'Restore' }}
+                                    </button>
+                                    <button type="button" onclick="if(confirm('Delete this branch? Employees will be unassigned from it.')) { deleteBranch({{ $branch->id }}); }" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors border border-red-200 dark:border-red-800">
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
                         @endforeach
@@ -463,6 +380,60 @@
     </div>
 
     <script>
+        function archiveBranch(branchId) {
+            fetch(`/branches/${branchId}/archive`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message || 'Branch updated successfully', 'success');
+                    // Reload branch manager content without page refresh
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    showToast(data.message || 'Failed to update branch', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred', 'error');
+            });
+        }
+
+        function deleteBranch(branchId) {
+            fetch(`/branches/${branchId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message || 'Branch deleted successfully', 'success');
+                    // Reload branch manager content without page refresh
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    showToast(data.message || 'Failed to delete branch', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred', 'error');
+            });
+        }
+
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             const toastIcon = document.getElementById('toastIcon');
@@ -550,7 +521,6 @@
             const branchManagerModal = document.getElementById('branchManagerModal');
             const openAddBranchModalBtn = document.getElementById('openAddBranchModal');
             const openAddBranchFromManagerBtn = document.getElementById('openAddBranchFromManager');
-            const branchActionsSelect = document.getElementById('branchActionsSelect');
             const closeAddBranchModalBtn = document.getElementById('closeAddBranchModal');
             const closeBranchManagerModalBtn = document.getElementById('closeBranchManagerModal');
             const cancelAddBranchModalBtn = document.getElementById('cancelAddBranchModal');
@@ -586,16 +556,8 @@
                 closeBranchManagerModal();
                 openAddBranchModal();
             });
-            if (branchActionsSelect) {
-                branchActionsSelect.addEventListener('change', function() {
-                    if (this.value === 'add') {
-                        openAddBranchModal();
-                    } else if (this.value === 'manage') {
-                        openBranchManagerModal();
-                    }
-                    this.value = '';
-                });
-            }
+            const openManageBranchesBtn = document.getElementById('openManageBranchesBtn');
+            if (openManageBranchesBtn) openManageBranchesBtn.addEventListener('click', openBranchManagerModal);
             if (closeAddBranchModalBtn) closeAddBranchModalBtn.addEventListener('click', closeAddBranchModal);
             if (cancelAddBranchModalBtn) cancelAddBranchModalBtn.addEventListener('click', closeAddBranchModal);
             if (addBranchModalBackdrop) addBranchModalBackdrop.addEventListener('click', closeAddBranchModal);

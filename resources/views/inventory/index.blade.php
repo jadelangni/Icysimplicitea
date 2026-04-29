@@ -242,6 +242,7 @@
                     </div>
                 @else
                     <div class="overflow-x-auto">
+                        <div style="min-width: 1120px; width: max-content;">
                         @php
                             $sortedInventoryItems = $inventoryItems->sortByDesc(function ($item) use ($view) {
                                 if ($view === 'ingredients') {
@@ -271,7 +272,7 @@
                         @endphp
                         @if($view === 'ingredients')
                             {{-- Multi-Branch Ingredients Table --}}
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <table style="min-width: 1320px; width: max-content;" class="divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700/50">
                                     <tr>
                                         <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -359,7 +360,7 @@
                             </table>
                         @else
                             {{-- Single-Branch Products Table --}}
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <table style="min-width: 980px; width: max-content;" class="divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700/50">
                                     <tr>
                                         <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">

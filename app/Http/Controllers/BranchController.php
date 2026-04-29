@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BranchController extends Controller
 {
-    /**
-     * Store a newly created branch.
-     */
     public function store(Request $request)
     {
         $validated = $request->validateWithBag('addBranch', [
@@ -54,16 +52,49 @@ class BranchController extends Controller
 
     public function archive(Branch $branch)
     {
-        $branch->update(['is_active' => !$branch->is_active]);
+        try {
+            $branch->update(['is_active' => !$branch->is_active]);
 
-        return redirect()->route('employees.index')->with('success', $branch->is_active ? 'Branch restored successfully.' : 'Branch archived successfully.');
+            $message = $branch->is_active ? 'Branch restored successfully.' : 'Branch archived successfully.';
+
+            if (request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => $message]);
+            }
+
+            return redirect()->route('employees.index')->with('success', $message);
+        } catch (\Exception $e) {
+            if (request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Failed to archive/restore branch: ' . $e->getMessage()], 500);
+            }
+            return redirect()->route('employees.index')->with('error', 'Failed to archive/restore branch.');
+        }
     }
 
     public function destroy(Branch $branch)
     {
         $branchName = $branch->name;
-        $branch->delete();
 
-        return redirect()->route('employees.index')->with('success', "Branch {$branchName} deleted successfully.");
+        try {
+            DB::beginTransaction();
+
+            // Unassign users from this branch to avoid FK constraint errors
+            $branch->users()->update(['branch_id' => null]);
+
+            $branch->delete();
+
+            DB::commit();
+
+            if (request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => "Branch {$branchName} deleted successfully."]);
+            }
+
+            return redirect()->route('employees.index')->with('success', "Branch {$branchName} deleted successfully.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            if (request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Failed to delete branch: ' . $e->getMessage()], 500);
+            }
+            return redirect()->route('employees.index')->with('error', 'Failed to delete branch.');
+        }
     }
 }

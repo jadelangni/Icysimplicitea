@@ -244,20 +244,21 @@
                 <div id="recentTransactionsContainer" class="p-4">
                     @if(isset($recentSales) && $recentSales->count() > 0)
                         <div class="overflow-x-auto">
+                            <div style="min-width: 920px; width: max-content;">
                             <table class="w-full">
                                 <thead>
                                     <tr class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        <th class="pb-3 pl-3">Receipt</th>
-                                        <th class="pb-3">Items</th>
-                                        <th class="pb-3">Payment</th>
-                                        <th class="pb-3">Amount</th>
-                                        <th class="pb-3 pr-3">Time</th>
+                                        <th class="pb-3 pl-3 whitespace-nowrap">Receipt</th>
+                                        <th class="pb-3 whitespace-nowrap">Items</th>
+                                        <th class="pb-3 whitespace-nowrap">Payment</th>
+                                        <th class="pb-3 whitespace-nowrap">Amount</th>
+                                        <th class="pb-3 pr-3 whitespace-nowrap">Time</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                                     @foreach($recentSales as $index => $sale)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                        <td class="py-3 pl-3">
+                                        <td class="py-3 pl-3 whitespace-nowrap">
                                             <div class="flex items-center gap-2">
                                                 @if($index === 0)
                                                     <span class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -265,8 +266,8 @@
                                                 <span class="text-sm font-medium text-gray-900 dark:text-gray-900">{{ $sale->receipt_number }}</span>
                                             </div>
                                         </td>
-                                        <td class="py-3">
-                                            <div class="flex flex-wrap gap-1 max-w-xs">
+                                        <td class="py-3 whitespace-nowrap">
+                                            <div class="flex flex-nowrap gap-1">
                                                 @php $itemCount = $sale->salesItems->count(); @endphp
                                                 @foreach($sale->salesItems->take(2) as $item)
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
@@ -280,7 +281,7 @@
                                                 @endif
                                             </div>
                                         </td>
-                                        <td class="py-3">
+                                        <td class="py-3 whitespace-nowrap">
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium
                                                 {{ $sale->payment_method === 'cash' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 
                                                    ($sale->payment_method === 'card' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400' : 
@@ -288,10 +289,10 @@
                                                 {{ ucfirst($sale->payment_method) }}
                                             </span>
                                         </td>
-                                        <td class="py-3">
+                                        <td class="py-3 whitespace-nowrap">
                                             <span class="text-sm font-bold text-gray-900 dark:text-gray-900">₱{{ number_format($sale->total_amount, 0) }}</span>
                                         </td>
-                                        <td class="py-3 pr-3">
+                                        <td class="py-3 pr-3 whitespace-nowrap">
                                             <div class="flex items-center gap-2">
                                                 <span class="text-sm text-gray-500 dark:text-gray-400">{{ $sale->created_at->diffForHumans() }}</span>
                                                 <a href="{{ route('pos.receipt', $sale->id) }}" class="text-simplicitea-600 dark:text-simplicitea-400 hover:text-simplicitea-800">
@@ -305,6 +306,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     @else
                         <div class="text-center py-12">

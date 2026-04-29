@@ -126,9 +126,9 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
         Route::patch('/branches/{branch}/archive', [BranchController::class, 'archive'])->name('branches.archive');
         Route::delete('/branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy');
         
-    Route::resource('products', ProductController::class);
-    // Toggle availability without requiring full update payload
-    Route::post('/products/{product}/toggle-availability', [ProductController::class, 'toggleAvailability'])->name('products.toggle-availability');
+        Route::resource('products', ProductController::class);
+        // Toggle availability without requiring full update payload
+        Route::post('/products/{product}/toggle-availability', [ProductController::class, 'toggleAvailability'])->name('products.toggle-availability');
         Route::resource('inventory', InventoryController::class);
         Route::post('/inventory/{inventory}/restock', [InventoryController::class, 'restock'])->name('inventory.restock');
         Route::post('/inventory/update-ingredient-branches', [InventoryController::class, 'updateIngredientBranches'])->name('inventory.update-ingredient-branches');

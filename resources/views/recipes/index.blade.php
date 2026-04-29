@@ -106,14 +106,15 @@
                 </div>
                 
                 <div class="overflow-x-auto">
+                    <div style="min-width: 1000px; width: max-content;">
                     <table class="w-full" id="productTable">
                         <thead>
                             <tr class="bg-gray-50 dark:bg-gray-700/50">
-                                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
-                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
-                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ingredients</th>
-                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recipe Status</th>
-                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Product</th>
+                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Type</th>
+                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Ingredients</th>
+                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Recipe Status</th>
+                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -126,7 +127,7 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150 product-row cursor-pointer" 
                                 data-name="{{ strtolower($product->name) }}"
                                 onclick="openRecipeModal({{ $product->id }})">
-                                <td class="px-5 py-4">
+                                <td class="px-5 py-4 whitespace-nowrap">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-400 to-simplicitea-600 rounded-xl flex items-center justify-center text-black font-semibold text-sm">
                                             {{ strtoupper(substr($product->name, 0, 2)) }}
@@ -137,7 +138,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-5 py-4 text-center">
+                                <td class="px-5 py-4 text-center whitespace-nowrap">
                                     @if($product->product_type === 'direct')
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
                                             📦 Direct
@@ -148,14 +149,14 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-4 text-center">
+                                <td class="px-5 py-4 text-center whitespace-nowrap">
                                     @if($hasRecipe)
                                         <span class="text-sm font-medium text-gray-900 dark:text-black">{{ $product->ingredients->count() }} ingredient(s)</span>
                                     @else
                                         <span class="text-sm text-gray-400 dark:text-gray-500">—</span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-4 text-center">
+                                <td class="px-5 py-4 text-center whitespace-nowrap">
                                     @if($product->product_type === 'direct')
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
                                             N/A
@@ -173,7 +174,7 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-4 text-center">
+                                <td class="px-5 py-4 text-center whitespace-nowrap">
                                     <button onclick="event.stopPropagation(); openRecipeModal({{ $product->id }})" 
                                         class="px-3 py-1.5 bg-simplicitea-600 text-black text-xs font-medium rounded-lg hover:bg-simplicitea-700 transition">
                                         {{ $hasRecipe ? 'Edit Recipe' : 'Add Recipe' }}
@@ -192,6 +193,7 @@
                             @endforelse
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -202,7 +204,7 @@
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
             <div class="fixed inset-0 transition-opacity bg-gray-900/80 backdrop-blur-sm" onclick="closeRecipeModal()"></div>
             
-            <div class="relative z-10 w-full max-w-full sm:max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transform transition-all">
+            <div class="relative z-10 w-full max-w-full sm:max-w-3xl lg:max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transform transition-all">
                 <!-- Modal Header -->
                 <div class="relative px-6 py-5 bg-gradient-to-r from-simplicitea-600 via-simplicitea-500 to-teal-500 rounded-t-3xl">
                     <div class="flex items-start justify-between">

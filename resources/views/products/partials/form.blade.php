@@ -1,5 +1,17 @@
 @php
     $isModal = $isModal ?? false;
+    $product = $product ?? null;
+    $formAction = $formAction ?? route('products.store');
+    $formMethod = strtoupper($formMethod ?? 'POST');
+    $submitLabel = $submitLabel ?? 'Create Product';
+    $selectedCategoryId = old('category_id', $product->category_id ?? '');
+    $selectedCustomCategory = old('custom_category', '');
+    $nameValue = old('name', $product->name ?? '');
+    $descriptionValue = old('description', $product->description ?? '');
+    $priceValue = old('price', isset($product) ? $product->price : '');
+    $isActiveChecked = old('is_active', $product->is_active ?? true);
+    $initialOptions = old('options', isset($product) ? json_encode($product->options ?? []) : '[]');
+    $imagePreviewUrl = isset($product) && $product->image ? asset('storage/' . $product->image) : '';
 @endphp
 
 @if($errors->any())
@@ -12,8 +24,9 @@
     </div>
 @endif
 
-<form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
+<form id="product-form" data-product-form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
     @csrf
+    <input type="hidden" name="_method" id="product-form-method" value="{{ $formMethod !== 'POST' ? $formMethod : '' }}">
 
     <div class="grid grid-cols-1 gap-4">
         <label class="block">
@@ -21,39 +34,39 @@
             <select id="category-select" name="category_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black">
                 <option value="">Select existing category</option>
                 @foreach($categories as $category)
-                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    <option value="{{ $category->id }}" @selected((string) $selectedCategoryId === (string) $category->id)>{{ $category->name }}</option>
                 @endforeach
-                <option value="custom">Add New Category</option>
+                <option value="custom" @selected($selectedCategoryId === 'custom')>Add New Category</option>
             </select>
         </label>
 
         <label id="custom-category-label" class="block hidden">
             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">New Category Name</span>
-            <input type="text" id="custom-category-input" name="custom_category" placeholder="Enter new category name" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black">
+            <input type="text" id="custom-category-input" name="custom_category" value="{{ $selectedCustomCategory }}" placeholder="Enter new category name" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black">
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This will create a new category and assign it to this product.</p>
         </label>
 
         <label class="block">
             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Name</span>
-            <input type="text" name="name" value="{{ old('name') }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black" required>
+            <input type="text" name="name" value="{{ $nameValue }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black" required>
         </label>
 
         <label class="block">
             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Description</span>
-            <textarea name="description" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black">{{ old('description') }}</textarea>
+            <textarea name="description" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:text-black dark:bg-gray-700">{{ $descriptionValue }}</textarea>
         </label>
 
         <label class="block">
             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Price</span>
-            <input id="base-price-input" type="number" step="0.01" name="price" value="{{ old('price') }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black" required>
+            <input id="base-price-input" type="number" step="0.01" name="price" value="{{ $priceValue }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black" required>
             <p id="base-price-help" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Required for products without variants, or when a variant uses 0 (base price).</p>
         </label>
 
         <label class="block">
             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Product Image (optional)</span>
             <div class="mt-2">
-                <div id="image-preview-container" class="hidden mb-3">
-                    <img id="image-preview" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600">
+                <div id="image-preview-container" class="{{ $imagePreviewUrl ? '' : 'hidden' }} mb-3">
+                    <img id="image-preview" src="{{ $imagePreviewUrl }}" alt="Preview" class="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600">
                     <button type="button" id="remove-image" class="mt-2 text-sm text-red-600 hover:text-red-800">Remove image</button>
                 </div>
                 <input type="file" name="image" id="image-input" accept="image/*" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-simplicitea-50 file:text-simplicitea-700 hover:file:bg-simplicitea-100 dark:file:bg-gray-700 dark:file:text-gray-300">
@@ -85,20 +98,20 @@
                     </div>
                 </div>
             </div>
-            <input type="hidden" name="options" id="options-input" value="{{ old('options') }}">
+            <input type="hidden" name="options" id="options-input" value='{{ $initialOptions }}'>
             <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Create option groups (like Size) and set fixed prices. Set price to 0 to use base product price.</p>
         </label>
 
         <input type="hidden" name="is_active" value="0">
         <label class="inline-flex items-center">
-            <input type="checkbox" name="is_active" value="1" class="form-checkbox" checked>
+            <input type="checkbox" name="is_active" value="1" class="form-checkbox" @checked((bool) $isActiveChecked)>
             <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Active</span>
         </label>
 
         <div class="pt-4">
-            <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg">Create</button>
+            <button id="product-form-submit" type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg">{{ $submitLabel }}</button>
             @if($isModal)
-                <button type="button" onclick="closeCreateProductModal()" class="ml-3 text-sm text-gray-600 dark:text-gray-400">Cancel</button>
+                <button type="button" onclick="closeProductModal()" class="ml-3 text-sm text-gray-600 dark:text-gray-400">Cancel</button>
             @else
                 <a href="{{ route('products.index') }}" class="ml-3 text-sm text-gray-600 dark:text-gray-400">Cancel</a>
             @endif
@@ -108,6 +121,7 @@
 
 <script>
     (function(){
+        const form = document.getElementById('product-form');
         const container = document.getElementById('options-container');
         const hidden = document.getElementById('options-input');
         const optionNameEl = document.getElementById('option-name');
@@ -121,6 +135,20 @@
         const cancelOptionEditBtn = document.getElementById('cancel-option-edit');
         const basePriceInput = document.getElementById('base-price-input');
         const basePriceHelp = document.getElementById('base-price-help');
+        const categorySelect = document.getElementById('category-select');
+        const customCategoryLabel = document.getElementById('custom-category-label');
+        const customCategoryInput = document.getElementById('custom-category-input');
+        const nameInput = document.querySelector('input[name="name"]');
+        const descriptionInput = document.querySelector('textarea[name="description"]');
+        const imageInput = document.getElementById('image-input');
+        const previewContainer = document.getElementById('image-preview-container');
+        const previewImg = document.getElementById('image-preview');
+        const removeBtn = document.getElementById('remove-image');
+        const activeCheckbox = document.querySelector('input[name="is_active"][type="checkbox"]');
+        const submitButton = document.getElementById('product-form-submit');
+        const methodInput = document.getElementById('product-form-method');
+
+        const createAction = @json(route('products.store'));
 
         let currentOption = null;
         let allOptions = [];
@@ -128,6 +156,18 @@
 
         function rebuildHidden() {
             hidden.value = JSON.stringify(allOptions);
+        }
+
+        function setPreview(url) {
+            if (!previewContainer || !previewImg) return;
+
+            if (url) {
+                previewImg.src = url;
+                previewContainer.classList.remove('hidden');
+            } else {
+                previewImg.src = '';
+                previewContainer.classList.add('hidden');
+            }
         }
 
         function getVariantPricingState() {
@@ -176,6 +216,73 @@
                 basePriceHelp.textContent = 'Required for products without variants, or when a variant uses 0 (base price).';
             }
         }
+
+        function loadOptionsFromValue(value) {
+            try {
+                const parsed = Array.isArray(value) ? value : JSON.parse(value || '[]');
+                allOptions = Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                allOptions = [];
+            }
+
+            rebuildHidden();
+            renderOptions();
+            syncBasePriceBehavior();
+        }
+
+        window.productFormReset = function() {
+            if (!form) return;
+
+            form.action = createAction;
+            if (methodInput) methodInput.value = '';
+            if (submitButton) submitButton.textContent = 'Create Product';
+            if (categorySelect) categorySelect.value = '';
+            if (customCategoryLabel) customCategoryLabel.classList.add('hidden');
+            if (customCategoryInput) {
+                customCategoryInput.value = '';
+                customCategoryInput.required = false;
+            }
+            if (nameInput) nameInput.value = '';
+            if (descriptionInput) descriptionInput.value = '';
+            if (basePriceInput) basePriceInput.value = '';
+            if (activeCheckbox) activeCheckbox.checked = true;
+            if (imageInput) imageInput.value = '';
+            setPreview('');
+            loadOptionsFromValue('[]');
+            if (optionNameEl) optionNameEl.value = '';
+            if (valueNameEl) valueNameEl.value = '';
+            if (valuePriceEl) valuePriceEl.value = '';
+            if (currentValuesDiv) currentValuesDiv.classList.add('hidden');
+            currentOption = null;
+            editingOptionIndex = null;
+        };
+
+        window.productFormLoad = function(product) {
+            if (!form || !product) return;
+
+            form.action = product.update_url || createAction;
+            if (methodInput) methodInput.value = 'PATCH';
+            if (submitButton) submitButton.textContent = 'Update Product';
+            if (categorySelect) categorySelect.value = product.category_id ?? '';
+            if (customCategoryLabel) customCategoryLabel.classList.add('hidden');
+            if (customCategoryInput) {
+                customCategoryInput.value = '';
+                customCategoryInput.required = false;
+            }
+            if (nameInput) nameInput.value = product.name ?? '';
+            if (descriptionInput) descriptionInput.value = product.description ?? '';
+            if (basePriceInput) basePriceInput.value = product.price ?? '';
+            if (activeCheckbox) activeCheckbox.checked = Boolean(product.is_active);
+            if (imageInput) imageInput.value = '';
+            setPreview(product.image_url || '');
+            loadOptionsFromValue(product.options || '[]');
+            if (optionNameEl) optionNameEl.value = '';
+            if (valueNameEl) valueNameEl.value = '';
+            if (valuePriceEl) valuePriceEl.value = '';
+            if (currentValuesDiv) currentValuesDiv.classList.add('hidden');
+            currentOption = null;
+            editingOptionIndex = null;
+        };
 
         function renderOptions() {
             container.innerHTML = '';
@@ -367,6 +474,10 @@
         const previewContainer = document.getElementById('image-preview-container');
         const previewImg = document.getElementById('image-preview');
         const removeBtn = document.getElementById('remove-image');
+
+        if (!imageInput || !previewContainer || !previewImg || !removeBtn) {
+            return;
+        }
 
         imageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];

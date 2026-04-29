@@ -15,7 +15,7 @@
                     <h3 class="text-lg font-medium text-gray-900 dark:text-black">Filters</h3>
                 </div>
                 <form id="cashierFiltersForm" method="GET" action="{{ route('activity-logs.index') }}" class="p-5">
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <label for="branch_id" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Branch</label>
                             <select name="branch_id" id="branch_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm">
@@ -25,15 +25,6 @@
                                         {{ $branch->name }}
                                     </option>
                                 @endforeach
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="role" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Role</label>
-                            <select name="role" id="role" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 text-sm">
-                                <option value="">All Roles</option>
-                                <option value="cashier" {{ request('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
-                                <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                             </select>
                         </div>
 
@@ -159,8 +150,8 @@
             <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-4xl w-full mx-4 overflow-hidden transform transition-all">
                 <!-- Modal Header -->
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-simplicitea-600 to-simplicitea-700">
-                    <div class="flex items-center justify-between">
-                        <div>
+                            <div class="flex items-center justify-between gap-4">
+                                <div class="min-w-0">
                             <h3 id="modalTitle" class="text-lg font-semibold text-black">Cashier Sales Details</h3>
                             <p id="modalSubtitle" class="text-sm text-simplicitea-100 mt-0.5"></p>
                         </div>

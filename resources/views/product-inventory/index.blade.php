@@ -5,6 +5,13 @@
                 {{ __('Inventory Management') }}
             </h2>
             <div class="flex items-center gap-3">
+                @if($readOnly ?? false)
+                <!-- Read-Only Indicator -->
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl">
+                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">OVERVIEW</span>
+                </div>
+                @else
                 <!-- Sync Status Indicator -->
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl">
                     <span class="relative flex h-2.5 w-2.5">
@@ -13,6 +20,7 @@
                     </span>
                     <span class="text-xs font-semibold text-green-700 dark:text-green-400">LIVE SYNC</span>
                 </div>
+                @endif
             </div>
         </div>
     </x-slot>
@@ -80,20 +88,28 @@
                                 <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300">{{ count($lowStockAlerts) }} low</span>
                             @endif
                         </div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Ready-for-resale products only. Manage prices globally and stock per branch.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ ($readOnly ?? false) ? 'View current stock levels for your branch.' : 'Ready-for-resale products only. Manage prices globally and stock per branch.' }}</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
-                        <form method="GET" action="{{ route('product-inventory.index') }}" class="flex flex-wrap items-center gap-2">
+                        <form method="GET" action="{{ ($readOnly ?? false) ? route('employee-inventory.index') : route('product-inventory.index') }}" class="flex flex-wrap items-center gap-2">
                             <input type="hidden" name="tab" value="products">
                             <label for="inventoryBranchFilter" class="text-sm font-medium text-gray-600 dark:text-gray-300">Branch</label>
-                            <select id="inventoryBranchFilter" name="branch_id" onchange="this.form.submit()"
-                                class="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
-                                @foreach($branches as $branch)
-                                    <option value="{{ $branch->id }}" {{ (int) $selectedBranchId === (int) $branch->id ? 'selected' : '' }}>
-                                        {{ $branch->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            @if($readOnly ?? false)
+                                <input type="hidden" name="branch_id" value="{{ $selectedBranchId }}">
+                                <div class="px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-black">{{ $selectedBranch->name ?? 'N/A' }}</div>
+                            @else
+                                <select id="inventoryBranchFilter" name="branch_id" onchange="this.form.submit()"
+                                    class="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
+                                    @if(auth()->user()->isAdmin())
+                                        <option value="all" {{ is_null($selectedBranchId) ? 'selected' : '' }}>🌐 All Branches</option>
+                                    @endif
+                                    @foreach($branches as $branch)
+                                        <option value="{{ $branch->id }}" {{ (int) $selectedBranchId === (int) $branch->id ? 'selected' : '' }}>
+                                            {{ $branch->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @endif
                         </form>
                         <div class="relative w-full sm:w-auto">
                             <input type="text" id="productSearch" placeholder="Search products..." 
@@ -106,7 +122,7 @@
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="w-full" id="productTable">
+                    <table style="min-width: 940px; width: max-content;" id="productTable">
                         <thead>
                             <tr class="bg-gray-50 dark:bg-gray-700/50">
                                 <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
@@ -117,7 +133,7 @@
                                     📍 {{ $branch->name }}
                                 </th>
                                 @endforeach
-                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                @if(!($readOnly ?? false))<th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>@endif
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -259,6 +275,7 @@
                                     @endif
                                 </td>
                                 @endforeach
+                                @if(!($readOnly ?? false))
                                 <td class="px-5 py-4 text-center">
                                     <button onclick="openProductModal({{ $product->id }})" 
                                         class="inline-flex items-center gap-1 px-3 py-1.5 bg-simplicitea-600 hover:bg-simplicitea-700 text-black text-xs font-medium rounded-lg transition-colors">
@@ -268,6 +285,7 @@
                                         Manage
                                     </button>
                                 </td>
+                                @endif
                             </tr>
                             @empty
                             <tr>
@@ -327,7 +345,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Showing inventory for: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ $selectedBranch->name ?? 'Selected Branch' }}</span></p>
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
-                            <form method="GET" action="{{ route('product-inventory.index') }}" class="flex flex-wrap items-center gap-2">
+                            <form method="GET" action="{{ ($readOnly ?? false) ? route('employee-inventory.index') : route('product-inventory.index') }}" class="flex flex-wrap items-center gap-2">
                                 <input type="hidden" name="tab" value="ingredients">
                                 <label for="ingredientBranchFilter" class="text-sm font-medium text-gray-600 dark:text-gray-300">Branch</label>
                                 <select id="ingredientBranchFilter" name="branch_id" onchange="this.form.submit()"
@@ -346,17 +364,19 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                 </svg>
                             </div>
+                            @if(!($readOnly ?? false))
                             <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" class="px-4 py-2 bg-simplicitea-600 text-black text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
                                 Add Ingredient
                             </button>
+                            @endif
                         </div>
                     </div>
                     
                     <div class="overflow-x-auto">
-                        <table class="w-full" id="ingredientTable">
+                        <table style="min-width: 1000px; width: max-content;" id="ingredientTable">
                             <thead>
                                 <tr class="bg-gray-50 dark:bg-gray-700/50">
                                     <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ingredient</th>
@@ -364,7 +384,7 @@
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity ({{ $selectedBranch->name ?? 'Branch' }})</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Unit</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Updated</th>
-                                    <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                    @if(!($readOnly ?? false))<th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>@endif
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -425,6 +445,7 @@
                                         <span class="text-sm text-gray-500 dark:text-gray-400">{{ $ingredient->updated_at->format('M d, Y') }}</span>
                                         <p class="text-xs text-gray-400 dark:text-gray-500">{{ $ingredient->updated_at->diffForHumans() }}</p>
                                     </td>
+                                    @if(!($readOnly ?? false))
                                     <td class="px-5 py-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <button onclick="openEditIngredientModal({{ $ingredient->id }}, '{{ $ingredient->name }}', '{{ $ingredient->unit }}', {{ json_encode($ingredient->branches) }})" 
@@ -447,6 +468,7 @@
                                             </form>
                                         </div>
                                     </td>
+                                    @endif
                                 </tr>
                                 @empty
                                 <tr>
@@ -454,12 +476,14 @@
                                         <div class="text-gray-500 dark:text-gray-400">
                                             <span class="text-4xl">🧪</span>
                                             <p class="mt-2">No ingredients found</p>
+                                            @if(!($readOnly ?? false))
                                             <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-simplicitea-600 text-black text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                                 </svg>
                                                 Add Your First Ingredient
                                             </button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -473,6 +497,7 @@
         </div>
     </div>
 
+    @if(!($readOnly ?? false))
     {{-- ==================== INGREDIENT MODALS ==================== --}}
     
     {{-- Add New Ingredient Modal --}}
@@ -631,6 +656,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <style>
         @keyframes modal-in {

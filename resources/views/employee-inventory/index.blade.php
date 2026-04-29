@@ -165,7 +165,8 @@
                         </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <div style="min-width: 940px; width: max-content;">
+                        <table style="min-width: 940px; width: max-content;">
                             <thead>
                                 <tr class="bg-gray-50 dark:bg-gray-700/50">
                                     <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
@@ -312,7 +313,8 @@
                         </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <div style="min-width: 1000px; width: max-content;">
+                        <table style="min-width: 1000px; width: max-content;">
                             <thead>
                                 <tr class="bg-gray-50 dark:bg-gray-700/50">
                                     <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ingredient</th>

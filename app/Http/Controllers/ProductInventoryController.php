@@ -23,10 +23,26 @@ class ProductInventoryController extends Controller
     {
         $user = Auth::user();
         $branches = Branch::where('is_active', true)->get();
-        $selectedBranchId = (int) $request->get('branch_id', 0);
-        $selectedBranch = $branches->firstWhere('id', $selectedBranchId) ?? $branches->first();
-        $selectedBranchId = $selectedBranch?->id;
-        $displayBranches = $selectedBranch ? collect([$selectedBranch]) : collect();
+        $selectedParam = $request->get('branch_id', null);
+
+        if ($user->isAdmin()) {
+            // Admin default: show all branches when no param provided
+            if ($selectedParam === null || $selectedParam === 'all') {
+                $selectedBranch = null;
+                $selectedBranchId = null;
+                $displayBranches = $branches;
+            } else {
+                $selectedBranchId = (int) $selectedParam;
+                $selectedBranch = $branches->firstWhere('id', $selectedBranchId) ?? $branches->first();
+                $selectedBranchId = $selectedBranch?->id;
+                $displayBranches = $selectedBranch ? collect([$selectedBranch]) : collect();
+            }
+        } else {
+            // Non-admin users see only their assigned branch
+            $selectedBranchId = $user->branch_id;
+            $selectedBranch = $branches->firstWhere('id', $selectedBranchId) ?? Branch::find($selectedBranchId);
+            $displayBranches = $selectedBranch ? collect([$selectedBranch]) : collect();
+        }
         $categories = Category::where('is_active', true)->get();
         
         // Raw Product tab only shows ready-for-resale (direct) products.

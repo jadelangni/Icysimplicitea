@@ -170,21 +170,10 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        $product = Product::with('ingredients')->findOrFail($id);
+        $product = Product::findOrFail($id);
         $categories = Category::where('is_active', true)->get();
-        $ingredients = Ingredient::where('is_active', true)->orderBy('name')->get();
-        
-        // Format existing recipe for the view
-        $recipe = $product->ingredients->map(function($ingredient) {
-            return [
-                'ingredient_id' => $ingredient->id,
-                'name' => $ingredient->name,
-                'quantity_required' => $ingredient->pivot->quantity_required,
-                'unit' => $ingredient->pivot->unit ?? $ingredient->unit,
-            ];
-        });
 
-        return view('products.edit', compact('product', 'categories', 'ingredients', 'recipe'));
+        return view('products.edit', compact('product', 'categories'));
     }
 
     /**

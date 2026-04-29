@@ -181,7 +181,7 @@
 
 <style>
 #cashierSidebar {
-    background: linear-gradient(180deg, #005B5C 0%, #014b4c 55%, #003536 100%);
+    background: linear-gradient(180deg, #157476 0%, #0f6264 52%, #0a5152 100%);
 }
 
 #cashierSidebar .nav-item.active {
@@ -190,7 +190,7 @@
 }
 
 #cashierSidebar .nav-item:hover {
-    background: rgba(152, 255, 152, 0.15);
+    background: rgba(178, 232, 216, 0.18);
     color: #000000;
 }
 

@@ -18,16 +18,12 @@ class ActivityLogController extends Controller
     {
         $query = User::with(['branch'])
             ->where('is_active', true)
+            ->where('role', 'cashier')
             ->orderBy('name', 'asc');
 
         // Filter by branch
         if ($request->filled('branch_id')) {
             $query->where('branch_id', $request->branch_id);
-        }
-
-        // Filter by role
-        if ($request->filled('role')) {
-            $query->where('role', $request->role);
         }
 
         $cashiers = $query->paginate(25)->withQueryString();
