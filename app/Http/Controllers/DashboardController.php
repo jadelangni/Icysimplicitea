@@ -145,10 +145,12 @@ class DashboardController extends Controller
                 if (!$isAllBranches) {
                     $q->where('branch_id', $branchId);
                 }
-                $q->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                $q->where('status', 'completed')
+                  ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
             })
             ->groupBy('product_id')
             ->orderByDesc('total_qty')
+            ->orderByDesc('total_sales')
             ->limit(5)
             ->with('product')
             ->get();
@@ -282,10 +284,12 @@ class DashboardController extends Controller
                 if (!$isAllBranches) {
                     $q->where('branch_id', $branchId);
                 }
-                $q->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                $q->where('status', 'completed')
+                  ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
             })
             ->groupBy('product_id')
             ->orderByDesc('total_qty')
+            ->orderByDesc('total_sales')
             ->limit(5)
             ->with('product')
             ->get();
@@ -382,10 +386,12 @@ class DashboardController extends Controller
         $topProducts = SalesItem::select('product_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(total_price) as total_sales'))
             ->whereHas('sale', function($q) use ($branchId) {
                 $q->where('branch_id', $branchId)
+                  ->where('status', 'completed')
                   ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
             })
             ->groupBy('product_id')
             ->orderByDesc('total_qty')
+            ->orderByDesc('total_sales')
             ->limit(5)
             ->with('product')
             ->get()

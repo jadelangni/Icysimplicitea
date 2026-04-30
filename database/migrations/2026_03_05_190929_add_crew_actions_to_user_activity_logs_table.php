@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         DB::statement("ALTER TABLE user_activity_logs MODIFY COLUMN `action` ENUM('login', 'logout', 'crew_check_in', 'crew_check_out') NOT NULL");
     }
 
@@ -20,6 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         DB::statement("ALTER TABLE user_activity_logs MODIFY COLUMN `action` ENUM('login', 'logout') NOT NULL");
     }
 };

@@ -37,7 +37,9 @@ class InventoryReportExport implements FromCollection, WithHeadings, WithMapping
             }]);
         }
 
-        return $query->get();
+        return $query->get()->sortBy(function ($ingredient) {
+            return sprintf('%02d-%s', $this->getStatusPriority($ingredient), strtolower($ingredient->name));
+        })->values();
     }
 
     public function headings(): array
@@ -57,6 +59,7 @@ class InventoryReportExport implements FromCollection, WithHeadings, WithMapping
         }
 
         $headers[] = 'Overall Status';
+        $headers[] = 'Last Updated';
         return $headers;
     }
 
@@ -82,7 +85,7 @@ class InventoryReportExport implements FromCollection, WithHeadings, WithMapping
 
                 $status = 'In Stock';
                 if ($qty <= 0) {
-                    $status = 'Out of Stock';
+                    $status = 'No Stock';
                     $hasOutOfStock = true;
                 } elseif ($qty <= $minStock) {
                     $status = 'Low Stock';
@@ -94,7 +97,7 @@ class InventoryReportExport implements FromCollection, WithHeadings, WithMapping
             }
 
             $row[] = $totalQty;
-            $row[] = $hasOutOfStock ? 'Out of Stock' : ($hasLowStock ? 'Low Stock' : 'In Stock');
+            $row[] = $hasOutOfStock ? 'No Stock' : ($hasLowStock ? 'Low Stock' : 'In Stock');
         } else {
             $inventory = $ingredient->inventories->first();
             $qty = $inventory ? (float)$inventory->quantity : 0;
@@ -104,8 +107,10 @@ class InventoryReportExport implements FromCollection, WithHeadings, WithMapping
             $row[] = $qty;
             $row[] = number_format($unitCost, 2);
             $row[] = number_format($totalValue, 2);
-            $row[] = $ingredient->getStatusForBranch($this->branchId);
+            $row[] = $this->getReportStatus($ingredient);
         }
+
+        $row[] = $this->getLastUpdated($ingredient);
 
         return $row;
     }
@@ -120,5 +125,53 @@ class InventoryReportExport implements FromCollection, WithHeadings, WithMapping
         return [
             1 => ['font' => ['bold' => true, 'size' => 12]],
         ];
+    }
+
+    protected function getReportStatus($ingredient): string
+    {
+        if ($this->isAll) {
+            $hasOutOfStock = $ingredient->inventories->isEmpty() || $ingredient->inventories->contains(function ($inv) {
+                return $inv->quantity <= 0;
+            });
+
+            if ($hasOutOfStock) {
+                return 'No Stock';
+            }
+
+            $hasLowStock = $ingredient->inventories->contains(function ($inv) use ($ingredient) {
+                return $inv->quantity > 0 && $inv->quantity <= ($inv->min_stock_level ?? $ingredient->min_stock_level);
+            });
+
+            return $hasLowStock ? 'Low Stock' : 'In Stock';
+        }
+
+        $inventory = $ingredient->inventories->first();
+        if (!$inventory) {
+            return 'No Stock';
+        }
+
+        return $ingredient->getStatusForBranch($this->branchId) === 'Out of Stock'
+            ? 'No Stock'
+            : $ingredient->getStatusForBranch($this->branchId);
+    }
+
+    protected function getStatusPriority($ingredient): int
+    {
+        return match ($this->getReportStatus($ingredient)) {
+            'No Stock' => 0,
+            'Low Stock' => 1,
+            default => 2,
+        };
+    }
+
+    protected function getLastUpdated($ingredient): string
+    {
+        if ($this->isAll) {
+            $lastUpdated = $ingredient->inventories->sortByDesc('updated_at')->first()?->updated_at;
+        } else {
+            $lastUpdated = $ingredient->inventories->first()?->updated_at;
+        }
+
+        return $lastUpdated ? $lastUpdated->format('M d, Y h:i A') : 'N/A';
     }
 }

@@ -125,6 +125,8 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
         Route::patch('/branches/{branch}', [BranchController::class, 'update'])->name('branches.update');
         Route::patch('/branches/{branch}/archive', [BranchController::class, 'archive'])->name('branches.archive');
         Route::delete('/branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy');
+        Route::post('/branches/{branchId}/restore', [BranchController::class, 'restore'])->name('branches.restore');
+        Route::get('/branches/archived', [BranchController::class, 'archived'])->name('branches.archived');
         
         Route::resource('products', ProductController::class);
         // Toggle availability without requiring full update payload
@@ -167,6 +169,10 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
             Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
             Route::get('/daily', [ReportController::class, 'daily'])->name('daily');
             Route::get('/monthly', [ReportController::class, 'monthly'])->name('monthly');
+            Route::get('/inventory/import/template', [ReportController::class, 'downloadInventoryImportTemplate'])->name('inventory.import.template');
+            Route::post('/inventory/import/preview', [ReportController::class, 'previewInventoryImport'])->name('inventory.import.preview');
+            Route::post('/inventory/import/confirm', [ReportController::class, 'confirmInventoryImport'])->name('inventory.import.confirm');
+            Route::delete('/inventory/import/cancel', [ReportController::class, 'cancelInventoryImport'])->name('inventory.import.cancel');
             
             // Export routes
             Route::get('/export/sales', [ReportController::class, 'exportSales'])->name('export.sales');

@@ -479,8 +479,50 @@
         }
         salesChart.update('none');
 
+        // Update Top Products
+        updateTopProducts(data.topProducts);
+
         // Update last updated time
         document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+
+    function updateTopProducts(products) {
+        const container = document.getElementById('topProductsContainer');
+        if (!container || !products) return;
+
+        if (products.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <span class="text-4xl">📊</span>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2">No sales this week yet</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '<div class="space-y-3">';
+        products.forEach((item, index) => {
+            const bgClass = index === 0 ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800' : 'bg-gray-50 dark:bg-gray-700/50';
+            const medalBgClass = index === 0 ? 'bg-yellow-100 dark:bg-yellow-900/50' : (index === 1 ? 'bg-gray-200 dark:bg-gray-600' : 'bg-orange-100 dark:bg-orange-900/50');
+            const medal = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : (index + 1)));
+
+            html += `
+                <div class="flex items-center gap-3 p-3 rounded-xl ${bgClass}">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full ${medalBgClass} flex items-center justify-center">
+                        <span class="text-sm font-bold">${medal}</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">${item.product?.name || item.name || 'Unknown'}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">${item.total_qty} sold</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">₱${parseFloat(item.total_sales).toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
     }
 
     function updateChangeBadge(badgeId, valueId, change) {

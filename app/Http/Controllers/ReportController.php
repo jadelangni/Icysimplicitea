@@ -6,20 +6,26 @@ use App\Models\Sale;
 use App\Models\Product;
 use App\Models\SalesItem;
 use App\Models\Ingredient;
+use App\Models\IngredientInventory;
+use App\Models\InventoryImportHistory;
 use App\Models\Branch;
 use App\Models\BranchSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SalesReportExport;
 use App\Exports\InventoryReportExport;
 use App\Exports\DailyReportExport;
 use App\Exports\MonthlyReportExport;
+use App\Exports\InventoryImportTemplateExport;
 
 class ReportController extends Controller
 {
+    private const INVENTORY_IMPORT_SESSION_KEY = 'inventory_import_preview';
+
     /**
      * Get branch filter for queries
      */
@@ -41,6 +47,28 @@ class ReportController extends Controller
             'selectedBranchId' => $selectedBranchId,
             'isAll' => $selectedBranchId === 'all',
             'canSelectBranch' => $user->isAdmin()
+        ];
+    }
+
+    private function getInventoryBranchFilter(Request $request): array
+    {
+        $user = Auth::user();
+        $branches = Branch::where('is_active', true)->orderBy('name')->get();
+
+        if ($user->isAdmin()) {
+            $requestedBranchId = $request->get('branch_id');
+            $selectedBranchId = $branches->contains('id', (int) $requestedBranchId)
+                ? (int) $requestedBranchId
+                : $branches->first()?->id;
+        } else {
+            $selectedBranchId = $user->branch_id;
+        }
+
+        return [
+            'branches' => $branches,
+            'selectedBranchId' => $selectedBranchId,
+            'isAll' => false,
+            'canSelectBranch' => $user->isAdmin(),
         ];
     }
 
@@ -177,76 +205,351 @@ class ReportController extends Controller
      */
     public function inventory(Request $request)
     {
-        $branchFilter = $this->getBranchFilter($request);
-        
-        // If viewing all branches, get all inventory data
-        if ($branchFilter['isAll']) {
-            $branches = Branch::all();
-            $ingredients = Ingredient::with('inventories')->where('is_active', true)->orderBy('name')->get();
-            
-            // Add aggregated data for all branches
-            $ingredients->each(function($ingredient) use ($branches) {
-                $totalQuantity = $ingredient->inventories->sum('quantity');
-                $ingredient->branch_quantity = $totalQuantity;
-                $ingredient->branch_unit_cost = $ingredient->inventories->avg('unit_cost') ?? 0;
-                
-                // Check status across all branches
-                $hasLowStock = $ingredient->inventories->contains(function($inv) use ($ingredient) {
-                    return $inv->quantity > 0 && $inv->quantity <= ($inv->min_stock_level ?? $ingredient->min_stock_level);
-                });
-                $hasOutOfStock = $ingredient->inventories->contains(function($inv) {
-                    return $inv->quantity <= 0;
-                });
-                
-                if ($hasOutOfStock) {
-                    $ingredient->branch_status = 'Out of Stock';
-                } elseif ($hasLowStock) {
-                    $ingredient->branch_status = 'Low Stock';
-                } else {
-                    $ingredient->branch_status = 'In Stock';
-                }
-            });
-        } else {
-            $branchId = $branchFilter['selectedBranchId'];
-            
-            // Get all ingredients with their inventory data for this branch
-            $ingredients = Ingredient::with(['inventories' => function($query) use ($branchId) {
-                $query->where('branch_id', $branchId);
-            }])->where('is_active', true)->orderBy('name')->get();
-            
-            // Add branch-specific data to each ingredient
-            $ingredients->each(function($ingredient) use ($branchId) {
-                $inventory = $ingredient->inventories->first();
-                $ingredient->branch_quantity = $inventory ? $inventory->quantity : 0;
-                $ingredient->branch_unit_cost = $inventory ? ($inventory->unit_cost ?? 0) : 0;
-                $ingredient->branch_status = $ingredient->getStatusForBranch($branchId);
-                $ingredient->branch_min_stock = $inventory ? $inventory->min_stock_level : 0;
-            });
-        }
+        $branchFilter = $this->getInventoryBranchFilter($request);
+        $importPreview = session(self::INVENTORY_IMPORT_SESSION_KEY);
+        $normalizeStatus = function (string $status): array {
+            return match ($status) {
+                'Out of Stock' => ['No Stock', 0],
+                'Low Stock' => ['Low Stock', 1],
+                default => ['In Stock', 2],
+            };
+        };
+
+        $branchId = $branchFilter['selectedBranchId'];
+
+        $ingredients = Ingredient::with(['inventories' => function($query) use ($branchId) {
+            $query->where('branch_id', $branchId);
+        }])->where('is_active', true)->orderBy('name')->get();
+
+        $ingredients->each(function($ingredient) use ($branchId, $normalizeStatus) {
+            $inventory = $ingredient->inventories->first();
+            $ingredient->branch_quantity = $inventory ? $inventory->quantity : 0;
+            $ingredient->branch_unit_cost = $inventory ? ($inventory->unit_cost ?? 0) : 0;
+            $rawStatus = $inventory ? $ingredient->getStatusForBranch($branchId) : 'Out of Stock';
+            [$ingredient->branch_status, $ingredient->status_priority] = $normalizeStatus($rawStatus);
+            $ingredient->branch_min_stock = $inventory ? $inventory->min_stock_level : 0;
+            $ingredient->branch_last_updated = $inventory?->updated_at;
+        });
+
+        $ingredients = $ingredients
+            ->sortBy(function ($ingredient) {
+                return sprintf('%02d-%s', $ingredient->status_priority ?? 9, strtolower($ingredient->name));
+            })
+            ->values();
         
         // Calculate inventory statistics
         $totalItems = $ingredients->count();
+        $noStockItems = $ingredients->where('branch_status', 'No Stock')->count();
         $lowStockItems = $ingredients->where('branch_status', 'Low Stock')->count();
-        $outOfStockItems = $ingredients->where('branch_status', 'Out of Stock')->count();
         $totalValue = $ingredients->sum(function($ingredient) {
             return $ingredient->branch_quantity * $ingredient->branch_unit_cost;
         });
         
         // Group by status
         $stockStatus = [
-            'In Stock' => $ingredients->where('branch_status', 'In Stock')->count(),
+            'No Stock' => $noStockItems,
             'Low Stock' => $lowStockItems,
-            'Out of Stock' => $outOfStockItems
+            'In Stock' => $ingredients->where('branch_status', 'In Stock')->count(),
         ];
         
         return view('reports.inventory', array_merge(compact(
             'ingredients',
             'totalItems',
+            'noStockItems',
             'lowStockItems', 
-            'outOfStockItems',
             'totalValue',
-            'stockStatus'
+            'stockStatus',
+            'importPreview'
         ), $branchFilter));
+    }
+
+    public function downloadInventoryImportTemplate()
+    {
+        if (!class_exists(\ZipArchive::class)) {
+            return response()->streamDownload(function () {
+                $handle = fopen('php://output', 'w');
+                fputcsv($handle, ['Item Name', 'Qty', 'Unit', 'Branch']);
+                fputcsv($handle, ['Milk', 20, 'L', '']);
+                fputcsv($handle, ['Sugar', 10, 'KG', '']);
+                fputcsv($handle, ['C2', 50, 'PCS', '']);
+                fclose($handle);
+            }, 'inventory_import_template.csv', [
+                'Content-Type' => 'text/csv',
+            ]);
+        }
+
+        return Excel::download(
+            new InventoryImportTemplateExport(),
+            'inventory_import_template.xlsx'
+        );
+    }
+
+    public function previewInventoryImport(Request $request)
+    {
+        $request->validate([
+            'inventory_file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $previousPreview = session(self::INVENTORY_IMPORT_SESSION_KEY);
+        if ($previousPreview && !empty($previousPreview['stored_path'])) {
+            Storage::delete($previousPreview['stored_path']);
+        }
+
+        $uploadedFile = $request->file('inventory_file');
+        $storedPath = $uploadedFile->store('inventory-imports');
+        $originalName = $uploadedFile->getClientOriginalName();
+
+        try {
+            $rows = $this->readInventoryImportRows($uploadedFile);
+        } catch (\Throwable $exception) {
+            Storage::delete($storedPath);
+
+            return back()->with('error', $exception->getMessage());
+        }
+
+        $headings = array_map(fn ($heading) => $this->normalizeHeading($heading), array_shift($rows) ?? []);
+        $selectedBranchId = $request->input('branch_id');
+
+        $previewRows = [];
+        $seenRows = [];
+        $errorCount = 0;
+
+        foreach ($rows as $index => $row) {
+            $rowNumber = $index + 2;
+            $data = $this->combineImportRow($headings, $row);
+
+            if ($this->isEmptyImportRow($data)) {
+                continue;
+            }
+
+            $validatedRow = $this->validateInventoryImportRow($data, $seenRows, $rowNumber, $selectedBranchId);
+            if (!$validatedRow['valid']) {
+                $errorCount++;
+            }
+
+            $previewRows[] = $validatedRow;
+        }
+
+        if (empty($previewRows)) {
+            Storage::delete($storedPath);
+
+            return back()->with('error', 'The uploaded file has no inventory rows to import.');
+        }
+
+        $preview = [
+            'rows' => $previewRows,
+            'error_count' => $errorCount,
+            'valid_count' => count($previewRows) - $errorCount,
+            'file_name' => $originalName,
+            'stored_path' => $storedPath,
+            'created_at' => now()->toDateTimeString(),
+        ];
+
+        session([self::INVENTORY_IMPORT_SESSION_KEY => $preview]);
+
+        return redirect()
+            ->route('reports.inventory', $request->only('branch_id'));
+    }
+
+    public function confirmInventoryImport(Request $request)
+    {
+        $preview = session(self::INVENTORY_IMPORT_SESSION_KEY);
+
+        if (!$preview) {
+            return back()->with('error', 'Please upload and preview an inventory file first.');
+        }
+
+        if (($preview['error_count'] ?? 0) > 0) {
+            return back()->with('error', 'Please fix the import errors before confirming.');
+        }
+
+        $admin = Auth::user();
+        $importedAt = now();
+        $updatedCount = 0;
+
+        DB::transaction(function () use ($preview, $admin, $importedAt, &$updatedCount) {
+            foreach ($preview['rows'] as $row) {
+                $inventory = IngredientInventory::firstOrCreate(
+                    [
+                        'ingredient_id' => $row['ingredient_id'],
+                        'branch_id' => $row['branch_id'],
+                    ],
+                    [
+                        'quantity' => 0,
+                        'min_stock_level' => 0,
+                    ]
+                );
+
+                $previousQty = (float) $inventory->quantity;
+                $addedQty = (float) $row['qty'];
+                $finalQty = $previousQty + $addedQty;
+
+                $inventory->quantity = $finalQty;
+                $inventory->save();
+
+                InventoryImportHistory::create([
+                    'imported_at' => $importedAt,
+                    'admin_id' => $admin->id,
+                    'ingredient_id' => $row['ingredient_id'],
+                    'branch_id' => $row['branch_id'],
+                    'supplier' => $row['supplier'],
+                    'imported_file' => $preview['file_name'],
+                    'previous_qty' => $previousQty,
+                    'added_qty' => $addedQty,
+                    'final_qty' => $finalQty,
+                ]);
+
+                $updatedCount++;
+            }
+        });
+
+        session()->forget(self::INVENTORY_IMPORT_SESSION_KEY);
+
+        return redirect()
+            ->route('reports.inventory', $request->only('branch_id'))
+            ->with('success', "Inventory import confirmed. {$updatedCount} item(s) updated and recorded in stock history.");
+    }
+
+    public function cancelInventoryImport(Request $request)
+    {
+        $preview = session(self::INVENTORY_IMPORT_SESSION_KEY);
+
+        if ($preview && !empty($preview['stored_path'])) {
+            Storage::delete($preview['stored_path']);
+        }
+
+        session()->forget(self::INVENTORY_IMPORT_SESSION_KEY);
+
+        return redirect()
+            ->route('reports.inventory', $request->only('branch_id'));
+    }
+
+    private function validateInventoryImportRow(array $data, array &$seenRows, int $rowNumber, $selectedBranchId = null): array
+    {
+        $itemName = trim((string) ($data['item_name'] ?? ''));
+        $qty = $data['qty'] ?? null;
+        $unit = trim((string) ($data['unit'] ?? ''));
+        $branchName = trim((string) ($data['branch'] ?? ''));
+        $supplier = trim((string) ($data['supplier'] ?? 'N/A')) ?: 'N/A';
+        $errors = [];
+
+        $ingredient = $itemName !== ''
+            ? Ingredient::whereRaw('LOWER(name) = ?', [strtolower($itemName)])->where('is_active', true)->first()
+            : null;
+
+        $branch = $branchName !== ''
+            ? Branch::whereRaw('LOWER(name) = ?', [strtolower($branchName)])->where('is_active', true)->first()
+            : null;
+
+        if (!$ingredient) {
+            $errors[] = 'Item does not exist or is inactive.';
+        }
+
+        if (!$branch) {
+            $errors[] = 'Branch is invalid or inactive.';
+        } elseif ($selectedBranchId && $selectedBranchId !== 'all' && (int) $selectedBranchId !== (int) $branch->id) {
+            $errors[] = 'Branch must match the selected report branch.';
+        }
+
+        if (!is_numeric($qty) || (float) $qty <= 0) {
+            $errors[] = 'Quantity must be greater than zero.';
+        }
+
+        if ($ingredient) {
+            $uploadedUnit = Ingredient::normalizeUnit($unit);
+            $ingredientUnit = Ingredient::normalizeUnit($ingredient->unit);
+
+            if (!$uploadedUnit || $uploadedUnit !== $ingredientUnit) {
+                $errors[] = "Unit must match {$ingredient->unit}.";
+            }
+        } elseif ($unit === '') {
+            $errors[] = 'Unit is required.';
+        }
+
+        $duplicateKey = strtolower($itemName . '|' . $branchName);
+        if (isset($seenRows[$duplicateKey])) {
+            $errors[] = "Duplicate row for the same item and branch. First seen on row {$seenRows[$duplicateKey]}.";
+        } else {
+            $seenRows[$duplicateKey] = $rowNumber;
+        }
+
+        return [
+            'row_number' => $rowNumber,
+            'item_name' => $itemName,
+            'qty' => is_numeric($qty) ? (float) $qty : $qty,
+            'unit' => $unit,
+            'branch' => $branchName,
+            'supplier' => $supplier,
+            'ingredient_id' => $ingredient?->id,
+            'branch_id' => $branch?->id,
+            'valid' => empty($errors),
+            'status' => empty($errors) ? 'Valid' : 'Error',
+            'errors' => $errors,
+        ];
+    }
+
+    private function readInventoryImportRows($uploadedFile): array
+    {
+        $extension = strtolower($uploadedFile->getClientOriginalExtension());
+
+        if (in_array($extension, ['xlsx', 'xls'], true) && !class_exists(\ZipArchive::class)) {
+            throw new \RuntimeException('Excel .xlsx/.xls import requires the PHP zip extension. Please upload a CSV file or enable zip in PHP.');
+        }
+
+        if ($extension === 'csv') {
+            $rows = [];
+            $handle = fopen($uploadedFile->getRealPath(), 'r');
+
+            if ($handle === false) {
+                throw new \RuntimeException('Unable to read the uploaded CSV file.');
+            }
+
+            while (($row = fgetcsv($handle)) !== false) {
+                $rows[] = $row;
+            }
+
+            fclose($handle);
+
+            return $rows;
+        }
+
+        return Excel::toArray([], $uploadedFile)[0] ?? [];
+    }
+
+    private function combineImportRow(array $headings, array $row): array
+    {
+        $combined = [];
+
+        foreach ($headings as $index => $heading) {
+            if ($heading === '') {
+                continue;
+            }
+
+            $combined[$heading] = $row[$index] ?? null;
+        }
+
+        return $combined;
+    }
+
+    private function isEmptyImportRow(array $data): bool
+    {
+        return collect($data)->filter(fn ($value) => trim((string) $value) !== '')->isEmpty();
+    }
+
+    private function normalizeHeading($heading): string
+    {
+        $normalized = strtolower(trim((string) $heading));
+        $normalized = preg_replace('/[^a-z0-9]+/', '_', $normalized);
+        $normalized = trim($normalized, '_');
+
+        return match ($normalized) {
+            'item', 'item_name', 'ingredient', 'ingredient_name', 'name' => 'item_name',
+            'quantity', 'qty', 'added_qty', 'add_qty' => 'qty',
+            'uom', 'unit' => 'unit',
+            'branch', 'branch_name' => 'branch',
+            'supplier', 'supplier_name' => 'supplier',
+            default => $normalized,
+        };
     }
 
     /**
@@ -352,26 +655,11 @@ class ReportController extends Controller
             $currentDate->addDay();
         }
         
-        // Product performance for the month
-        $productPerformanceQuery = SalesItem::whereHas('sale', function($query) use ($branchFilter, $startOfMonth, $endOfMonth) {
-                $query->whereBetween('created_at', [$startOfMonth, $endOfMonth]);
-                if (!$branchFilter['isAll']) {
-                    $query->where('branch_id', $branchFilter['selectedBranchId']);
-                }
-            })
-            ->select('product_id', DB::raw('SUM(quantity) as total_sold'), DB::raw('SUM(total_price) as revenue'))
-            ->with('product')
-            ->groupBy('product_id')
-            ->orderBy('revenue', 'desc');
-        
-        $productPerformance = $productPerformanceQuery->get();
-        
         return view('reports.monthly', array_merge(compact(
             'totalRevenue',
             'totalTransactions',
             'averageTransaction',
             'dailyBreakdown',
-            'productPerformance',
             'selectedMonth',
             'selectedYear'
         ), $branchFilter));
@@ -404,7 +692,7 @@ class ReportController extends Controller
      */
     public function exportInventory(Request $request)
     {
-        $branchFilter = $this->getBranchFilter($request);
+        $branchFilter = $this->getInventoryBranchFilter($request);
         
         $filename = 'inventory_report_' . now()->format('Y-m-d_His') . '.xlsx';
 

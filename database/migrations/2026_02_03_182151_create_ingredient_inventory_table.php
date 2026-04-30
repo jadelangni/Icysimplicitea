@@ -29,6 +29,7 @@ return new class extends Migration
             // Drop the foreign key if it exists
             if (Schema::hasColumn('ingredients', 'branch_id')) {
                 $table->dropForeign(['branch_id']);
+                $table->dropIndex(['branch_id']);
                 $table->dropColumn('branch_id');
             }
             if (Schema::hasColumn('ingredients', 'quantity')) {
