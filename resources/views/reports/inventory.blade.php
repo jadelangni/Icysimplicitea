@@ -262,8 +262,8 @@
                             </svg>
                             <p class="text-gray-500 dark:text-gray-400 text-lg mb-2">No inventory items found</p>
                             <p class="text-gray-400 text-sm mb-4">Start by adding ingredients to your inventory</p>
-                            <a href="{{ route('inventory.create') }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 text-black rounded-md hover:bg-simplicitea-700">
-                                Add Ingredient
+                            <a href="{{ route('product-inventory.index', ['tab' => 'ingredients']) }}" class="inline-flex items-center px-4 py-2 bg-simplicitea-600 text-black rounded-md hover:bg-simplicitea-700">
+                                Manage Ingredients
                             </a>
                         </div>
                     @endif

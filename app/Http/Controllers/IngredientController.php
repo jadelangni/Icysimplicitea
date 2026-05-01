@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Ingredient;
 use App\Models\IngredientInventory;
-use App\Models\Branch;
 use Illuminate\Http\Request;
+use App\Services\CatalogInventorySyncService;
 
 class IngredientController extends Controller
 {
@@ -50,7 +50,6 @@ class IngredientController extends Controller
             'min_stock_level' => 'nullable|numeric|min:0',
         ]);
 
-        // Create the ingredient
         $ingredient = Ingredient::create([
             'name' => $validated['name'],
             'description' => $validated['description'] ?? '',
@@ -58,15 +57,13 @@ class IngredientController extends Controller
             'is_active' => true,
         ]);
 
-        // Create inventory records for all branches
-        $branches = Branch::all();
         $initialQuantity = $validated['initial_quantity'] ?? 0;
         $minStockLevel = $validated['min_stock_level'] ?? 10;
 
-        foreach ($branches as $branch) {
-            IngredientInventory::create([
-                'ingredient_id' => $ingredient->id,
-                'branch_id' => $branch->id,
+        app(CatalogInventorySyncService::class)->ensureIngredientInventory($ingredient);
+
+        foreach ($ingredient->inventories as $inventory) {
+            $inventory->update([
                 'quantity' => $initialQuantity,
                 'min_stock_level' => $minStockLevel,
             ]);

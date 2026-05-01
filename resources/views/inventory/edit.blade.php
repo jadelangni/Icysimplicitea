@@ -104,7 +104,7 @@
                                 @php
                                     $isLowStock = $inventoryItem->quantity <= $inventoryItem->min_stock_level;
                                     $isOutOfStock = $inventoryItem->quantity <= 0;
-                                    $status = $isOutOfStock ? 'Out of Stock' : ($isLowStock ? 'Low Stock' : 'In Stock');
+                                    $status = $isOutOfStock ? 'No Stock' : ($isLowStock ? 'Low Stock' : 'In Stock');
                                     $statusColor = $isOutOfStock 
                                         ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400' 
                                         : ($isLowStock 

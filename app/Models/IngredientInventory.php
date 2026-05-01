@@ -59,7 +59,7 @@ class IngredientInventory extends Model
     public function getStatusAttribute(): string
     {
         if ($this->quantity <= 0) {
-            return 'Out of Stock';
+            return 'No Stock';
         } elseif ($this->quantity <= $this->min_stock_level) {
             return 'Low Stock';
         } else {

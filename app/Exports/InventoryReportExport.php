@@ -150,9 +150,7 @@ class InventoryReportExport implements FromCollection, WithHeadings, WithMapping
             return 'No Stock';
         }
 
-        return $ingredient->getStatusForBranch($this->branchId) === 'Out of Stock'
-            ? 'No Stock'
-            : $ingredient->getStatusForBranch($this->branchId);
+        return $ingredient->getStatusForBranch($this->branchId);
     }
 
     protected function getStatusPriority($ingredient): int

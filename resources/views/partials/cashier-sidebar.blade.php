@@ -184,6 +184,10 @@
     background: linear-gradient(180deg, #157476 0%, #0f6264 52%, #0a5152 100%);
 }
 
+#cashierSidebar .nav-item {
+    color: #e5fff8;
+}
+
 #cashierSidebar .nav-item.active {
     background: #00B140;
     color: #000000;
@@ -191,7 +195,7 @@
 
 #cashierSidebar .nav-item:hover {
     background: rgba(178, 232, 216, 0.18);
-    color: #000000;
+    color: #ffffff;
 }
 
 #cashierSidebar .employee-parent {

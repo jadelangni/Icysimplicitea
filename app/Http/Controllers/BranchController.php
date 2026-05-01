@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\CatalogInventorySyncService;
 
 class BranchController extends Controller
 {
@@ -18,13 +19,17 @@ class BranchController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
 
-        Branch::create([
+        $branch = Branch::create([
             'name' => $validated['name'],
             'address' => $validated['address'],
             'phone' => $validated['phone'] ?? null,
             'manager_name' => $validated['manager_name'] ?? null,
             'is_active' => $request->boolean('is_active', true),
         ]);
+
+        if ($branch->is_active) {
+            app(CatalogInventorySyncService::class)->ensureBranchInventory($branch);
+        }
 
         return redirect()->route('employees.index')->with('success', 'Branch added successfully.');
     }
@@ -56,6 +61,10 @@ class BranchController extends Controller
             $branch->update(['is_active' => !$branch->is_active]);
 
             $message = $branch->is_active ? 'Branch restored successfully.' : 'Branch archived successfully.';
+
+            if ($branch->is_active) {
+                app(CatalogInventorySyncService::class)->ensureBranchInventory($branch);
+            }
 
             if (request()->wantsJson()) {
                 return response()->json(['success' => true, 'message' => $message]);

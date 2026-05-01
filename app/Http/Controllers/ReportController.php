@@ -209,7 +209,7 @@ class ReportController extends Controller
         $importPreview = session(self::INVENTORY_IMPORT_SESSION_KEY);
         $normalizeStatus = function (string $status): array {
             return match ($status) {
-                'Out of Stock' => ['No Stock', 0],
+                'No Stock' => ['No Stock', 0],
                 'Low Stock' => ['Low Stock', 1],
                 default => ['In Stock', 2],
             };
@@ -225,7 +225,7 @@ class ReportController extends Controller
             $inventory = $ingredient->inventories->first();
             $ingredient->branch_quantity = $inventory ? $inventory->quantity : 0;
             $ingredient->branch_unit_cost = $inventory ? ($inventory->unit_cost ?? 0) : 0;
-            $rawStatus = $inventory ? $ingredient->getStatusForBranch($branchId) : 'Out of Stock';
+            $rawStatus = $inventory ? $ingredient->getStatusForBranch($branchId) : 'No Stock';
             [$ingredient->branch_status, $ingredient->status_priority] = $normalizeStatus($rawStatus);
             $ingredient->branch_min_stock = $inventory ? $inventory->min_stock_level : 0;
             $ingredient->branch_last_updated = $inventory?->updated_at;

@@ -5,12 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\Ingredient;
-use App\Models\Branch;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use App\Models\Inventory;
+use App\Services\CatalogInventorySyncService;
 
 class ProductController extends Controller
 {
@@ -20,14 +18,20 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         // Show product management page
-        $branchId = Auth::user()->branch_id;
+        $user = Auth::user();
+        $branchId = $user->branch_id;
         $search = trim((string) $request->input('search', ''));
 
         $categories = Category::where('is_active', true)->get();
 
-        $productsQuery = Product::with(['category', 'inventory' => function($query) use ($branchId) {
-            $query->where('branch_id', $branchId);
-        }]);
+        $productsQuery = Product::with([
+            'category',
+            'inventory' => function ($query) use ($user, $branchId) {
+                if (!$user->isAdmin()) {
+                    $query->where('branch_id', $branchId);
+                }
+            },
+        ]);
 
         if ($search !== '') {
             $productsQuery->where(function ($query) use ($search) {
@@ -66,7 +70,8 @@ class ProductController extends Controller
             'price' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'sometimes|boolean',
-            'options' => 'nullable|json'
+            'options' => 'nullable|json',
+            'product_type' => 'nullable|in:direct,composite',
         ]);
 
         $parsedOptions = $this->parseOptions($request->input('options'));
@@ -115,32 +120,8 @@ class ProductController extends Controller
 
         $result = DB::transaction(function () use ($data) {
             $product = Product::create($data);
-            $initializedBranchCount = 0;
-
-            // Ready-for-resale (direct) products need inventory rows in every active branch.
-            if ($product->isDirectProduct()) {
-                $branchIds = Branch::where('is_active', true)->pluck('id');
-                if ($branchIds->isEmpty()) {
-                    $branchIds = Branch::pluck('id');
-                }
-
-                foreach ($branchIds as $branchId) {
-                    $inventory = Inventory::firstOrCreate(
-                        [
-                            'branch_id' => $branchId,
-                            'product_id' => $product->id,
-                        ],
-                        [
-                            'quantity' => 0,
-                            'min_stock_level' => 10,
-                        ]
-                    );
-
-                    if ($inventory->wasRecentlyCreated) {
-                        $initializedBranchCount++;
-                    }
-                }
-            }
+            $initializedBranchCount = app(CatalogInventorySyncService::class)
+                ->ensureDirectProductInventory($product);
 
             return [
                 'product' => $product,
@@ -191,7 +172,8 @@ class ProductController extends Controller
             'price' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'sometimes|boolean',
-            'options' => 'nullable|json'
+            'options' => 'nullable|json',
+            'product_type' => 'nullable|in:direct,composite',
         ]);
 
         $parsedOptions = $this->parseOptions($request->input('options'));
@@ -240,29 +222,31 @@ class ProductController extends Controller
         }
 
         $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : false;
-        $product->update($data);
 
-        // Handle recipe/ingredients
-        if ($request->filled('recipe')) {
-            $recipeData = json_decode($request->input('recipe'), true);
-            $syncData = [];
-            
-            if (is_array($recipeData)) {
-                foreach ($recipeData as $item) {
-                    if (!empty($item['ingredient_id']) && !empty($item['quantity_required'])) {
-                        $syncData[$item['ingredient_id']] = [
-                            'quantity_required' => $item['quantity_required'],
-                            'unit' => $item['unit'] ?? null,
-                        ];
+        DB::transaction(function () use ($product, $data, $request) {
+            $product->update($data);
+
+            // Handle recipe/ingredients only when the product form explicitly sends recipe data.
+            if ($request->filled('recipe')) {
+                $recipeData = json_decode($request->input('recipe'), true);
+                $syncData = [];
+
+                if (is_array($recipeData)) {
+                    foreach ($recipeData as $item) {
+                        if (!empty($item['ingredient_id']) && !empty($item['quantity_required'])) {
+                            $syncData[$item['ingredient_id']] = [
+                                'quantity_required' => $item['quantity_required'],
+                                'unit' => $item['unit'] ?? null,
+                            ];
+                        }
                     }
                 }
+
+                $product->ingredients()->sync($syncData);
             }
-            
-            $product->ingredients()->sync($syncData);
-        } else {
-            // Clear recipe if empty
-            $product->ingredients()->detach();
-        }
+
+            app(CatalogInventorySyncService::class)->ensureDirectProductInventory($product);
+        });
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }

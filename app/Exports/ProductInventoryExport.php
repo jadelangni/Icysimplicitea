@@ -66,7 +66,7 @@ class ProductInventoryExport implements FromCollection, WithHeadings, WithMappin
 
             $status = 'In Stock';
             if ($qty <= 0) {
-                $status = 'Out of Stock';
+                $status = 'No Stock';
                 $hasOutOfStock = true;
             } elseif ($qty <= $minStock) {
                 $status = 'Low Stock';
@@ -79,7 +79,7 @@ class ProductInventoryExport implements FromCollection, WithHeadings, WithMappin
         }
 
         $row[] = $totalStock;
-        $row[] = $hasOutOfStock ? 'Out of Stock' : ($hasLowStock ? 'Low Stock' : 'In Stock');
+        $row[] = $hasOutOfStock ? 'No Stock' : ($hasLowStock ? 'Low Stock' : 'In Stock');
 
         return $row;
     }

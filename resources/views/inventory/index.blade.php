@@ -160,7 +160,7 @@
                             <span class="text-xl">🚫</span>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Out of Stock</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">No Stock</p>
                             <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $outOfStockCount }}</p>
                         </div>
                     </div>
@@ -653,7 +653,7 @@
                 const currentQty = parseFloat(data.quantity) || 0;
                 const minStock = parseFloat(data.min_stock_level) || 0;
                 const statusBadge = data.is_out_of_stock 
-                    ? '<span class="text-xs bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 px-2 py-0.5 rounded-full">Out of Stock</span>' 
+                    ? '<span class="text-xs bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 px-2 py-0.5 rounded-full">No Stock</span>' 
                     : (data.is_low_stock 
                         ? '<span class="text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400 px-2 py-0.5 rounded-full">Low Stock</span>' 
                         : '<span class="text-xs bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 px-2 py-0.5 rounded-full">In Stock</span>');

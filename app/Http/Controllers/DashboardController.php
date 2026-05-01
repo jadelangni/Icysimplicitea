@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Branch;
 use App\Models\Inventory;
+use App\Models\IngredientInventory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -77,12 +78,7 @@ class DashboardController extends Controller
             ? round((($todaysTransactions - $yesterdayTransactions) / $yesterdayTransactions) * 100, 1) 
             : ($todaysTransactions > 0 ? 100 : 0);
 
-        // Get low stock items count
-        $lowStockQuery = Inventory::query()->whereRaw('quantity <= min_stock_level');
-        if (!$isAllBranches) {
-            $lowStockQuery->where('branch_id', $branchId);
-        }
-        $lowStockCount = $lowStockQuery->count();
+        $lowStockCount = $this->getLowStockInventoryCount($isAllBranches, $branchId);
 
         // Get active products count
         $activeProducts = Product::where('is_active', true)->count();
@@ -238,12 +234,7 @@ class DashboardController extends Controller
             ? round((($todaysTransactions - $yesterdayTransactions) / $yesterdayTransactions) * 100, 1) 
             : ($todaysTransactions > 0 ? 100 : 0);
 
-        // Get low stock items count
-        $lowStockQuery = Inventory::query()->whereRaw('quantity <= min_stock_level');
-        if (!$isAllBranches) {
-            $lowStockQuery->where('branch_id', $branchId);
-        }
-        $lowStockCount = $lowStockQuery->count();
+        $lowStockCount = $this->getLowStockInventoryCount($isAllBranches, $branchId);
 
         // Get this week's total revenue
         $weeklyRevenue = $applyBranchFilter(Sale::query())
@@ -518,5 +509,31 @@ class DashboardController extends Controller
             'count' => $salesData->count(),
             'server_time' => Carbon::now()->toIso8601String(),
         ]);
+    }
+
+    private function getLowStockInventoryCount(bool $isAllBranches, $branchId): int
+    {
+        $productLowStockQuery = Inventory::query()
+            ->whereHas('product', function ($query) {
+                $query->where('is_active', true)
+                    ->where(function ($typeQuery) {
+                        $typeQuery->whereNull('product_type')
+                            ->orWhere('product_type', Product::TYPE_DIRECT);
+                    });
+            })
+            ->whereRaw('quantity <= min_stock_level');
+
+        $ingredientLowStockQuery = IngredientInventory::query()
+            ->whereHas('ingredient', function ($query) {
+                $query->where('is_active', true);
+            })
+            ->whereRaw('quantity <= min_stock_level');
+
+        if (!$isAllBranches) {
+            $productLowStockQuery->where('branch_id', $branchId);
+            $ingredientLowStockQuery->where('branch_id', $branchId);
+        }
+
+        return $productLowStockQuery->count() + $ingredientLowStockQuery->count();
     }
 }

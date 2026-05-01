@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Ingredient;
-use App\Models\ProductIngredient;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use App\Services\CatalogInventorySyncService;
 
 class RecipeController extends Controller
 {
@@ -35,7 +36,7 @@ class RecipeController extends Controller
     public function show(Product $product)
     {
         $product->load('ingredients');
-        $branchId = auth()->user()->branch_id;
+        $branchId = $this->resolveInventoryBranchId();
 
         return response()->json([
             'success' => true,
@@ -51,8 +52,8 @@ class RecipeController extends Controller
                     'name' => $ingredient->name,
                     'quantity_required' => $ingredient->pivot->quantity_required,
                     'unit' => $ingredient->pivot->unit ?? $ingredient->unit,
-                    'available_quantity' => $ingredient->getQuantityForBranch($branchId),
-                    'is_low_stock' => $ingredient->isLowStockForBranch($branchId)
+                    'available_quantity' => $branchId ? $ingredient->getQuantityForBranch($branchId) : 0,
+                    'is_low_stock' => $branchId ? $ingredient->isLowStockForBranch($branchId) : false
                 ];
             })
         ]);
@@ -116,6 +117,7 @@ class RecipeController extends Controller
                 } else {
                     // Direct product - clear any existing recipe
                     $product->ingredients()->detach();
+                    app(CatalogInventorySyncService::class)->ensureDirectProductInventory($product);
                 }
             });
 
@@ -147,6 +149,7 @@ class RecipeController extends Controller
             $product->ingredients()->detach();
             $product->product_type = 'direct';
             $product->save();
+            app(CatalogInventorySyncService::class)->ensureDirectProductInventory($product);
 
             return response()->json([
                 'success' => true,
@@ -194,6 +197,7 @@ class RecipeController extends Controller
                         $product->ingredients()->sync($syncData);
                     } else {
                         $product->ingredients()->detach();
+                        app(CatalogInventorySyncService::class)->ensureDirectProductInventory($product);
                     }
 
                     $results[] = [
@@ -225,7 +229,7 @@ class RecipeController extends Controller
     public function getServingEstimates(Product $product)
     {
         $product->load('ingredients');
-        $branchId = auth()->user()->branch_id;
+        $branchId = $this->resolveInventoryBranchId();
 
         if ($product->product_type === 'direct') {
             return response()->json([
@@ -250,7 +254,7 @@ class RecipeController extends Controller
                 (float) $ingredient->pivot->quantity_required,
                 $ingredient->pivot->unit
             );
-            $available = $ingredient->getQuantityForBranch($branchId);
+            $available = $branchId ? $ingredient->getQuantityForBranch($branchId) : 0;
 
             if ($required === null) {
                 return response()->json([
@@ -274,7 +278,7 @@ class RecipeController extends Controller
             'max_servings' => $maxServings === PHP_INT_MAX ? 0 : $maxServings,
             'limiting_ingredient' => $limitingIngredient,
             'ingredients' => $product->ingredients->map(function ($ing) use ($branchId) {
-                $available = $ing->getQuantityForBranch($branchId);
+                $available = $branchId ? $ing->getQuantityForBranch($branchId) : 0;
                 $required = $ing->convertRecipeQuantityToStockUnit(
                     (float) $ing->pivot->quantity_required,
                     $ing->pivot->unit
@@ -289,5 +293,16 @@ class RecipeController extends Controller
                 ];
             })
         ]);
+    }
+
+    private function resolveInventoryBranchId(): ?int
+    {
+        $userBranchId = auth()->user()?->branch_id;
+
+        if ($userBranchId) {
+            return (int) $userBranchId;
+        }
+
+        return Branch::where('is_active', true)->value('id') ?? Branch::value('id');
     }
 }

@@ -39,7 +39,16 @@ class EmployeeInventoryController extends Controller
                     ->orWhere('product_type', Product::TYPE_DIRECT);
             })
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->sortBy(function ($product) use ($selectedBranchId) {
+                $inventory = $product->inventory->firstWhere('branch_id', $selectedBranchId);
+                $quantity = $inventory ? (float) $inventory->quantity : 0;
+                $minStock = $inventory ? (float) $inventory->min_stock_level : 10;
+                $priority = $quantity <= 0 ? 0 : ($quantity <= $minStock ? 1 : 2);
+
+                return sprintf('%02d-%s', $priority, strtolower($product->name));
+            })
+            ->values();
 
         // Low stock alerts for this branch
         $lowStockAlerts = Inventory::with(['product', 'branch'])
@@ -88,7 +97,7 @@ class EmployeeInventoryController extends Controller
             $isLowStock = (bool) $selectedBranchData['is_low_stock'];
 
             if ($isOutOfStock) {
-                $status = 'Out of Stock';
+                $status = 'No Stock';
                 $statusColor = 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400';
             } elseif ($isLowStock) {
                 $status = 'Low Stock';
@@ -115,7 +124,11 @@ class EmployeeInventoryController extends Controller
                 'selected_branch_name' => $selectedBranch->name,
                 'updated_at' => $ingredient->updated_at,
             ];
-        });
+        })->sortBy(function ($ingredient) {
+            $priority = $ingredient->is_out_of_stock ? 0 : ($ingredient->is_low_stock ? 1 : 2);
+
+            return sprintf('%02d-%s', $priority, strtolower($ingredient->name));
+        })->values();
 
         $lowStockIngredients = $ingredients->filter(fn($i) => $i->is_low_stock || $i->is_out_of_stock)->count();
         $inStockIngredients = $ingredients->filter(fn($i) => !$i->is_low_stock && !$i->is_out_of_stock)->count();

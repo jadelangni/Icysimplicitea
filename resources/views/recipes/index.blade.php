@@ -461,10 +461,10 @@
             
             // Build ingredients array
             const ingredients = [];
-            document.querySelectorAll('.ingredient-row').forEach((row, index) => {
-                const ingredientId = row.querySelector(`[name="ingredients[${index}][ingredient_id]"]`)?.value;
-                const quantity = row.querySelector(`[name="ingredients[${index}][quantity_required]"]`)?.value;
-                const unit = row.querySelector(`[name="ingredients[${index}][unit]"]`)?.value;
+            document.querySelectorAll('.ingredient-row').forEach((row) => {
+                const ingredientId = row.querySelector('select[name$="[ingredient_id]"]')?.value;
+                const quantity = row.querySelector('input[name$="[quantity_required]"]')?.value;
+                const unit = row.querySelector('select[name$="[unit]"]')?.value;
                 
                 if (ingredientId && quantity) {
                     ingredients.push({

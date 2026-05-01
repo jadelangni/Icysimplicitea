@@ -100,9 +100,6 @@
                             @else
                                 <select id="inventoryBranchFilter" name="branch_id" onchange="this.form.submit()"
                                     class="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500">
-                                    @if(auth()->user()->isAdmin())
-                                        <option value="all" {{ is_null($selectedBranchId) ? 'selected' : '' }}>🌐 All Branches</option>
-                                    @endif
                                     @foreach($branches as $branch)
                                         <option value="{{ $branch->id }}" {{ (int) $selectedBranchId === (int) $branch->id ? 'selected' : '' }}>
                                             {{ $branch->name }}
@@ -127,7 +124,6 @@
                             <tr class="bg-gray-50 dark:bg-gray-700/50">
                                 <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
                                 <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-                                <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sync Status</th>
                                 @foreach($displayBranches as $branch)
                                 <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                     📍 {{ $branch->name }}
@@ -140,22 +136,11 @@
                             @forelse($products as $product)
                             @php
                                 $inventoryByBranch = $product->inventory->keyBy('branch_id');
-                                $syncedBranches = $product->inventory->count();
-                                $totalBranches = $branches->count();
-                                $isSynced = $syncedBranches >= $totalBranches;
-                                
                                 // Check if product has ingredients (composite product)
                                 $hasIngredients = $product->ingredients->count() > 0;
                                 $isDirectProduct = !$hasIngredients;
                                 
-                                // For direct products: check product inventory stock (selected branch only)
-                                $hasLowProductStock = $displayBranches->contains(function($branch) use ($inventoryByBranch) {
-                                    $inv = $inventoryByBranch->get($branch->id);
-                                    return $inv ? $inv->isLowStock() : false;
-                                });
-                                
                                 // For composite products: check ingredient stock per branch
-                                $hasLowIngredientStock = false;
                                 $lowIngredientBranches = [];
                                 if ($hasIngredients) {
                                     foreach ($branches as $branch) {
@@ -164,18 +149,11 @@
                                             $ingQty = $ingInv ? (float)$ingInv->quantity : 0;
                                             $ingMinStock = $ingInv ? (float)$ingInv->min_stock_level : 10;
                                             if ($ingQty <= $ingMinStock) {
-                                                $hasLowIngredientStock = true;
                                                 $lowIngredientBranches[$branch->id] = true;
                                             }
                                         }
                                     }
                                 }
-                                
-                                // Determine low stock status based on selected branch view
-                                $hasLowIngredientStockForDisplay = $displayBranches->contains(function($branch) use ($lowIngredientBranches) {
-                                    return isset($lowIngredientBranches[$branch->id]);
-                                });
-                                $hasLowStock = $isDirectProduct ? $hasLowProductStock : $hasLowIngredientStockForDisplay;
                             @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150 product-row" data-name="{{ strtolower($product->name) }}">
                                 <td class="px-5 py-4">
@@ -201,43 +179,13 @@
                                         {{ $product->category->name ?? 'Uncategorized' }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-4 text-center">
-                                    @if($isSynced && !$hasLowStock)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300" title="Price synced across all branches">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                            </svg>
-                                            Synced
-                                        </span>
-                                    @elseif($hasLowStock && $hasIngredients)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 animate-pulse" title="Low ingredient stock in some branches">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-                                            </svg>
-                                            Low Ingredients
-                                        </span>
-                                    @elseif($hasLowStock)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 animate-pulse" title="Low stock in some branches">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z"/>
-                                            </svg>
-                                            Low Stock
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300" title="{{ $syncedBranches }}/{{ $totalBranches }} branches have inventory">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                            </svg>
-                                            {{ $syncedBranches }}/{{ $totalBranches }}
-                                        </span>
-                                    @endif
-                                </td>
                                 @foreach($displayBranches as $branch)
                                 @php
                                     $inv = $inventoryByBranch->get($branch->id);
                                     $qty = $inv ? $inv->quantity : 0;
                                     $minQty = $inv ? $inv->min_stock_level : 10;
-                                    $isLow = $inv ? $inv->isLowStock() : false;
+                                    $isOut = $qty <= 0;
+                                    $isLow = !$isOut && $qty <= $minQty;
                                     
                                     // For composite products, check ingredient stock for this branch
                                     $branchHasLowIngredients = isset($lowIngredientBranches[$branch->id]);
@@ -245,12 +193,16 @@
                                 <td class="px-5 py-4 text-center" data-product-branch-stock="{{ $product->id }}-{{ $branch->id }}">
                                     @if($isDirectProduct)
                                         {{-- Direct product: show product inventory stock --}}
-                                        <div class="inline-flex flex-col items-center">
+                                        <div class="inline-flex flex-col items-center gap-1">
                                             <span class="stock-value text-sm font-bold {{ $qty <= 0 ? 'text-red-600' : ($isLow ? 'text-yellow-600' : 'text-gray-900 dark:text-black') }}">
                                                 {{ $qty }}
                                             </span>
-                                            @if($isLow)
-                                                <span class="w-2 h-2 bg-red-500 rounded-full animate-ping mt-1" title="Low Stock"></span>
+                                            @if($isOut)
+                                                <span class="stock-status inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300">No Stock</span>
+                                            @elseif($isLow)
+                                                <span class="stock-status inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300">Low Stock</span>
+                                            @else
+                                                <span class="stock-status inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">In Stock</span>
                                             @endif
                                         </div>
                                     @else
@@ -413,7 +365,7 @@
                                                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                                                 </svg>
-                                                Out of Stock
+                                                No Stock
                                             </span>
                                         @elseif($isLowStock)
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300">
@@ -835,7 +787,7 @@
             const summaryThirdValue = isCompositeProduct ? lowIngredientBranches : lowStockBranches;
             const summaryThirdLabel = isCompositeProduct ? 'Low Ingredients' : 'Low Stock';
             const summaryFourthValue = isCompositeProduct ? outIngredientBranches : outOfStockBranches;
-            const summaryFourthLabel = isCompositeProduct ? 'Out Ingredients' : 'Out of Stock';
+            const summaryFourthLabel = isCompositeProduct ? 'Out Ingredients' : 'No Stock';
             
             // Build branch cards HTML
             let branchCardsHtml = branchInventory.map(inv => {
@@ -899,7 +851,7 @@
                 const isLow = inv.quantity > 0 && inv.quantity <= inv.min_stock_level;
                 const isOut = inv.quantity <= 0;
                 const percentage = Math.min(100, (inv.quantity / Math.max(inv.min_stock_level * 2, 50)) * 100);
-                const statusText = isOut ? 'OUT OF STOCK' : (isLow ? 'LOW STOCK' : 'In Stock');
+                const statusText = isOut ? 'No Stock' : (isLow ? 'Low Stock' : 'In Stock');
                 const statusIcon = isOut ? '🚫' : (isLow ? '⚠️' : '✅');
 
                 return `
@@ -1254,7 +1206,7 @@
                 const currentQty = parseFloat(data.quantity) || 0;
                 const minStock = parseFloat(data.min_stock_level) || 0;
                 const statusBadge = data.is_out_of_stock 
-                    ? '<span class="text-xs bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 px-2 py-0.5 rounded-full">Out of Stock</span>' 
+                    ? '<span class="text-xs bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 px-2 py-0.5 rounded-full">No Stock</span>' 
                     : (data.is_low_stock 
                         ? '<span class="text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400 px-2 py-0.5 rounded-full">Low Stock</span>' 
                         : '<span class="text-xs bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 px-2 py-0.5 rounded-full">In Stock</span>');
@@ -1335,6 +1287,18 @@
                                 el.style.backgroundColor = 'rgba(34,197,94,0.1)';
                                 setTimeout(() => { el.style.backgroundColor = ''; }, 2000);
                             }
+                        }
+
+                        const statusBadge = el.querySelector('.stock-status');
+                        if (statusBadge) {
+                            const statusText = stockItem.is_out ? 'No Stock' : (stockItem.is_low ? 'Low Stock' : 'In Stock');
+                            statusBadge.textContent = statusText;
+                            statusBadge.className = 'stock-status inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium ' +
+                                (stockItem.is_out
+                                    ? 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300'
+                                    : (stockItem.is_low
+                                        ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300'
+                                        : 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300'));
                         }
                     }
                 });

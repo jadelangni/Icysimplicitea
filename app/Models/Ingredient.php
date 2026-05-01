@@ -157,7 +157,7 @@ class Ingredient extends Model
     public function getStatusForBranch(int $branchId): string
     {
         $inventory = $this->inventoryForBranch($branchId);
-        return $inventory ? $inventory->status : 'No Stock Data';
+        return $inventory ? $inventory->status : 'No Stock';
     }
 
     /**

@@ -60,7 +60,6 @@
                                         <th class="py-4 px-4 font-semibold whitespace-nowrap">Product</th>
                                         <th class="py-4 px-4 font-semibold whitespace-nowrap">Category</th>
                                         <th class="py-4 px-4 font-semibold whitespace-nowrap">Sizes / Price</th>
-                                        <th class="py-4 px-4 font-semibold whitespace-nowrap">Status</th>
                                         <th class="py-4 px-4 font-semibold text-right whitespace-nowrap">Actions</th>
                                     </tr>
                                 </thead>
@@ -106,20 +105,6 @@
                                                 <span class="text-lg font-bold text-gray-900 dark:text-black">₱{{ number_format($product->price, 0) }}</span>
                                             @endif
                                         </td>
-                                        @php $qty = $product->inventory->first()->quantity ?? 0; @endphp
-                                        <td class="py-4 px-4 whitespace-nowrap">
-                                            @if($product->is_active && $qty > 0)
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">
-                                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                                                    In Stock
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300">
-                                                    <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                                                    Out of Stock
-                                                </span>
-                                            @endif
-                                        </td>
                                         <td class="py-4 px-4 text-right whitespace-nowrap">
                                             <div class="flex items-center justify-end gap-2">
                                                 @php
@@ -154,7 +139,7 @@
                                     </tr>
                                     @endforeach
                                     <tr id="liveSearchNoResults" class="hidden">
-                                        <td colspan="5" class="py-10 px-4 text-center text-gray-500 dark:text-gray-400">
+                                        <td colspan="4" class="py-10 px-4 text-center text-gray-500 dark:text-gray-400">
                                             No matching products found.
                                         </td>
                                     </tr>

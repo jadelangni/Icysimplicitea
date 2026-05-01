@@ -38,8 +38,8 @@
             .dark .app-main {
                 background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
             }
-            .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #9ca3af; text-decoration: none; }
-            .nav-item:hover { background: rgba(178, 232, 216, 0.18); color: black; }
+            .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #e5fff8; text-decoration: none; }
+            .nav-item:hover { background: rgba(178, 232, 216, 0.18); color: #ffffff; }
             .nav-item.active { background: #69d1b1; color: #053b3c; }
 
             .app-mobile-header,

@@ -64,7 +64,7 @@ class IngredientInventoryExport implements FromCollection, WithHeadings, WithMap
 
             $status = 'In Stock';
             if ($qty <= 0) {
-                $status = 'Out of Stock';
+                $status = 'No Stock';
                 $hasOutOfStock = true;
             } elseif ($qty <= $minStock) {
                 $status = 'Low Stock';
@@ -77,7 +77,7 @@ class IngredientInventoryExport implements FromCollection, WithHeadings, WithMap
         }
 
         $row[] = $totalQty;
-        $row[] = $hasOutOfStock ? 'Out of Stock' : ($hasLowStock ? 'Low Stock' : 'In Stock');
+        $row[] = $hasOutOfStock ? 'No Stock' : ($hasLowStock ? 'Low Stock' : 'In Stock');
 
         return $row;
     }

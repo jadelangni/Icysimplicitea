@@ -85,7 +85,7 @@ class InventoryController extends Controller
                     ];
                     
                     if ($isOutOfStock) {
-                        $statuses[] = "Out of Stock ({$branch->name})";
+                        $statuses[] = "No Stock ({$branch->name})";
                         $hasOutOfStock = true;
                     } elseif ($isLowStock) {
                         $statuses[] = "Low Stock ({$branch->name})";
@@ -95,7 +95,7 @@ class InventoryController extends Controller
                 
                 // Determine overall status
                 if ($hasOutOfStock) {
-                    $status = implode(', ', array_filter($statuses, fn($s) => str_contains($s, 'Out of Stock')));
+                    $status = implode(', ', array_filter($statuses, fn($s) => str_contains($s, 'No Stock')));
                     $statusColor = 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400';
                 } elseif ($hasLowStock) {
                     $status = implode(', ', array_filter($statuses, fn($s) => str_contains($s, 'Low Stock')));
@@ -152,7 +152,7 @@ class InventoryController extends Controller
                     'unit' => 'pcs',
                     'quantity' => $inv->quantity,
                     'min_stock_level' => $inv->min_stock_level,
-                    'status' => $isOutOfStock ? 'Out of Stock' : ($isLowStock ? 'Low Stock' : 'In Stock'),
+                    'status' => $isOutOfStock ? 'No Stock' : ($isLowStock ? 'Low Stock' : 'In Stock'),
                     'status_color' => $isOutOfStock 
                         ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400' 
                         : ($isLowStock 
@@ -227,20 +227,9 @@ class InventoryController extends Controller
      */
     public function create(Request $request)
     {
-        $view = $request->get('view', 'products');
-        $branchId = Auth::user()->branch_id;
-        
-        if ($view === 'ingredients') {
-            // Get ingredients not yet in this branch's inventory
-            $ingredients = Ingredient::whereNotIn('id', 
-                IngredientInventory::where('branch_id', $branchId)->pluck('ingredient_id')
-            )->get();
-            
-            return view('inventory.create-ingredient', compact('ingredients'));
-        }
-        
-        // For products, return product creation form
-        return view('inventory.create');
+        return redirect()->route('product-inventory.index', [
+            'tab' => $request->get('view') === 'ingredients' ? 'ingredients' : 'products',
+        ]);
     }
 
     /**
@@ -276,7 +265,7 @@ class InventoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return redirect()->route('product-inventory.index');
     }
 
     /**
@@ -284,15 +273,9 @@ class InventoryController extends Controller
      */
     public function edit(Request $request, string $id)
     {
-        $view = $request->get('view', 'products');
-        
-        if ($view === 'ingredients') {
-            $inventoryItem = IngredientInventory::with('ingredient')->findOrFail($id);
-            return view('inventory.edit-ingredient', compact('inventoryItem'));
-        }
-        
-        $inventoryItem = Inventory::with('product')->findOrFail($id);
-        return view('inventory.edit', compact('inventoryItem'));
+        return redirect()->route('product-inventory.index', [
+            'tab' => $request->get('view') === 'ingredients' ? 'ingredients' : 'products',
+        ]);
     }
 
     /**
