@@ -33,7 +33,7 @@
 
                             <div class="grid grid-cols-2 gap-4">
                                 <label class="block">
-                                    <span class="text-sm font-medium text-gray-700">Unit</span>
+                                    <span class="text-sm font-medium text-gray-700">Inventory Unit from Supplier</span>
                                     <select name="unit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
                                         <option value="kg" {{ old('unit') == 'kg' ? 'selected' : '' }}>Kilograms (kg)</option>
                                         <option value="liters" {{ old('unit') == 'liters' ? 'selected' : '' }}>Liters</option>
@@ -43,6 +43,20 @@
                                         <option value="bottles" {{ old('unit') == 'bottles' ? 'selected' : '' }}>Bottles</option>
                                         <option value="packs" {{ old('unit') == 'packs' ? 'selected' : '' }}>Packs</option>
                                     </select>
+                                </label>
+                                <label class="block">
+                                    <span class="text-sm font-medium text-gray-700">Recipe Unit</span>
+                                    <select name="recipe_unit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
+                                        <option value="g" {{ old('recipe_unit') == 'g' ? 'selected' : '' }}>Grams (g)</option>
+                                        <option value="kg" {{ old('recipe_unit') == 'kg' ? 'selected' : '' }}>Kilograms (kg)</option>
+                                        <option value="ml" {{ old('recipe_unit') == 'ml' ? 'selected' : '' }}>Milliliters (ml)</option>
+                                        <option value="l" {{ old('recipe_unit') == 'l' ? 'selected' : '' }}>Liters (L)</option>
+                                        <option value="pieces" {{ old('recipe_unit') == 'pieces' ? 'selected' : '' }}>Pieces</option>
+                                    </select>
+                                </label>
+                                <label class="block">
+                                    <span class="text-sm font-medium text-gray-700">Recipe Units per Inventory Unit</span>
+                                    <input type="number" name="recipe_units_per_inventory_unit" value="{{ old('recipe_units_per_inventory_unit', 1) }}" step="0.0001" min="0.0001" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500">
                                 </label>
 
                                 <label class="block">

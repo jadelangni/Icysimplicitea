@@ -155,6 +155,7 @@
     <!-- Receipt Content -->
     <div class="header">
         <div class="store-name">ICY'S SIMPLICITEA</div>
+        <div class="branch-name">Order Slip</div>
         <div class="branch-name">{{ $sale->branch->name ?? 'Main Branch' }}</div>
         <div class="receipt-info">
             <div>Receipt: {{ $sale->receipt_number }}</div>
@@ -228,6 +229,9 @@
         <div class="footer-message">Please come again</div>
         <div class="cashier-info">
             Served by: {{ $sale->user->name ?? 'Staff' }}
+        </div>
+        <div class="cashier-info">
+            Cashier ID: #{{ isset($sale->user->id) ? str_pad($sale->user->id, 7, '0', STR_PAD_LEFT) : 'N/A' }}
         </div>
     </div>
 

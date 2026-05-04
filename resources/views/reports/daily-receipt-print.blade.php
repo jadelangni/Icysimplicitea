@@ -260,7 +260,7 @@
             Cashier: {{ $cashier->name ?? 'Staff' }}
         </div>
         <div class="report-info" style="margin-top: 5px;">
-            Employee ID: {{ $cashier->id ?? 'N/A' }}
+            Cashier ID: #{{ isset($cashier->id) ? str_pad($cashier->id, 7, '0', STR_PAD_LEFT) : 'N/A' }}
         </div>
         
         <div class="signature-line"></div>

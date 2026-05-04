@@ -17,10 +17,12 @@ class InventoryReportExport implements FromCollection, WithHeadings, WithMapping
     protected $branchId;
     protected $isAll;
     protected $branches;
+    protected $branchName;
 
-    public function __construct($branchId = null)
+    public function __construct($branchId = null, $branchName = null)
     {
         $this->branchId = $branchId;
+        $this->branchName = $branchName;
         $this->isAll = $branchId === 'all' || $branchId === null;
         $this->branches = Branch::where('is_active', true)->orderBy('name')->get();
     }
@@ -44,80 +46,55 @@ class InventoryReportExport implements FromCollection, WithHeadings, WithMapping
 
     public function headings(): array
     {
-        $headers = ['Ingredient Name', 'Unit', 'Min Stock Level'];
-
-        if ($this->isAll) {
-            foreach ($this->branches as $branch) {
-                $headers[] = $branch->name . ' - Qty';
-                $headers[] = $branch->name . ' - Status';
-            }
-            $headers[] = 'Total Quantity';
-        } else {
-            $headers[] = 'Quantity';
-            $headers[] = 'Unit Cost (₱)';
-            $headers[] = 'Total Value (₱)';
-        }
-
-        $headers[] = 'Overall Status';
-        $headers[] = 'Last Updated';
-        return $headers;
+        return [
+            'Ingredient Name',
+            'Unit',
+            'Current Stock',
+            'Stock Status',
+            'Total Value',
+            'Branch',
+            'Last Updated'
+        ];
     }
 
     public function map($ingredient): array
     {
-        $row = [
+        $inventory = $ingredient->inventories->where('branch_id', $this->branchId)->first();
+        $qty = $inventory ? (float)$inventory->quantity : 0;
+        $unitCost = $inventory ? (float)$inventory->unit_cost : 0;
+        $totalValue = $qty * $unitCost;
+        
+        // Determine stock status
+        $minStock = $inventory ? ($inventory->min_stock_level ?? $ingredient->min_stock_level) : $ingredient->min_stock_level;
+        if ($qty <= 0) {
+            $status = 'No Stock';
+        } elseif ($qty <= $minStock) {
+            $status = 'Low Stock';
+        } else {
+            $status = 'In Stock';
+        }
+        
+        // Get branch name
+        $branch = $inventory ? $inventory->branch : null;
+        $branchName = $branch ? $branch->name : 'N/A';
+        
+        // Get last updated
+        $lastUpdated = $inventory && $inventory->updated_at ? $inventory->updated_at->format('Y-m-d H:i:s') : 'N/A';
+        
+        return [
             $ingredient->name,
             $ingredient->unit,
-            $ingredient->min_stock_level,
+            $qty,
+            $status,
+            number_format($totalValue, 2),
+            $branchName,
+            $lastUpdated
         ];
-
-        if ($this->isAll) {
-            $totalQty = 0;
-            $hasLowStock = false;
-            $hasOutOfStock = false;
-
-            foreach ($this->branches as $branch) {
-                $inventory = $ingredient->inventories->where('branch_id', $branch->id)->first();
-                $qty = $inventory ? (float)$inventory->quantity : 0;
-                $minStock = $inventory ? ($inventory->min_stock_level ?? $ingredient->min_stock_level) : $ingredient->min_stock_level;
-                
-                $totalQty += $qty;
-
-                $status = 'In Stock';
-                if ($qty <= 0) {
-                    $status = 'No Stock';
-                    $hasOutOfStock = true;
-                } elseif ($qty <= $minStock) {
-                    $status = 'Low Stock';
-                    $hasLowStock = true;
-                }
-
-                $row[] = $qty;
-                $row[] = $status;
-            }
-
-            $row[] = $totalQty;
-            $row[] = $hasOutOfStock ? 'No Stock' : ($hasLowStock ? 'Low Stock' : 'In Stock');
-        } else {
-            $inventory = $ingredient->inventories->first();
-            $qty = $inventory ? (float)$inventory->quantity : 0;
-            $unitCost = $inventory ? (float)$inventory->unit_cost : 0;
-            $totalValue = $qty * $unitCost;
-
-            $row[] = $qty;
-            $row[] = number_format($unitCost, 2);
-            $row[] = number_format($totalValue, 2);
-            $row[] = $this->getReportStatus($ingredient);
-        }
-
-        $row[] = $this->getLastUpdated($ingredient);
-
-        return $row;
     }
 
     public function title(): string
     {
-        return 'Inventory Report';
+        return $this->branchName ? $this->branchName . ' Inventory Report' : 'Inventory Report';
     }
 
     public function styles(Worksheet $sheet)

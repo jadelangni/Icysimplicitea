@@ -95,7 +95,11 @@
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-3">
                         <div class="stat-icon-box stat-icon-green dark:bg-green-900/50">
-                            <span class="text-xl">💰</span>
+                            <svg class="h-5 w-5 text-green-700 dark:text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 1.5c-2.9 0-5.25 2.09-5.25 4.66 0 1.44.77 2.72 1.98 3.57A4.5 4.5 0 0 0 6.75 14v1.5A6.75 6.75 0 0 0 13.5 22.5h1.5" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6.75h4.2a2.25 2.25 0 0 1 0 4.5h-4.2a2.25 2.25 0 0 1 0-4.5Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 11.25h5.25a2.25 2.25 0 0 1 0 4.5H9" />
+                            </svg>
                         </div>
                         <p class="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1" id="weeklyRevenueValue">₱{{ number_format($weeklyRevenue ?? 0, 0) }}</p>
                     </div>
@@ -111,7 +115,12 @@
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-3">
                         <div class="stat-icon-box stat-icon-blue dark:bg-blue-900/50">
-                            <span class="text-xl">📊</span>
+                            <svg class="h-5 w-5 text-blue-700 dark:text-blue-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5h15" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 15V9.75" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15V6.75" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 15v-5.25" />
+                            </svg>
                         </div>
                         <p class="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1" id="todaysSalesValue">₱{{ number_format($todaysSales ?? 0, 0) }}</p>
                     </div>
@@ -127,7 +136,10 @@
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-3">
                         <div class="stat-icon-box stat-icon-purple dark:bg-purple-900/50">
-                            <span class="text-xl">🧾</span>
+                            <svg class="h-5 w-5 text-purple-700 dark:text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75h9A1.5 1.5 0 0 1 18 5.25v13.5l-2.25-1.5-2.25 1.5-2.25-1.5-2.25 1.5-2.25-1.5V5.25A1.5 1.5 0 0 1 7.5 3.75Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25h6M9 11.25h6M9 14.25h3" />
+                            </svg>
                         </div>
                         <p class="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1" id="todaysTransactionsValue">{{ $todaysTransactions ?? 0 }}</p>
                     </div>
@@ -143,7 +155,14 @@
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-3">
                         <div id="lowStockIcon" class="stat-icon-box {{ ($lowStockCount ?? 0) > 0 ? 'stat-icon-red dark:bg-red-900/50' : 'stat-icon-green dark:bg-green-900/50' }}">
-                            <span class="text-xl" id="lowStockEmoji">{{ ($lowStockCount ?? 0) > 0 ? '⚠️' : '✅' }}</span>
+                            <svg id="lowStockWarningIcon" class="h-5 w-5 {{ ($lowStockCount ?? 0) > 0 ? 'block text-red-700 dark:text-red-300' : 'hidden' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                            </svg>
+                            <svg id="lowStockCheckIcon" class="h-5 w-5 {{ ($lowStockCount ?? 0) > 0 ? 'hidden' : 'block text-green-700 dark:text-green-300' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75 9 17.25 19.5 6.75" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 22.5a10.5 10.5 0 1 0-10.5-10.5A10.5 10.5 0 0 0 12 22.5Z" />
+                            </svg>
                         </div>
                         <p class="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1" id="lowStockValue">{{ $lowStockCount ?? 0 }} Items</p>
                     </div>
@@ -590,7 +609,14 @@
         const lowStock = data.lowStockCount;
         document.getElementById('lowStockValue').textContent = lowStock + ' Items';
         document.getElementById('lowStockValue').className = `text-2xl font-bold mt-1 ${lowStock > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`;
-        document.getElementById('lowStockEmoji').textContent = lowStock > 0 ? '⚠️' : '✅';
+        const lowStockWarningIcon = document.getElementById('lowStockWarningIcon');
+        const lowStockCheckIcon = document.getElementById('lowStockCheckIcon');
+        if (lowStockWarningIcon && lowStockCheckIcon) {
+            lowStockWarningIcon.classList.toggle('hidden', lowStock <= 0);
+            lowStockWarningIcon.classList.toggle('block', lowStock > 0);
+            lowStockCheckIcon.classList.toggle('hidden', lowStock > 0);
+            lowStockCheckIcon.classList.toggle('block', lowStock <= 0);
+        }
         const iconEl = document.getElementById('lowStockIcon');
         iconEl.className = `stat-icon-box ${lowStock > 0 ? 'stat-icon-red dark:bg-red-900/50' : 'stat-icon-green dark:bg-green-900/50'}`;
 

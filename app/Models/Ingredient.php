@@ -8,6 +8,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ingredient extends Model
 {
+    private const PACKAGING_UNITS = [
+        'pack',
+        'packs',
+        'can',
+        'cans',
+        'bottle',
+        'bottles',
+        'bag',
+        'bags',
+        'box',
+        'boxes',
+    ];
+
     private const UNIT_ALIASES = [
         'milligram' => 'mg',
         'milligrams' => 'mg',
@@ -49,11 +62,18 @@ class Ingredient extends Model
         'name',
         'description',
         'unit',
+        'recipe_unit',
+        'recipe_units_per_inventory_unit',
         'is_active'
     ];
 
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'recipe_units_per_inventory_unit' => 'decimal:4',
+    ];
+
+    protected $appends = [
+        'recipe_conversion_label',
     ];
 
     /**
@@ -175,27 +195,46 @@ class Ingredient extends Model
      */
     public function convertRecipeQuantityToStockUnit(float $quantity, ?string $recipeUnit): ?float
     {
-        $from = self::normalizeUnit($recipeUnit ?: $this->unit);
-        $to = self::normalizeUnit($this->unit);
+        $from = self::normalizeUnit($recipeUnit ?: $this->getRecipeUnit());
+        $to = self::normalizeUnit($this->getRecipeUnit());
 
         if (!$from || !$to) {
             return null;
         }
 
-        if ($from === $to) {
-            return $quantity;
+        if ($from !== $to) {
+            $fromMeta = self::UNIT_FACTORS[$from] ?? null;
+            $toMeta = self::UNIT_FACTORS[$to] ?? null;
+
+            if (!$fromMeta || !$toMeta || $fromMeta['type'] !== $toMeta['type']) {
+                return null;
+            }
+
+            $quantity = ($quantity * $fromMeta['factor']) / $toMeta['factor'];
         }
 
-        $fromMeta = self::UNIT_FACTORS[$from] ?? null;
-        $toMeta = self::UNIT_FACTORS[$to] ?? null;
-
-        if (!$fromMeta || !$toMeta || $fromMeta['type'] !== $toMeta['type']) {
+        $recipeUnitsPerInventoryUnit = (float) ($this->recipe_units_per_inventory_unit ?: 1);
+        if ($recipeUnitsPerInventoryUnit <= 0) {
             return null;
         }
 
-        $baseQuantity = $quantity * $fromMeta['factor'];
+        return $quantity / $recipeUnitsPerInventoryUnit;
+    }
 
-        return $baseQuantity / $toMeta['factor'];
+    public function getRecipeUnit(): string
+    {
+        $recipeUnit = $this->recipe_unit;
+
+        if (!$recipeUnit && in_array(strtolower((string) $this->unit), self::PACKAGING_UNITS, true)) {
+            return 'g';
+        }
+
+        return self::normalizeUnit($recipeUnit ?: $this->unit) ?: ($recipeUnit ?: $this->unit);
+    }
+
+    public function getRecipeConversionLabelAttribute(): string
+    {
+        return '1 ' . $this->unit . ' = ' . rtrim(rtrim(number_format((float) ($this->recipe_units_per_inventory_unit ?: 1), 4), '0'), '.') . ' ' . $this->getRecipeUnit();
     }
 
     public static function normalizeUnit(?string $unit): ?string

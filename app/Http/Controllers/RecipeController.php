@@ -51,8 +51,11 @@ class RecipeController extends Controller
                     'ingredient_id' => $ingredient->id,
                     'name' => $ingredient->name,
                     'quantity_required' => $ingredient->pivot->quantity_required,
-                    'unit' => $ingredient->pivot->unit ?? $ingredient->unit,
+                    'unit' => $ingredient->pivot->unit ?? $ingredient->getRecipeUnit(),
                     'available_quantity' => $branchId ? $ingredient->getQuantityForBranch($branchId) : 0,
+                    'inventory_unit' => $ingredient->unit,
+                    'recipe_unit' => $ingredient->getRecipeUnit(),
+                    'recipe_conversion_label' => $ingredient->recipe_conversion_label,
                     'is_low_stock' => $branchId ? $ingredient->isLowStockForBranch($branchId) : false
                 ];
             })
@@ -89,7 +92,7 @@ class RecipeController extends Controller
                             ]);
                         }
 
-                        $recipeUnit = Ingredient::normalizeUnit($ingredientData['unit'] ?? $ingredient->unit);
+                        $recipeUnit = Ingredient::normalizeUnit($ingredientData['unit'] ?? $ingredient->getRecipeUnit());
                         if (!$recipeUnit) {
                             throw ValidationException::withMessages([
                                 'ingredients' => ["Please select a valid unit for {$ingredient->name}."]
@@ -103,7 +106,7 @@ class RecipeController extends Controller
 
                         if (!$isConvertible) {
                             throw ValidationException::withMessages([
-                                'ingredients' => ["Unit '{$recipeUnit}' is not compatible with {$ingredient->name} stock unit '{$ingredient->unit}'."]
+                                'ingredients' => ["Unit '{$recipeUnit}' is not compatible with {$ingredient->name} recipe unit '{$ingredient->getRecipeUnit()}'. Set the ingredient recipe conversion in inventory first."]
                             ]);
                         }
 
@@ -259,7 +262,7 @@ class RecipeController extends Controller
             if ($required === null) {
                 return response()->json([
                     'success' => false,
-                    'error' => "Unit mismatch in recipe for {$ingredient->name}: '{$ingredient->pivot->unit}' is not compatible with '{$ingredient->unit}'."
+                    'error' => "Unit mismatch in recipe for {$ingredient->name}: '{$ingredient->pivot->unit}' is not compatible with configured recipe unit '{$ingredient->getRecipeUnit()}'."
                 ], 422);
             }
 
@@ -289,7 +292,7 @@ class RecipeController extends Controller
                     'required_per_unit' => $required ?? 0,
                     'unit' => $ing->unit,
                     'possible_servings' => $required && $required > 0 ? floor($available / $required) : 0,
-                    'recipe_unit' => $ing->pivot->unit ?? $ing->unit
+                    'recipe_unit' => $ing->pivot->unit ?? $ing->getRecipeUnit()
                 ];
             })
         ]);

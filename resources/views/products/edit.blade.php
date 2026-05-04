@@ -25,7 +25,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('products.update', $product->id) }}" enctype="multipart/form-data">
+                    <form id="product-edit-form" method="POST" action="{{ route('products.update', $product->id) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -109,7 +109,7 @@
                             </label>
 
                             <div class="pt-4">
-                                <button type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg">Update</button>
+                                <button id="product-edit-submit" type="submit" class="px-4 py-2 bg-simplicitea-600 text-black rounded-lg">Update</button>
                                 <a href="{{ route('products.index') }}" class="ml-3 text-sm text-gray-600 dark:text-gray-400">Cancel</a>
                             </div>
                         </div>
@@ -391,6 +391,80 @@
                                     }
                                 });
                             }
+                        })();
+
+                        (function() {
+                            const form = document.getElementById('product-edit-form');
+                            const submitButton = document.getElementById('product-edit-submit');
+                            const csrfRefreshUrl = @json(route('csrf-token'));
+                            let isSubmitting = false;
+
+                            if (!form) return;
+
+                            form.addEventListener('submit', async function(event) {
+                                if (isSubmitting) return;
+
+                                event.preventDefault();
+                                isSubmitting = true;
+                                if (submitButton) submitButton.disabled = true;
+
+                                try {
+                                    // Refresh CSRF token
+                                    const tokenResponse = await fetch(csrfRefreshUrl, {
+                                        headers: {
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                        },
+                                        credentials: 'same-origin',
+                                    });
+
+                                    if (!tokenResponse.ok) {
+                                        if (tokenResponse.status === 401 || tokenResponse.status === 419) {
+                                            window.location.href = '{{ route("login") }}?redirect={{ route("products.edit", $product->id) }}';
+                                        } else {
+                                            window.location.reload();
+                                        }
+                                        return;
+                                    }
+
+                                    const tokenData = await tokenResponse.json();
+                                    
+                                    // Update token in form
+                                    const tokenInput = form.querySelector('input[name="_token"]');
+                                    if (tokenData.token && tokenInput) {
+                                        tokenInput.value = tokenData.token;
+                                    }
+
+                                    // Submit the form using fetch
+                                    const formData = new FormData(form);
+                                    const submitResponse = await fetch(form.action, {
+                                        method: form.method === 'POST' ? 'POST' : form.method,
+                                        body: formData,
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                        },
+                                        credentials: 'same-origin',
+                                        redirect: 'follow',  // ← KEY FIX: Follow redirects
+                                    });
+
+                                    // Check if the response is successful
+                                    if (submitResponse.ok) {
+                                        // For successful submissions, redirect to products page
+                                        window.location.href = '{{ route("products.index") }}';
+                                    } else if (submitResponse.status === 422) {
+                                        // Validation errors - reload page to show errors
+                                        window.location.reload();
+                                    } else {
+                                        console.error('Form submission failed with status:', submitResponse.status);
+                                        window.location.reload();
+                                    }
+                                } catch (error) {
+                                    console.error('Form submission error:', error);
+                                    isSubmitting = false;
+                                    if (submitButton) submitButton.disabled = false;
+                                    window.location.reload();
+                                }
+                            });
                         })();
 
                     </script>

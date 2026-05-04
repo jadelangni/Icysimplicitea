@@ -1448,9 +1448,17 @@
                     method: 'POST',
                     body: formData
                 });
-                const data = await response.json();
-                if (!data.success) {
-                    alert(data.error || data.message || 'An error occurred');
+                let data = null;
+                try { data = await response.json(); } catch (err) { data = null; }
+
+                if (!response.ok) {
+                    const msg = (data && (data.error || data.message)) || 'An error occurred while processing the sale.';
+                    showErrorToast(msg);
+                    return;
+                }
+
+                if (!data || !data.success) {
+                    showErrorToast((data && (data.error || data.message)) || 'An error occurred');
                     return;
                 }
 
@@ -1458,10 +1466,10 @@
                 cart = [];
                 localStorage.removeItem('pos_cart');
                 updateCart();
-                showSuccessToast('Sale completed! Receipt opened in new tab.');
+                showSuccessToast('Sale completed!');
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                showErrorToast(error?.message || 'An error occurred. Please try again.');
             } finally {
                 confirmBtn.disabled = false;
                 payBtn.disabled = cart.length === 0;
@@ -1552,7 +1560,7 @@
                     cart = [];
                     localStorage.removeItem('pos_cart');
                     updateCart();
-                    showSuccessToast('GCash payment completed! Receipt opened in new tab.');
+                    showSuccessToast('GCash payment completed!');
 
                     confirmBtn.disabled = false;
                     payBtn.disabled = cart.length === 0;
@@ -1630,6 +1638,24 @@
                 toast.style.transition = 'all 0.3s ease';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        function showErrorToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-6 right-6 z-[100] bg-red-600 text-black px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in';
+            toast.innerHTML = `
+                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                <span class="font-medium">${message}</span>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'scale(0.95)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
         }
 
         // Initialize

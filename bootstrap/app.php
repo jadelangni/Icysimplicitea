@@ -26,10 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (TokenMismatchException $e, Request $request) {
-            if ($request->is('reports/inventory/import/*')) {
+            if ($request->is('products') || $request->is('products/*')) {
                 return redirect()
-                    ->route('reports.inventory', $request->only('branch_id'))
-                    ->with('error', 'Your import confirmation expired. Please refresh the page and upload the file again.');
+                    ->route('products.index')
+                    ->with('error', 'Your product form session expired. Please try saving again.');
             }
 
             return null;

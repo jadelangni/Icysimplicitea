@@ -149,6 +149,8 @@
         const methodInput = document.getElementById('product-form-method');
 
         const createAction = @json(route('products.store'));
+        const csrfRefreshUrl = @json(route('csrf-token'));
+        let isRefreshingCsrf = false;
 
         let currentOption = null;
         let allOptions = [];
@@ -435,6 +437,73 @@
         if (cancelOptionEditBtn) {
             cancelOptionEditBtn.addEventListener('click', function() {
                 closeOptionEditor();
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', async function(event) {
+                if (isRefreshingCsrf) return;
+
+                event.preventDefault();
+                isRefreshingCsrf = true;
+                if (submitButton) submitButton.disabled = true;
+
+                try {
+                    // Refresh CSRF token
+                    const tokenResponse = await fetch(csrfRefreshUrl, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        credentials: 'same-origin',
+                    });
+
+                    if (!tokenResponse.ok) {
+                        if (tokenResponse.status === 401 || tokenResponse.status === 419) {
+                            window.location.href = '{{ route("login") }}?redirect=' + encodeURIComponent(window.location.href);
+                        } else {
+                            window.location.reload();
+                        }
+                        return;
+                    }
+
+                    const tokenData = await tokenResponse.json();
+                    
+                    // Update token in form
+                    const tokenInput = form.querySelector('input[name="_token"]');
+                    if (tokenData.token && tokenInput) {
+                        tokenInput.value = tokenData.token;
+                    }
+
+                    // Submit the form using fetch with FormData
+                    const formData = new FormData(form);
+                    const submitResponse = await fetch(form.action, {
+                        method: form.method === 'POST' ? 'POST' : form.method,
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        credentials: 'same-origin',
+                        redirect: 'follow',  // ← KEY FIX: Follow redirects
+                    });
+
+                    // Check response status
+                    if (submitResponse.ok) {
+                        // Success - redirect to products page
+                        window.location.href = '{{ route("products.index") }}';
+                    } else if (submitResponse.status === 422) {
+                        // Validation errors - reload to show errors
+                        window.location.reload();
+                    } else {
+                        console.error('Form submission failed with status:', submitResponse.status);
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    isRefreshingCsrf = false;
+                    if (submitButton) submitButton.disabled = false;
+                    window.location.reload();
+                }
             });
         }
 

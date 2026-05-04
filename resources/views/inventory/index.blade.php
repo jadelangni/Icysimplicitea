@@ -475,15 +475,23 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Initial Quantity (All Branches)</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Initial Quantity</label>
                             <input type="number" name="initial_quantity" step="0.01" min="0" value="0" required 
                                    class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min Stock Level</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min. Stock Level</label>
                             <input type="number" name="min_stock_level" step="0.01" min="0" value="10" required 
                                    class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                         </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Branch Selector</label>
+                        <select name="branch_id" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                            @foreach(($branches ?? \App\Models\Branch::where('is_active', true)->orderBy('name')->get()) as $branch)
+                                <option value="{{ $branch->id }}" {{ (string) $branch->id === (string) (request('branch_id')) ? 'selected' : '' }}>{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">

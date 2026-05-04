@@ -50,40 +50,7 @@
                                 </a>
                             </div>
 
-                            <form id="inventory-import-form" method="POST" action="{{ route('reports.inventory.import.preview') }}" enctype="multipart/form-data" class="flex flex-wrap items-end gap-3">
-                                @csrf
-                                <input type="hidden" name="branch_id" value="{{ $selectedBranchId }}">
-                                <div class="inline-flex items-center p-1 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 rounded-lg">
-                                    <input
-                                        id="inventory_file"
-                                        name="inventory_file"
-                                        type="file"
-                                        accept=".xlsx,.xls,.csv"
-                                        required
-                                        onchange="this.form.submit()"
-                                        class="sr-only"
-                                    >
-                                    <label for="inventory_file" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-black rounded-md transition-colors cursor-pointer whitespace-nowrap">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 0L8 8m4-4l4 4"></path>
-                                        </svg>
-                                        Inventory Import
-                                    </label>
-                                </div>
-                                @error('inventory_file')
-                                    <p class="basis-full text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </form>
-                        </div>
 
-                        <div class="ml-auto inline-flex items-center rounded-lg border border-transparent bg-transparent p-1">
-                            <a href="{{ route('reports.inventory.import.template') }}" class="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-simplicitea-600 bg-transparent px-4 py-2 text-simplicitea-700 transition-colors hover:bg-simplicitea-50 dark:text-simplicitea-300 dark:hover:bg-simplicitea-900/20">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                Download Template
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -97,99 +64,6 @@
             @if(session('error'))
                 <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 print:hidden">
                     {{ session('error') }}
-                </div>
-            @endif
-
-            @if($importPreview)
-                <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-6 print:hidden" role="dialog" aria-modal="true" aria-labelledby="inventory-import-preview-title">
-                    <div class="w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-800">
-                        <div class="flex flex-col gap-4 border-b border-gray-200 px-6 py-5 dark:border-gray-700 sm:flex-row sm:items-start sm:justify-between">
-                            <div>
-                                <h3 id="inventory-import-preview-title" class="text-lg font-medium text-gray-900 dark:text-black">Preview Before Saving</h3>
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $importPreview['file_name'] }} -
-                                    {{ $importPreview['valid_count'] }} valid row(s),
-                                    {{ $importPreview['error_count'] }} error(s)
-                                </p>
-                            </div>
-                            <form method="POST" action="{{ route('reports.inventory.import.cancel') }}">
-                                @csrf
-                                @method('DELETE')
-                                <input type="hidden" name="branch_id" value="{{ $selectedBranchId }}">
-                                <button type="submit" class="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Close preview">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="max-h-[70vh] overflow-y-auto p-6">
-                            @if($importPreview['error_count'] > 0)
-                                <div class="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-                                    {{ $importPreview['error_count'] }} error(s) found. Please fix the file before confirming.
-                                </div>
-                            @endif
-
-                            <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-700">
-                                        <tr>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Row</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item Name</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Qty</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Branch</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        @foreach($importPreview['rows'] as $row)
-                                            <tr class="{{ $row['valid'] ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'bg-red-50 dark:bg-red-900/20' }}">
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $row['row_number'] }}</td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-black">{{ $row['item_name'] ?: 'N/A' }}</td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-black">{{ is_numeric($row['qty']) ? number_format((float) $row['qty'], 2) : ($row['qty'] ?: 'N/A') }}</td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $row['unit'] ?: 'N/A' }}</td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $row['branch'] ?: 'N/A' }}</td>
-                                                <td class="px-4 py-3 text-sm">
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $row['valid'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                        {{ $row['status'] }}
-                                                    </span>
-                                                    @if(!$row['valid'])
-                                                        <div class="mt-1 text-xs text-red-700">
-                                                            {{ implode(' ', $row['errors']) }}
-                                                        </div>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col-reverse gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700 sm:flex-row sm:justify-end">
-                            <form method="POST" action="{{ route('reports.inventory.import.cancel') }}">
-                                @csrf
-                                @method('DELETE')
-                                <input type="hidden" name="branch_id" value="{{ $selectedBranchId }}">
-                                <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md sm:w-auto">
-                                    Clear Preview
-                                </button>
-                            </form>
-                            <form method="POST" action="{{ route('reports.inventory.import.confirm') }}">
-                                @csrf
-                                <input type="hidden" name="branch_id" value="{{ $selectedBranchId }}">
-                                <button
-                                    type="submit"
-                                    @disabled($importPreview['error_count'] > 0)
-                                    class="w-full inline-flex items-center justify-center px-4 py-2 rounded-md sm:w-auto {{ $importPreview['error_count'] > 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-black' }}"
-                                >
-                                    Confirm Import
-                                </button>
-                            </form>
-                        </div>
-                    </div>
                 </div>
             @endif
 
@@ -273,3 +147,5 @@
     </div>
 
 </x-app-layout>
+
+

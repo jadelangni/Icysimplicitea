@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Ingredient;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -234,9 +235,10 @@ class ProductController extends Controller
                 if (is_array($recipeData)) {
                     foreach ($recipeData as $item) {
                         if (!empty($item['ingredient_id']) && !empty($item['quantity_required'])) {
+                            $ingredient = Ingredient::find($item['ingredient_id']);
                             $syncData[$item['ingredient_id']] = [
                                 'quantity_required' => $item['quantity_required'],
-                                'unit' => $item['unit'] ?? null,
+                                'unit' => $item['unit'] ?? $ingredient?->getRecipeUnit(),
                             ];
                         }
                     }

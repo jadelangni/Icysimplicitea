@@ -20,7 +20,7 @@
                 <img src="{{ asset('images/logo.png') }}" alt="Icy's Simplicitea logo" class="w-9 h-9 object-contain">
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-semibold text-black text-sm truncate">Icy's Simplicitea</p>
+                <p class="font-bold text-white text-lg truncate">Icy's Simplici𝓣𝓮𝓪</p>
             </div>
         </div>
     </div>
@@ -169,13 +169,6 @@
             </svg>
             <span class="flex-1 text-left">Settings</span>
         </a>
-        <div class="mt-4 text-center">
-            <p class="text-[10px] text-black uppercase tracking-wider">Powered by</p>
-            <p class="text-sm font-semibold text-black flex items-center justify-center gap-2 mt-1">
-                <span class="sidebar-brand-badge">S</span>
-                Simplicitea
-            </p>
-        </div>
     </div>
 </div>
 

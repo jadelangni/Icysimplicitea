@@ -49,8 +49,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/change-password', [PasswordChangeController::class, 'update'])->name('password.change.update');
 });
 
+// CSRF token endpoint - needs to be accessible even when session expires
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+})->name('csrf-token');
+
 // Protected routes
 Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange::class])->group(function () {
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/recent-sales', [DashboardController::class, 'getRecentSales'])->name('dashboard.recent-sales');
@@ -169,10 +175,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
             Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
             Route::get('/daily', [ReportController::class, 'daily'])->name('daily');
             Route::get('/monthly', [ReportController::class, 'monthly'])->name('monthly');
-            Route::get('/inventory/import/template', [ReportController::class, 'downloadInventoryImportTemplate'])->name('inventory.import.template');
-            Route::post('/inventory/import/preview', [ReportController::class, 'previewInventoryImport'])->name('inventory.import.preview');
-            Route::post('/inventory/import/confirm', [ReportController::class, 'confirmInventoryImport'])->name('inventory.import.confirm');
-            Route::delete('/inventory/import/cancel', [ReportController::class, 'cancelInventoryImport'])->name('inventory.import.cancel');
+
             
             // Export routes
             Route::get('/export/sales', [ReportController::class, 'exportSales'])->name('export.sales');

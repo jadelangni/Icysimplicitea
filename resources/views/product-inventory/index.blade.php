@@ -334,7 +334,7 @@
                                     <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ingredient</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity ({{ $selectedBranch->name ?? 'Branch' }})</th>
-                                    <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Unit</th>
+                                    <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Inventory Unit</th>
                                     <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Updated</th>
                                     @if(!($readOnly ?? false))<th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>@endif
                                 </tr>
@@ -400,7 +400,7 @@
                                     @if(!($readOnly ?? false))
                                     <td class="px-5 py-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
-                                            <button onclick="openEditIngredientModal({{ $ingredient->id }}, '{{ $ingredient->name }}', '{{ $ingredient->unit }}', {{ json_encode($ingredient->branches) }})" 
+                                            <button onclick="openEditIngredientModal({{ $ingredient->id }}, @js($ingredient->name), @js($ingredient->unit), @js($ingredient->recipe_unit), {{ $ingredient->recipe_units_per_inventory_unit }}, @js($ingredient->recipe_conversion_label), {{ json_encode($ingredient->branches) }})" 
                                                 class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition"
                                                 title="Manage Ingredient">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -424,7 +424,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="px-5 py-12 text-center">
+                                    <td colspan="{{ ($readOnly ?? false) ? 6 : 7 }}" class="px-5 py-12 text-center">
                                         <div class="text-gray-500 dark:text-gray-400">
                                             <span class="text-4xl">🧪</span>
                                             <p class="mt-2">No ingredients found</p>
@@ -493,15 +493,23 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Initial Quantity (All Branches)</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Initial Quantity</label>
                             <input type="number" name="initial_quantity" step="0.01" min="0" value="0" required 
                                    class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min Stock Level</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min. Stock Level</label>
                             <input type="number" name="min_stock_level" step="0.01" min="0" value="10" required 
                                    class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                         </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Branch Selector</label>
+                        <select name="branch_id" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ (string) $branch->id === (string) ($selectedBranchId ?? request('branch_id')) ? 'selected' : '' }}>{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
@@ -532,9 +540,32 @@
                 Editing: <strong id="editIngredientName" class="text-gray-900 dark:text-black"></strong>
                 (<span id="editIngredientUnit" class="text-gray-500"></span>)
             </p>
+            <p class="hidden mb-4 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:bg-gray-700/50 dark:text-gray-300">
+                Recipe conversion: <span id="editIngredientRecipeConversion" class="font-medium"></span>
+            </p>
             <form id="editIngredientForm" action="{{ route('inventory.update-ingredient-branches') }}" method="POST">
                 @csrf
                 <input type="hidden" name="ingredient_id" id="editIngredientId">
+                <div class="mb-4 grid gap-3 sm:grid-cols-3">
+                    <div>
+                        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Inventory Unit</label>
+                        <input type="text" name="unit" id="editInventoryUnitInput" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Recipe Unit</label>
+                        <select name="recipe_unit" id="editRecipeUnitInput" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                            <option value="g">Grams (g)</option>
+                            <option value="kg">Kilograms (kg)</option>
+                            <option value="ml">Milliliters (ml)</option>
+                            <option value="l">Liters (L)</option>
+                            <option value="pieces">Pieces</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Recipe Units per Inventory Unit</label>
+                        <input type="number" name="recipe_units_per_inventory_unit" id="editRecipeUnitsPerInventoryUnitInput" step="0.0001" min="0.0001" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                    </div>
+                </div>
                 <div class="space-y-4" id="editBranchesContainer">
                     {{-- Dynamically populated --}}
                 </div>
@@ -1171,10 +1202,14 @@
         // ==================== INGREDIENT MODAL FUNCTIONS ====================
         const branchNames = @json($allBranches->pluck('name', 'id'));
         
-        function openEditIngredientModal(ingredientId, name, unit, branchesData) {
+        function openEditIngredientModal(ingredientId, name, unit, recipeUnit, recipeUnitsPerInventoryUnit, recipeConversion, branchesData) {
             document.getElementById('editIngredientId').value = ingredientId;
             document.getElementById('editIngredientName').textContent = name;
             document.getElementById('editIngredientUnit').textContent = unit;
+            document.getElementById('editIngredientRecipeConversion').textContent = recipeConversion || `1 ${unit} = 1 ${unit}`;
+            document.getElementById('editInventoryUnitInput').value = unit;
+            document.getElementById('editRecipeUnitInput').value = recipeUnit || unit;
+            document.getElementById('editRecipeUnitsPerInventoryUnitInput').value = recipeUnitsPerInventoryUnit || 1;
             
             const container = document.getElementById('editBranchesContainer');
             container.innerHTML = '';

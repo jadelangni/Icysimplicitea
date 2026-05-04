@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
 use App\Models\Ingredient;
 use App\Models\IngredientInventory;
 use Illuminate\Http\Request;
@@ -38,7 +39,7 @@ class IngredientController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * Creates the ingredient globally and adds inventory for all branches.
+     * Creates the ingredient globally and seeds selected branch inventory values.
      */
     public function store(Request $request)
     {
@@ -46,6 +47,9 @@ class IngredientController extends Controller
             'name' => 'required|string|max:255|unique:ingredients,name',
             'description' => 'nullable|string',
             'unit' => 'required|string|max:50',
+            'branch_id' => 'required|exists:branches,id',
+            'recipe_unit' => 'nullable|string|max:50',
+            'recipe_units_per_inventory_unit' => 'nullable|numeric|min:0.0001',
             'initial_quantity' => 'nullable|numeric|min:0',
             'min_stock_level' => 'nullable|numeric|min:0',
         ]);
@@ -54,23 +58,30 @@ class IngredientController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'] ?? '',
             'unit' => $validated['unit'],
+            'recipe_unit' => $validated['recipe_unit'] ?: $validated['unit'],
+            'recipe_units_per_inventory_unit' => $validated['recipe_units_per_inventory_unit'] ?? 1,
             'is_active' => true,
         ]);
 
         $initialQuantity = $validated['initial_quantity'] ?? 0;
         $minStockLevel = $validated['min_stock_level'] ?? 10;
+        $branchId = (int) $validated['branch_id'];
 
         app(CatalogInventorySyncService::class)->ensureIngredientInventory($ingredient);
 
-        foreach ($ingredient->inventories as $inventory) {
-            $inventory->update([
+        $branchInventory = $ingredient->inventories->firstWhere('branch_id', $branchId);
+
+        if ($branchInventory) {
+            $branchInventory->update([
                 'quantity' => $initialQuantity,
                 'min_stock_level' => $minStockLevel,
             ]);
         }
 
+        $branchName = Branch::where('id', $branchId)->value('name') ?? 'Selected Branch';
+
         return redirect()->route('product-inventory.index', ['tab' => 'ingredients'])
-            ->with('success', "Ingredient '{$ingredient->name}' added to all branches.");
+            ->with('success', "Ingredient '{$ingredient->name}' added for {$branchName}.");
     }
 
     /**
@@ -100,12 +111,16 @@ class IngredientController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'unit' => 'required|string|max:50',
+            'recipe_unit' => 'nullable|string|max:50',
+            'recipe_units_per_inventory_unit' => 'nullable|numeric|min:0.0001',
             'quantity' => 'required|numeric|min:0',
             'min_stock_level' => 'required|numeric|min:0',
             'is_active' => 'boolean'
         ]);
 
         $validated['is_active'] = $request->has('is_active');
+        $validated['recipe_unit'] = $validated['recipe_unit'] ?: $validated['unit'];
+        $validated['recipe_units_per_inventory_unit'] = $validated['recipe_units_per_inventory_unit'] ?? 1;
 
         $ingredient = Ingredient::findOrFail($id);
         $ingredient->update($validated);

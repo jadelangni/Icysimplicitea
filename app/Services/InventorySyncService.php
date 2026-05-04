@@ -191,7 +191,7 @@ class InventorySyncService
             if ($amountPerProductInStockUnit === null) {
                 $deductions[] = [
                     'success' => false,
-                    'error' => "Unit mismatch for {$ingredient->name}: recipe uses '{$ingredientPivot->pivot->unit}', stock uses '{$ingredient->unit}'."
+                    'error' => "Unit mismatch for {$ingredient->name}: recipe uses '{$ingredientPivot->pivot->unit}', configured recipe unit is '{$ingredient->getRecipeUnit()}'."
                 ];
                 continue;
             }
@@ -341,7 +341,7 @@ class InventorySyncService
             if ($amountPerProductInStockUnit === null) {
                 $restorations[] = [
                     'success' => false,
-                    'error' => "Unit mismatch for {$ingredient->name}: recipe uses '{$ingredientPivot->pivot->unit}', stock uses '{$ingredient->unit}'."
+                    'error' => "Unit mismatch for {$ingredient->name}: recipe uses '{$ingredientPivot->pivot->unit}', configured recipe unit is '{$ingredient->getRecipeUnit()}'."
                 ];
                 continue;
             }
@@ -493,7 +493,7 @@ class InventorySyncService
                     'required' => 0,
                     'available' => $ingredientInventory ? $ingredientInventory->quantity : 0,
                     'unit' => $ingredient->unit,
-                    'reason' => "Unit mismatch: recipe '{$ingredientPivot->pivot->unit}' vs stock '{$ingredient->unit}'"
+                    'reason' => "Unit mismatch: recipe '{$ingredientPivot->pivot->unit}' vs configured recipe unit '{$ingredient->getRecipeUnit()}'"
                 ];
                 continue;
             }

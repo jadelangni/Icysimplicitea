@@ -204,9 +204,9 @@
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
             <div class="fixed inset-0 transition-opacity bg-gray-900/80 backdrop-blur-sm" onclick="closeRecipeModal()"></div>
             
-            <div class="relative z-10 w-full max-w-full sm:max-w-3xl lg:max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transform transition-all">
+            <div class="relative z-10 w-full max-w-full sm:max-w-2xl lg:max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transform transition-all">
                 <!-- Modal Header -->
-                <div class="relative px-6 py-5 bg-gradient-to-r from-simplicitea-600 via-simplicitea-500 to-teal-500 rounded-t-3xl">
+                <div class="relative px-4 py-4 bg-gradient-to-r from-simplicitea-600 via-simplicitea-500 to-teal-500 rounded-t-3xl">
                     <div class="flex items-start justify-between">
                         <div class="flex items-center gap-4">
                             <div id="modalProductIcon" class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-black font-bold text-lg shadow-lg">
@@ -226,7 +226,7 @@
                 </div>
                 
                 <!-- Modal Body -->
-                <div class="p-6 max-h-[70vh] overflow-y-auto" id="recipeModalContent">
+                <div class="p-4 max-h-[70vh] overflow-y-auto" id="recipeModalContent">
                     <div class="flex flex-col items-center justify-center py-12">
                         <div class="relative">
                             <div class="w-16 h-16 border-4 border-simplicitea-200 dark:border-simplicitea-800 rounded-full"></div>
@@ -375,10 +375,16 @@
             const selectedId = item?.ingredient_id || '';
             const quantity = item?.quantity_required || '';
             const unit = item?.unit || '';
+            const selectedIngredient = allIngredients.find(ing => String(ing.id) === String(selectedId));
+            const selectedConversion = selectedIngredient
+                ? (selectedIngredient.recipe_conversion_label || `1 ${selectedIngredient.unit} = 1 ${selectedIngredient.recipe_unit || selectedIngredient.unit}`)
+                : '';
 
-            let options = '<option value="">Select Ingredient</option>';
+                let options = '<option value="">Select Ingredient</option>';
             allIngredients.forEach(ing => {
-                options += `<option value="${ing.id}" data-unit="${ing.unit}" ${ing.id == selectedId ? 'selected' : ''}>${ing.name} (${ing.quantity} ${ing.unit} available)</option>`;
+                const recipeUnit = ing.recipe_unit || ing.unit;
+                const conversion = ing.recipe_conversion_label || `1 ${ing.unit} = 1 ${recipeUnit}`;
+                options += `<option value="${ing.id}" data-unit="${ing.unit}" data-recipe-unit="${recipeUnit}" data-conversion="${conversion}" ${ing.id == selectedId ? 'selected' : ''}>${ing.name}</option>`;
             });
 
             let unitOptions = '<option value="">Select unit</option>';
@@ -387,17 +393,17 @@
             });
 
             return `
-                <div class="ingredient-row flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                    <div class="flex-1">
-                        <select name="ingredients[${rowIndex}][ingredient_id]" required class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500" onchange="updateUnit(this, ${rowIndex})">
+                <div class="ingredient-row flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <div class="w-full sm:w-48 min-w-0">
+                        <select name="ingredients[${rowIndex}][ingredient_id]" required class="w-full px-2 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 truncate" onchange="updateUnit(this, ${rowIndex})">
                             ${options}
                         </select>
                     </div>
-                    <div class="w-full sm:w-28">
-                        <input type="number" name="ingredients[${rowIndex}][quantity_required]" value="${quantity}" step="0.01" min="0.01" required placeholder="Qty" class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
+                    <div class="w-full sm:w-20">
+                        <input type="number" name="ingredients[${rowIndex}][quantity_required]" value="${quantity}" step="0.01" min="0.01" required placeholder="Qty" class="w-full px-2 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
                     </div>
-                    <div class="w-full sm:w-32">
-                        <select name="ingredients[${rowIndex}][unit]" id="unit_${rowIndex}" required class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
+                    <div class="w-full sm:w-20">
+                        <select name="ingredients[${rowIndex}][unit]" id="unit_${rowIndex}" required class="w-full px-2 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
                             ${unitOptions}
                         </select>
                     </div>
@@ -425,9 +431,9 @@
 
         function updateUnit(select, index) {
             const option = select.options[select.selectedIndex];
-            const ingredientUnit = option.dataset.unit || '';
+            const ingredientUnit = option.dataset.recipeUnit || '';
+            const conversionLabel = option.dataset.conversion || '';
             const unitSelect = document.getElementById(`unit_${index}`);
-
             if (unitSelect && !unitSelect.value) {
                 unitSelect.value = ingredientUnit;
             }
