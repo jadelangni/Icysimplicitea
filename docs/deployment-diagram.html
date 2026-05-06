@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simplicitea POS Deployment Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f1e8;
+      --paper: #fffdf9;
+      --ink: #2f241d;
+      --muted: #7d6a5c;
+      --accent: #c45f2d;
+      --border: #d7c8b6;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #fffaf3 0%, var(--bg) 52%, #efe4d5 100%);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .page {
+      width: 2800px;
+      min-height: 1700px;
+      padding: 40px 48px 56px;
+      box-sizing: border-box;
+    }
+
+    .header {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(47, 36, 29, 0.12);
+    }
+
+    .eyebrow {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 38px;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+    .diagram-shell {
+      background: rgba(255, 253, 249, 0.88);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 24px 60px rgba(74, 49, 32, 0.12);
+    }
+
+    .mermaid {
+      width: 100%;
+      overflow: visible;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        fontFamily: 'Segoe UI, Arial, sans-serif',
+        primaryColor: '#fff7ef',
+        primaryBorderColor: '#c45f2d',
+        primaryTextColor: '#2f241d',
+        lineColor: '#a07b60',
+        secondaryColor: '#f3e5d6',
+        tertiaryColor: '#fffdf9'
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="eyebrow">Icy's Simplicitea POS</div>
+      <h1>Deployment Diagram</h1>
+      <div class="subtitle">Production deployment on Laravel Forge with a DigitalOcean server, queue worker, scheduler, and external services.</div>
+    </div>
+
+    <div class="diagram-shell">
+      <div class="mermaid">
+flowchart LR
+    dev[Git Repository]:::entity
+    forge[Laravel Forge]:::entity
+    browser[Customer / Staff Browser]:::entity
+    paymongo[PayMongo API]:::entity
+    mail[SMTP Mail Provider]:::entity
+    monitor[Uptime / /up Health Check]:::entity
+
+    subgraph droplet[DigitalOcean Droplet]
+      nginx[Nginx / Forge Site]:::node
+      phpfpm[PHP-FPM + Laravel App]:::node
+      queue[Queue Worker]:::node
+      scheduler[Laravel Scheduler]:::node
+      storage[(public storage)]:::store
+      db[(MySQL Database)]:::store
+      cache[(Cache Sessions Queue Tables)]:::store
+    end
+
+    dev -->|push code| forge
+    forge -->|run scripts/forge-deploy.sh| nginx
+    nginx -->|forward requests| phpfpm
+    browser -->|HTTPS traffic| nginx
+
+    phpfpm -->|read/write data| db
+    phpfpm -->|sessions / cache / jobs| cache
+    phpfpm -->|store receipts, images, exports| storage
+    phpfpm -->|send payment requests| paymongo
+    phpfpm -->|send alerts and receipts| mail
+
+    queue -->|process jobs| db
+    queue -->|send queued notifications| mail
+    queue -->|call external payment sync| paymongo
+
+    scheduler -->|run every minute| phpfpm
+    monitor -->|GET /up| nginx
+
+    forge -->|composer install, npm build, migrate, cache, queue:restart| phpfpm
+    forge -->|storage:link and verification| storage
+
+    classDef node fill:#fff1e6,stroke:#c45f2d,stroke-width:2px,color:#2f241d;
+    classDef store fill:#ffffff,stroke:#7d6a5c,stroke-width:1.5px,color:#2f241d;
+    classDef entity fill:#f3e5d6,stroke:#a07b60,stroke-width:1.5px,color:#2f241d;
+      </div>
+    </div>
+  </div>
+</body>
+</html>

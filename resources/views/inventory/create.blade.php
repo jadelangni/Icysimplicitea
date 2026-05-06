@@ -34,15 +34,16 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <label class="block">
                                     <span class="text-sm font-medium text-gray-700">Inventory Unit from Supplier</span>
-                                    <select name="unit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
-                                        <option value="kg" {{ old('unit') == 'kg' ? 'selected' : '' }}>Kilograms (kg)</option>
-                                        <option value="liters" {{ old('unit') == 'liters' ? 'selected' : '' }}>Liters</option>
-                                        <option value="pieces" {{ old('unit') == 'pieces' ? 'selected' : '' }}>Pieces</option>
-                                        <option value="grams" {{ old('unit') == 'grams' ? 'selected' : '' }}>Grams</option>
-                                        <option value="cups" {{ old('unit') == 'cups' ? 'selected' : '' }}>Cups</option>
-                                        <option value="bottles" {{ old('unit') == 'bottles' ? 'selected' : '' }}>Bottles</option>
-                                        <option value="packs" {{ old('unit') == 'packs' ? 'selected' : '' }}>Packs</option>
-                                    </select>
+                                    <input type="text" name="unit" list="inventory-unit-options" value="{{ old('unit') }}" placeholder="e.g., kg, liters, pieces" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
+                                    <datalist id="inventory-unit-options">
+                                        <option value="kg"></option>
+                                        <option value="liters"></option>
+                                        <option value="pieces"></option>
+                                        <option value="grams"></option>
+                                        <option value="cups"></option>
+                                        <option value="bottles"></option>
+                                        <option value="packs"></option>
+                                    </datalist>
                                 </label>
                                 <label class="block">
                                     <span class="text-sm font-medium text-gray-700">Recipe Unit</span>

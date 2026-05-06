@@ -480,16 +480,17 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit of Measure</label>
-                        <select name="unit" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
-                            <option value="g">Grams (g)</option>
-                            <option value="kg">Kilograms (kg)</option>
-                            <option value="ml">Milliliters (ml)</option>
-                            <option value="L">Liters (L)</option>
-                            <option value="pcs">Pieces (pcs)</option>
-                            <option value="cans">Cans</option>
-                            <option value="bottles">Bottles</option>
-                            <option value="packs">Packs</option>
-                        </select>
+                        <input type="text" name="unit" list="ingredient-unit-options" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg" placeholder="e.g., g, ml, pcs">
+                        <datalist id="ingredient-unit-options">
+                            <option value="g"></option>
+                            <option value="kg"></option>
+                            <option value="ml"></option>
+                            <option value="L"></option>
+                            <option value="pcs"></option>
+                            <option value="cans"></option>
+                            <option value="bottles"></option>
+                            <option value="packs"></option>
+                        </datalist>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
