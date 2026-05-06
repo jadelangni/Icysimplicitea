@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simplicitea POS Data Flow Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f1e8;
+      --paper: #fffdf9;
+      --ink: #2f241d;
+      --muted: #7d6a5c;
+      --accent: #c45f2d;
+      --border: #d7c8b6;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #fffaf3 0%, var(--bg) 52%, #efe4d5 100%);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .page {
+      width: 2800px;
+      min-height: 1200px;
+      padding: 40px 48px 56px;
+      box-sizing: border-box;
+    }
+
+    .header {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(47, 36, 29, 0.12);
+    }
+
+    .eyebrow {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 38px;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+    .diagram-shell {
+      background: rgba(255, 253, 249, 0.88);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 24px 60px rgba(74, 49, 32, 0.12);
+    }
+
+    .mermaid {
+      width: 100%;
+      overflow: visible;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      flowchart: { curve: 'basis' },
+      themeVariables: {
+        fontFamily: 'Segoe UI, Arial, sans-serif',
+        primaryColor: '#fff7ef',
+        primaryBorderColor: '#c45f2d',
+        primaryTextColor: '#2f241d',
+        lineColor: '#a07b60',
+        secondaryColor: '#f3e5d6',
+        tertiaryColor: '#fffdf9'
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="eyebrow">Icy's Simplicitea POS</div>
+      <h1>Data Flow Diagram</h1>
+      <div class="subtitle">High-level flow of sales, inventory, and reporting across the POS system.</div>
+    </div>
+
+    <div class="diagram-shell">
+      <div class="mermaid">
+flowchart LR
+    customer[Customer]:::entity
+    cashier[Cashier / Employee]:::entity
+    admin[Admin / Branch Manager]:::entity
+    supplier[Supplier / Ingredient Source]:::entity
+
+    pos((1.0 POS Checkout)):::process
+    inventory((2.0 Inventory Sync)):::process
+    reporting((3.0 Reporting & Monitoring)):::process
+    maintenance((4.0 Product & Ingredient Setup)):::process
+
+    d1[(Sales)]:::store
+    d2[(Sales Items)]:::store
+    d3[(Products)]:::store
+    d4[(Inventory)]:::store
+    d5[(Ingredients)]:::store
+    d6[(Ingredient Inventory)]:::store
+    d7[(Branches)]:::store
+    d8[(User / Attendance Data)]:::store
+    d9[(Notifications / Alerts)]:::store
+
+    customer -->|places order| cashier
+    cashier -->|selected items, quantities, payment| pos
+    pos -->|store transaction| d1
+    pos -->|store line items| d2
+    pos -->|read price, options, product info| d3
+    pos -->|read branch context| d7
+    pos -->|receipt, change, order status| cashier
+    pos -->|purchase confirmation| customer
+
+    pos -->|reduce stock levels| inventory
+    inventory -->|update branch stock| d4
+    inventory -->|consume recipe ingredients| d6
+    inventory -->|read product-to-ingredient map| d3
+    inventory -->|read recipe definitions| d5
+
+    admin -->|review sales, stock, staff activity| reporting
+    reporting -->|read sales history| d1
+    reporting -->|read inventory history| d4
+    reporting -->|read ingredient stock| d6
+    reporting -->|read branch data| d7
+    reporting -->|read attendance / activity| d8
+    reporting -->|charts, summaries, alerts| admin
+    reporting -->|low-stock notices| d9
+
+    admin -->|create/update products, categories, recipes| maintenance
+    maintenance -->|write product catalog| d3
+    maintenance -->|write ingredient catalog| d5
+    maintenance -->|write branch-specific stock rules| d4
+    maintenance -->|write ingredient inventory| d6
+
+    supplier -->|delivers ingredients| inventory
+    inventory -->|record replenishment| d6
+
+    classDef process fill:#fff1e6,stroke:#c45f2d,stroke-width:2px,color:#2f241d;
+    classDef store fill:#ffffff,stroke:#7d6a5c,stroke-width:1.5px,color:#2f241d;
+    classDef entity fill:#f3e5d6,stroke:#a07b60,stroke-width:1.5px,color:#2f241d;
+      </div>
+    </div>
+  </div>
+</body>
+</html>

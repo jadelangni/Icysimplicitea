@@ -1556,7 +1556,12 @@
                         document.getElementById('gcash-qr-modal').classList.add('hidden');
                     }, 400);
 
-                    window.open(data.direct_print_url, '_blank');
+                    console.log('GCash payment successful. Opening receipt:', data.direct_print_url);
+                    if (data.direct_print_url) {
+                        window.open(data.direct_print_url, '_blank');
+                    } else {
+                        console.warn('Warning: direct_print_url is missing from GCash response', data);
+                    }
                     cart = [];
                     localStorage.removeItem('pos_cart');
                     updateCart();

@@ -124,38 +124,38 @@
                             @foreach($employees as $employee)
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150">
                                 <td class="px-5 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-400 to-simplicitea-600 rounded-full flex items-center justify-center text-black font-semibold text-sm">
+                                    <div class="flex items-start gap-3 min-w-0">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-simplicitea-400 to-simplicitea-600 rounded-full flex items-center justify-center text-black font-semibold text-sm flex-shrink-0">
                                             {{ strtoupper(substr($employee->name, 0, 2)) }}
                                         </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900 dark:text-black">{{ $employee->name }}</p>
-                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ $employee->email }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">ID: {{ $employee->id_number ?? 'Pending' }}</p>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-medium text-gray-900 dark:text-black truncate">{{ $employee->name }}</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ $employee->email }}</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">ID: {{ $employee->id_number ?? 'Pending' }}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-5 py-4">
+                                <td class="px-5 py-4 min-w-[80px]">
                                     @if($employee->role === 'admin')
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 whitespace-nowrap">
+                                            <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                             </svg>
                                             Admin
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-simplicitea-100 dark:bg-simplicitea-900/50 text-simplicitea-700 dark:text-simplicitea-300">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-simplicitea-100 dark:bg-simplicitea-900/50 text-simplicitea-700 dark:text-simplicitea-300 whitespace-nowrap">
+                                            <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                             </svg>
                                             Cashier
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-4">
+                                <td class="px-5 py-4 min-w-[120px]">
                                     <div class="inline-branch-selector" data-employee-id="{{ $employee->id }}">
                                         <select onchange="updateBranch({{ $employee->id }}, this.value)" 
-                                            class="branch-select text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer min-w-[140px]">
+                                            class="branch-select text-xs sm:text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2.5 sm:px-3 py-1.5 text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 focus:border-simplicitea-500 cursor-pointer max-w-[130px] truncate">
                                             @foreach($branches as $branch)
                                                 <option value="{{ $branch->id }}" {{ $employee->branch_id == $branch->id ? 'selected' : '' }}>
                                                     📍 {{ $branch->name }}
@@ -164,16 +164,16 @@
                                         </select>
                                     </div>
                                 </td>
-                                <td class="px-5 py-4">
+                                <td class="px-5 py-4 min-w-[90px]">
                                     <button onclick="toggleStatus({{ $employee->id }})" 
-                                        class="status-badge-{{ $employee->id }} inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium transition-colors duration-200 cursor-pointer hover:opacity-80
+                                        class="status-badge-{{ $employee->id }} inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium transition-colors duration-200 cursor-pointer hover:opacity-80 whitespace-nowrap
                                         {{ $employee->is_active ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300' }}">
-                                        <span class="w-2 h-2 rounded-full mr-1.5 {{ $employee->is_active ? 'bg-green-500' : 'bg-red-500' }}"></span>
+                                        <span class="w-2 h-2 rounded-full mr-1.5 flex-shrink-0 {{ $employee->is_active ? 'bg-green-500' : 'bg-red-500' }}"></span>
                                         <span class="status-text">{{ $employee->is_active ? 'Active' : 'Inactive' }}</span>
                                     </button>
                                 </td>
-                                <td class="px-5 py-4">
-                                    <div class="flex items-center gap-2">
+                                <td class="px-5 py-4 min-w-[200px]">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
                                         <a href="{{ route('employees.edit', $employee) }}" 
                                             class="inline-flex items-center justify-center w-8 h-8 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg transition-colors duration-200" 
                                             title="Edit">

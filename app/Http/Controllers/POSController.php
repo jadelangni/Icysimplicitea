@@ -555,6 +555,11 @@ class POSController extends Controller
                 $saleResponse = $this->processSale($saleRequest);
                 $salePayload = $saleResponse->getData(true);
 
+                Log::info('GCash Sale Response', [
+                    'sale_payload' => $salePayload,
+                    'has_direct_print_url' => isset($salePayload['direct_print_url']),
+                ]);
+
                 if (!($salePayload['success'] ?? false)) {
                     return response()->json([
                         'success' => false,
@@ -585,7 +590,7 @@ class POSController extends Controller
                     'sale_id' => $salePayload['sale_id'] ?? null,
                     'redirect_url' => $salePayload['redirect_url'] ?? null,
                     'print_url' => $salePayload['print_url'] ?? null,
-                    'direct_print_url' => $salePayload['direct_print_url'] ?? null,
+                    'direct_print_url' => $salePayload['direct_print_url'] ?? (isset($salePayload['sale_id']) ? route('pos.receipt.direct-print', $salePayload['sale_id']) : null),
                     'low_stock_alerts' => $salePayload['low_stock_alerts'] ?? [],
                     'inventory_synced' => $salePayload['inventory_synced'] ?? false,
                 ];

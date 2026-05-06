@@ -58,7 +58,7 @@ class IngredientController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'] ?? '',
             'unit' => $validated['unit'],
-            'recipe_unit' => $validated['recipe_unit'] ?: $validated['unit'],
+            'recipe_unit' => $validated['recipe_unit'] ?? $validated['unit'],
             'recipe_units_per_inventory_unit' => $validated['recipe_units_per_inventory_unit'] ?? 1,
             'is_active' => true,
         ]);

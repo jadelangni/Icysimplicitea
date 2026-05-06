@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simplicitea POS ER Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f1e8;
+      --paper: #fffdf9;
+      --ink: #2f241d;
+      --muted: #7d6a5c;
+      --accent: #c45f2d;
+      --border: #d7c8b6;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #fffaf3 0%, var(--bg) 52%, #efe4d5 100%);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .page {
+      width: 2400px;
+      min-height: 2200px;
+      padding: 40px 48px 56px;
+      box-sizing: border-box;
+    }
+
+    .header {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(47, 36, 29, 0.12);
+    }
+
+    .eyebrow {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 38px;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+    .diagram-shell {
+      background: rgba(255, 253, 249, 0.88);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 24px 60px rgba(74, 49, 32, 0.12);
+    }
+
+    .mermaid {
+      width: 100%;
+      overflow: visible;
+      font-size: 18px;
+    }
+  </style>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        fontFamily: 'Segoe UI, Arial, sans-serif',
+        primaryColor: '#fff7ef',
+        primaryBorderColor: '#c45f2d',
+        primaryTextColor: '#2f241d',
+        lineColor: '#a07b60',
+        secondaryColor: '#f3e5d6',
+        tertiaryColor: '#fffdf9'
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="eyebrow">Icy's Simplicitea POS</div>
+      <h1>Entity Relationship Diagram</h1>
+      <div class="subtitle">Rendered from the Laravel migration schema, excluding framework tables like cache and jobs.</div>
+    </div>
+
+    <div class="diagram-shell">
+      <div class="mermaid">
+        erDiagram
+            BRANCHES ||--o{ USERS : has
+            CATEGORIES ||--o{ PRODUCTS : groups
+            BRANCHES ||--o{ PRODUCTS : stocks
+            PRODUCTS ||--o{ INVENTORY : tracked_in
+            BRANCHES ||--o{ INVENTORY : stores
+            BRANCHES ||--o{ SALES : records
+            USERS ||--o{ SALES : cashier
+            SALES ||--o{ SALES_ITEMS : contains
+            PRODUCTS ||--o{ SALES_ITEMS : sold_as
+            PRODUCTS ||--o{ PRODUCT_INGREDIENTS : uses
+            INGREDIENTS ||--o{ PRODUCT_INGREDIENTS : included_in
+            BRANCHES ||--o{ INGREDIENT_INVENTORY : stores
+            INGREDIENTS ||--o{ INGREDIENT_INVENTORY : tracked_in
+            USERS ||--o{ STAFF_ATTENDANCE : logs
+            BRANCHES ||--o{ STAFF_ATTENDANCE : at
+            USERS ||--o{ DUTY_SCHEDULES : assigned
+            USERS ||--o{ BRANCH_SESSIONS : opens
+            BRANCHES ||--o{ BRANCH_SESSIONS : for
+            USERS ||--o{ USER_ACTIVITY_LOGS : creates
+            BRANCHES ||--o{ USER_ACTIVITY_LOGS : in
+            USERS ||--o{ PERMISSION_OVERRIDES : requests
+            USERS ||--o{ PERMISSION_OVERRIDES : approves
+            BRANCHES ||--o{ PERMISSION_OVERRIDES : at
+            SALES ||--o| PERMISSION_OVERRIDES : related_to
+            BRANCHES ||--o{ PAYMONGO_TRANSACTIONS : processes
+            USERS ||--o{ PAYMONGO_TRANSACTIONS : records
+            SALES ||--o| PAYMONGO_TRANSACTIONS : settles
+            USERS ||--o{ TODOS : creates
+            USERS ||--o{ TODOS : assigned
+            BRANCHES ||--o{ TODOS : for
+            USERS ||--o{ ADMIN_NOTIFICATIONS : triggers
+            USERS ||--o{ INVENTORY_IMPORT_HISTORIES : performs
+            INGREDIENTS ||--o{ INVENTORY_IMPORT_HISTORIES : imported
+            BRANCHES ||--o{ INVENTORY_IMPORT_HISTORIES : at
+
+            USERS {
+                bigint id PK
+                bigint branch_id FK
+            }
+            BRANCHES {
+                bigint id PK
+            }
+            CATEGORIES {
+                bigint id PK
+            }
+            PRODUCTS {
+                bigint id PK
+                bigint category_id FK
+            }
+            INVENTORY {
+                bigint id PK
+                bigint branch_id FK
+                bigint product_id FK
+            }
+            SALES {
+                bigint id PK
+                bigint branch_id FK
+                bigint user_id FK
+            }
+            SALES_ITEMS {
+                bigint id PK
+                bigint sale_id FK
+                bigint product_id FK
+            }
+            INGREDIENTS {
+                bigint id PK
+            }
+            PRODUCT_INGREDIENTS {
+                bigint id PK
+                bigint product_id FK
+                bigint ingredient_id FK
+            }
+            INGREDIENT_INVENTORY {
+                bigint id PK
+                bigint ingredient_id FK
+                bigint branch_id FK
+            }
+            STAFF_ATTENDANCE {
+                bigint id PK
+                bigint user_id FK
+                bigint branch_id FK
+            }
+            DUTY_SCHEDULES {
+                bigint id PK
+                bigint user_id FK
+            }
+            BRANCH_SESSIONS {
+                bigint id PK
+                bigint branch_id FK
+                bigint user_id FK
+            }
+            USER_ACTIVITY_LOGS {
+                bigint id PK
+                bigint user_id FK
+                bigint branch_id FK
+            }
+            PERMISSION_OVERRIDES {
+                bigint id PK
+                bigint requested_by FK
+                bigint approved_by FK
+                bigint branch_id FK
+                bigint sale_id FK
+            }
+            PAYMONGO_TRANSACTIONS {
+                bigint id PK
+                bigint branch_id FK
+                bigint user_id FK
+                bigint sale_id FK
+            }
+            TODOS {
+                bigint id PK
+                bigint user_id FK
+                bigint assigned_to FK
+                bigint branch_id FK
+            }
+            ADMIN_NOTIFICATIONS {
+                bigint id PK
+                bigint triggered_by FK
+            }
+            INVENTORY_IMPORT_HISTORIES {
+                bigint id PK
+                bigint admin_id FK
+                bigint ingredient_id FK
+                bigint branch_id FK
+            }
+      </div>
+    </div>
+  </div>
+</body>
+</html>
