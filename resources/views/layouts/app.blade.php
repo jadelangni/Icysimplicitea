@@ -11,6 +11,7 @@
         <meta name="apple-mobile-web-app-title" content="Simplicitea POS">
         <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
         <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 

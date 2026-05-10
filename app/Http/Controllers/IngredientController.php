@@ -47,11 +47,14 @@ class IngredientController extends Controller
             'name' => 'required|string|max:255|unique:ingredients,name',
             'description' => 'nullable|string',
             'unit' => 'required|string|max:50',
-            'branch_id' => 'required|exists:branches,id',
+            'branch_id' => 'nullable|exists:branches,id',
             'recipe_unit' => 'nullable|string|max:50',
             'recipe_units_per_inventory_unit' => 'nullable|numeric|min:0.0001',
             'initial_quantity' => 'nullable|numeric|min:0',
             'min_stock_level' => 'nullable|numeric|min:0',
+            'branches' => 'nullable|array',
+            'branches.*.quantity' => 'nullable|numeric|min:0',
+            'branches.*.min_stock_level' => 'nullable|numeric|min:0',
         ]);
 
         $ingredient = Ingredient::create([
@@ -63,25 +66,52 @@ class IngredientController extends Controller
             'is_active' => true,
         ]);
 
-        $initialQuantity = $validated['initial_quantity'] ?? 0;
-        $minStockLevel = $validated['min_stock_level'] ?? 10;
-        $branchId = (int) $validated['branch_id'];
-
         app(CatalogInventorySyncService::class)->ensureIngredientInventory($ingredient);
 
-        $branchInventory = $ingredient->inventories->firstWhere('branch_id', $branchId);
+        $branches = Branch::all();
+        $submittedBranches = $validated['branches'] ?? [];
 
-        if ($branchInventory) {
-            $branchInventory->update([
-                'quantity' => $initialQuantity,
-                'min_stock_level' => $minStockLevel,
-            ]);
+        if (!empty($submittedBranches)) {
+            foreach ($submittedBranches as $branchId => $branchData) {
+                if (!$branches->contains('id', (int) $branchId)) {
+                    continue;
+                }
+
+                IngredientInventory::updateOrCreate(
+                    ['ingredient_id' => $ingredient->id, 'branch_id' => (int) $branchId],
+                    [
+                        'quantity' => (float) ($branchData['quantity'] ?? 0),
+                        'min_stock_level' => (float) ($branchData['min_stock_level'] ?? 10),
+                    ]
+                );
+            }
+
+            return redirect()->route('product-inventory.index', ['tab' => 'ingredients'])
+                ->with('success', "Ingredient '{$ingredient->name}' added for all branches.");
         }
 
-        $branchName = Branch::where('id', $branchId)->value('name') ?? 'Selected Branch';
+        // Backward-compatible fallback for older single-branch forms.
+        $initialQuantity = $validated['initial_quantity'] ?? 0;
+        $minStockLevel = $validated['min_stock_level'] ?? 10;
+        $fallbackBranchId = (int) ($validated['branch_id'] ?? 0);
+
+        if ($fallbackBranchId > 0) {
+            IngredientInventory::updateOrCreate(
+                ['ingredient_id' => $ingredient->id, 'branch_id' => $fallbackBranchId],
+                [
+                    'quantity' => $initialQuantity,
+                    'min_stock_level' => $minStockLevel,
+                ]
+            );
+
+            $branchName = Branch::where('id', $fallbackBranchId)->value('name') ?? 'Selected Branch';
+
+            return redirect()->route('product-inventory.index', ['tab' => 'ingredients'])
+                ->with('success', "Ingredient '{$ingredient->name}' added for {$branchName}.");
+        }
 
         return redirect()->route('product-inventory.index', ['tab' => 'ingredients'])
-            ->with('success', "Ingredient '{$ingredient->name}' added for {$branchName}.");
+            ->with('success', "Ingredient '{$ingredient->name}' added successfully.");
     }
 
     /**

@@ -95,11 +95,7 @@
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-3">
                         <div class="stat-icon-box stat-icon-green dark:bg-green-900/50">
-                            <svg class="h-5 w-5 text-green-700 dark:text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 1.5c-2.9 0-5.25 2.09-5.25 4.66 0 1.44.77 2.72 1.98 3.57A4.5 4.5 0 0 0 6.75 14v1.5A6.75 6.75 0 0 0 13.5 22.5h1.5" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6.75h4.2a2.25 2.25 0 0 1 0 4.5h-4.2a2.25 2.25 0 0 1 0-4.5Z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 11.25h5.25a2.25 2.25 0 0 1 0 4.5H9" />
-                            </svg>
+                            <img src="{{ asset('images/weekly-revenue.svg') }}" alt="Weekly Revenue" class="h-5 w-5">
                         </div>
                         <p class="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1" id="weeklyRevenueValue">₱{{ number_format($weeklyRevenue ?? 0, 0) }}</p>
                     </div>
@@ -351,13 +347,7 @@
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="{{ route('pos.index') }}" class="group flex flex-col items-center p-5 bg-gradient-to-br from-simplicitea-50 to-simplicitea-100 dark:from-simplicitea-900/30 dark:to-simplicitea-900/50 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-200 border border-simplicitea-200 dark:border-simplicitea-800">
-                        <div class="w-14 h-14 bg-white dark:bg-gray-800 rounded-2xl shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                            <span class="text-2xl">🛒</span>
-                        </div>
-                        <span class="text-sm font-semibold text-simplicitea-900 dark:text-simplicitea-300">New Sale</span>
-                        <span class="text-xs text-simplicitea-600 dark:text-simplicitea-400">Process order</span>
-                    </a>
+                    <!-- New Sale quick action removed -->
 
                     @if(auth()->user()->isAdmin())
                     <a href="{{ route('products.create') }}" class="group flex flex-col items-center p-5 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/50 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-200 border border-green-200 dark:border-green-800">

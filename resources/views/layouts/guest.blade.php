@@ -14,7 +14,8 @@
 
         <title>{{ config('app.name', 'Simplicitea') }} - Login</title>
 
-        <!-- Favicon -->
+        <!-- Favicon: prefer .ico for cross-browser, fallback to PNG -->
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
         <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
 
         <!-- Fonts -->

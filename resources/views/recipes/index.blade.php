@@ -247,9 +247,22 @@
             { value: 'g', label: 'g' },
             { value: 'kg', label: 'kg' },
             { value: 'ml', label: 'ml' },
+            { value: 'tsp', label: 'tsp' },
+            { value: 'tbsp', label: 'tbsp' },
+            { value: 'cup', label: 'cup' },
             { value: 'l', label: 'L' },
+            { value: 'gallon', label: 'gallon' },
             { value: 'pieces', label: 'pieces' },
+            { value: 'scoop', label: 'scoop' },
+            { value: 'pearl_scoop', label: 'pearl scoop' },
+            { value: 'pack', label: 'pack' },
+            { value: 'box', label: 'box' },
+            { value: 'tray', label: 'tray' },
+            { value: 'can', label: 'can' },
+            { value: 'bottle', label: 'bottle' },
+            { value: 'sack', label: 'sack' },
         ];
+        const compatibleUnitsCache = {};
 
         // Product search functionality
         document.getElementById('productSearch').addEventListener('input', function() {
@@ -380,11 +393,11 @@
                 ? (selectedIngredient.recipe_conversion_label || `1 ${selectedIngredient.unit} = 1 ${selectedIngredient.recipe_unit || selectedIngredient.unit}`)
                 : '';
 
-                let options = '<option value="">Select Ingredient</option>';
+            let options = '<option value="">Select Ingredient</option>';
             allIngredients.forEach(ing => {
-                const recipeUnit = ing.recipe_unit || ing.unit;
-                const conversion = ing.recipe_conversion_label || `1 ${ing.unit} = 1 ${recipeUnit}`;
-                options += `<option value="${ing.id}" data-unit="${ing.unit}" data-recipe-unit="${recipeUnit}" data-conversion="${conversion}" ${ing.id == selectedId ? 'selected' : ''}>${ing.name}</option>`;
+                const recommendedRecipeUnit = ing.recommended_recipe_unit || ing.recipe_unit || ing.unit;
+                const conversion = ing.recipe_conversion_label || `1 ${ing.unit} = 1 ${recommendedRecipeUnit}`;
+                options += `<option value="${ing.id}" data-unit="${ing.unit}" data-recipe-unit="${ing.recipe_unit || ing.unit}" data-recommended-recipe-unit="${recommendedRecipeUnit}" data-conversion="${conversion}" ${ing.id == selectedId ? 'selected' : ''}>${ing.name}</option>`;
             });
 
             let unitOptions = '<option value="">Select unit</option>';
@@ -395,15 +408,15 @@
             return `
                 <div class="ingredient-row flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                     <div class="w-full sm:w-48 min-w-0">
-                        <select name="ingredients[${rowIndex}][ingredient_id]" required class="w-full px-2 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 truncate" onchange="updateUnit(this, ${rowIndex})">
+                        <select name="ingredients[${rowIndex}][ingredient_id]" required class="w-full px-2 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 truncate ingredient-select" data-row-index="${rowIndex}" onchange="updateUnit(this, ${rowIndex})">
                             ${options}
                         </select>
                     </div>
                     <div class="w-full sm:w-20">
-                        <input type="number" name="ingredients[${rowIndex}][quantity_required]" value="${quantity}" step="0.01" min="0.01" required placeholder="Qty" class="w-full px-2 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
+                        <input type="number" name="ingredients[${rowIndex}][quantity_required]" value="${quantity}" step="0.01" min="0.01" required placeholder="Qty" class="w-full px-2 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 quantity-input" data-row-index="${rowIndex}">
                     </div>
                     <div class="w-full sm:w-20">
-                        <select name="ingredients[${rowIndex}][unit]" id="unit_${rowIndex}" required class="w-full px-2 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500">
+                        <select name="ingredients[${rowIndex}][unit]" id="unit_${rowIndex}" required class="w-full px-2 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-black focus:ring-2 focus:ring-simplicitea-500 unit-select" data-row-index="${rowIndex}" onchange="handleUnitChange(this, ${rowIndex})">
                             ${unitOptions}
                         </select>
                     </div>
@@ -432,10 +445,88 @@
         function updateUnit(select, index) {
             const option = select.options[select.selectedIndex];
             const ingredientUnit = option.dataset.recipeUnit || '';
+            const recommendedRecipeUnit = option.dataset.recommendedRecipeUnit || ingredientUnit || '';
+            const ingredientId = option.value;
             const conversionLabel = option.dataset.conversion || '';
             const unitSelect = document.getElementById(`unit_${index}`);
+            
+            // Use recommended recipe unit instead of the stored recipe unit when no explicit unit is set
             if (unitSelect && !unitSelect.value) {
-                unitSelect.value = ingredientUnit;
+                unitSelect.value = recommendedRecipeUnit || ingredientUnit;
+            }
+            
+            // Cache compatible units for this ingredient
+            if (ingredientId && !compatibleUnitsCache[ingredientId]) {
+                fetchCompatibleUnits(ingredientId);
+            }
+        }
+
+        async function fetchCompatibleUnits(ingredientId) {
+            try {
+                const response = await fetch(`/recipes/ingredients/${ingredientId}/compatible-units`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    compatibleUnitsCache[ingredientId] = data.compatible_units;
+                }
+            } catch (error) {
+                console.error('Error fetching compatible units:', error);
+            }
+        }
+
+        async function handleUnitChange(unitSelect, rowIndex) {
+            const row = unitSelect.closest('.ingredient-row');
+            const ingredientSelect = row.querySelector('select[name$="[ingredient_id]"]');
+            const quantityInput = row.querySelector('input[name$="[quantity_required]"]');
+            
+            const ingredientId = ingredientSelect.value;
+            const currentQuantity = parseFloat(quantityInput.value);
+            
+            if (!ingredientId || !currentQuantity) return;
+            
+            const newUnit = unitSelect.value;
+            if (!newUnit) return;
+            
+            // Get the previous unit from the ingredient option
+            const ingredientOption = ingredientSelect.options[ingredientSelect.selectedIndex];
+            const previousUnit = ingredientOption.dataset.recipeUnit || '';
+            
+            if (!previousUnit || previousUnit === newUnit) return;
+            
+            // Convert the quantity
+            try {
+                const response = await fetch('/recipes/convert-quantity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ingredient_id: ingredientId,
+                        quantity: currentQuantity,
+                        from_unit: previousUnit,
+                        to_unit: newUnit
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    quantityInput.value = parseFloat(data.converted_quantity).toFixed(2);
+                } else {
+                    showToast(data.error || 'Unit conversion failed', 'error');
+                    unitSelect.value = previousUnit; // Revert to previous unit
+                }
+            } catch (error) {
+                console.error('Error converting quantity:', error);
+                showToast('Error converting quantity', 'error');
+                unitSelect.value = previousUnit; // Revert to previous unit
             }
         }
 
@@ -534,4 +625,4 @@
             }, 4000);
         }
     </script>
-</x-app-layout>
+ </x-app-layout>

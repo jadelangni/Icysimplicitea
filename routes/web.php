@@ -140,6 +140,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
         Route::resource('inventory', InventoryController::class);
         Route::post('/inventory/{inventory}/restock', [InventoryController::class, 'restock'])->name('inventory.restock');
         Route::post('/inventory/update-ingredient-branches', [InventoryController::class, 'updateIngredientBranches'])->name('inventory.update-ingredient-branches');
+        Route::get('/ingredients/{ingredient}/recommended-recipe-unit', [InventoryController::class, 'getRecommendedRecipeUnit'])->name('ingredients.recommended-recipe-unit');
         
         // Ingredient Management (Global)
         Route::post('/ingredients', [IngredientController::class, 'store'])->name('ingredients.store');
@@ -148,10 +149,12 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
         // Recipe Management (BOM - Bill of Materials)
         Route::prefix('recipes')->name('recipes.')->group(function () {
             Route::get('/', [RecipeController::class, 'index'])->name('index');
+            Route::post('/bulk-update', [RecipeController::class, 'bulkUpdate'])->name('bulk-update');
+            Route::post('/convert-quantity', [RecipeController::class, 'convertQuantity'])->name('convert-quantity');
+            Route::get('/ingredients/{ingredient}/compatible-units', [RecipeController::class, 'getCompatibleUnits'])->name('compatible-units');
             Route::get('/{product}', [RecipeController::class, 'show'])->name('show');
             Route::put('/{product}', [RecipeController::class, 'update'])->name('update');
             Route::delete('/{product}', [RecipeController::class, 'destroy'])->name('destroy');
-            Route::post('/bulk-update', [RecipeController::class, 'bulkUpdate'])->name('bulk-update');
             Route::get('/{product}/estimates', [RecipeController::class, 'getServingEstimates'])->name('estimates');
         });
         

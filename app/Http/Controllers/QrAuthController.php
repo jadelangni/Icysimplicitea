@@ -261,7 +261,9 @@ class QrAuthController extends Controller
             $user->generateQrToken();
         }
 
-        return view('qr-auth.user-qrcode', compact('user'));
+        // Reuse the cashier "My QR Code" layout for admin viewing other users
+        // Pass an adminView flag so the view can adjust links (regenerate for specific user)
+        return view('qr-auth.my-qrcode', compact('user'))->with('adminView', true);
     }
 
     /**

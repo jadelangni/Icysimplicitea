@@ -403,4 +403,16 @@ class InventoryController extends Controller
         return redirect()->route('product-inventory.index', ['tab' => 'ingredients'])
             ->with('success', "Updated inventory for '{$ingredient->name}' across all branches.");
     }
+
+    /**
+     * Get the recommended recipe unit for an ingredient
+     */
+    public function getRecommendedRecipeUnit(Request $request, Ingredient $ingredient)
+    {
+        return response()->json([
+            'success' => true,
+            'recommended_recipe_unit' => $ingredient->getRecommendedRecipeUnit(),
+            'inventory_unit' => $ingredient->unit
+        ]);
+    }
 }

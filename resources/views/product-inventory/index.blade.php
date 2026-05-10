@@ -454,7 +454,7 @@
     
     {{-- Add New Ingredient Modal --}}
     <div id="addIngredientModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full mx-4 p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Add New Ingredient</h3>
                 <button onclick="document.getElementById('addIngredientModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
@@ -480,37 +480,48 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit of Measure</label>
-                        <input type="text" name="unit" list="ingredient-unit-options" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg" placeholder="e.g., g, ml, pcs">
-                        <datalist id="ingredient-unit-options">
-                            <option value="g"></option>
-                            <option value="kg"></option>
-                            <option value="ml"></option>
-                            <option value="L"></option>
-                            <option value="pcs"></option>
-                            <option value="cans"></option>
-                            <option value="bottles"></option>
-                            <option value="packs"></option>
-                        </datalist>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Initial Quantity</label>
-                            <input type="number" name="initial_quantity" step="0.01" min="0" value="0" required 
-                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min. Stock Level</label>
-                            <input type="number" name="min_stock_level" step="0.01" min="0" value="10" required 
-                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
-                        </div>
+                        <select name="unit" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                            <option value="g">Grams (g)</option>
+                            <option value="kg">Kilograms (kg)</option>
+                            <option value="mg">Milligrams (mg)</option>
+                            <option value="ml">Milliliters (ml)</option>
+                            <option value="l">Liters (L)</option>
+                            <option value="cup">Cup (cup)</option>
+                            <option value="gallon">Gallon</option>
+                            <option value="can">Can</option>
+                            <option value="pack">Pack</option>
+                            <option value="box">Box</option>
+                            <option value="tray">Tray</option>
+                            <option value="sack">Sack</option>
+                            <option value="pieces">Pieces</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Branch Selector</label>
-                        <select name="branch_id" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
-                            @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}" {{ (string) $branch->id === (string) ($selectedBranchId ?? request('branch_id')) ? 'selected' : '' }}>{{ $branch->name }}</option>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Branch Inventory Setup</label>
+                        <div class="space-y-3">
+                            @foreach($allBranches as $branch)
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    </svg>
+                                    <span class="font-medium text-gray-900 dark:text-black">{{ $branch->name }}</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Initial Quantity</label>
+                                        <input type="number" name="branches[{{ $branch->id }}][quantity]" step="0.01" min="0" value="0" required
+                                               class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Min. Stock Level</label>
+                                        <input type="number" name="branches[{{ $branch->id }}][min_stock_level]" step="0.01" min="0" value="10" required
+                                               class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                                    </div>
+                                </div>
+                            </div>
                             @endforeach
-                        </select>
+                        </div>
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
@@ -550,21 +561,38 @@
                 <div class="mb-4 grid gap-3 sm:grid-cols-3">
                     <div>
                         <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Inventory Unit</label>
-                        <input type="text" name="unit" id="editInventoryUnitInput" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                        <select name="unit" id="editInventoryUnitInput" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                            <option value="g">Grams (g)</option>
+                            <option value="kg">Kilograms (kg)</option>
+                            <option value="mg">Milligrams (mg)</option>
+                            <option value="ml">Milliliters (ml)</option>
+                            <option value="l">Liters (L)</option>
+                            <option value="cup">Cup (cup)</option>
+                            <option value="gallon">Gallon</option>
+                            <option value="can">Can</option>
+                            <option value="pack">Pack</option>
+                            <option value="box">Box</option>
+                            <option value="tray">Tray</option>
+                            <option value="sack">Sack</option>
+                            <option value="pieces">Pieces</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Recipe Unit</label>
                         <select name="recipe_unit" id="editRecipeUnitInput" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                             <option value="g">Grams (g)</option>
                             <option value="kg">Kilograms (kg)</option>
+                            <option value="mg">Milligrams (mg)</option>
                             <option value="ml">Milliliters (ml)</option>
                             <option value="l">Liters (L)</option>
+                            <option value="tsp">Teaspoon (tsp)</option>
+                            <option value="tbsp">Tablespoon (tbsp)</option>
+                            <option value="cup">Cup (cup)</option>
+                            <option value="gallon">Gallon</option>
                             <option value="pieces">Pieces</option>
+                            <option value="scoop">Scoop</option>
+                            <option value="pearl_scoop">Pearl scoop</option>
                         </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Recipe Units per Inventory Unit</label>
-                        <input type="number" name="recipe_units_per_inventory_unit" id="editRecipeUnitsPerInventoryUnitInput" step="0.0001" min="0.0001" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                     </div>
                 </div>
                 <div class="space-y-4" id="editBranchesContainer">
@@ -1208,9 +1236,16 @@
             document.getElementById('editIngredientName').textContent = name;
             document.getElementById('editIngredientUnit').textContent = unit;
             document.getElementById('editIngredientRecipeConversion').textContent = recipeConversion || `1 ${unit} = 1 ${unit}`;
-            document.getElementById('editInventoryUnitInput').value = unit;
-            document.getElementById('editRecipeUnitInput').value = recipeUnit || unit;
-            document.getElementById('editRecipeUnitsPerInventoryUnitInput').value = recipeUnitsPerInventoryUnit || 1;
+            
+            // Normalize unit value to lowercase for proper select matching
+            const normalizedUnit = (unit || '').toLowerCase().trim();
+            document.getElementById('editInventoryUnitInput').value = normalizedUnit;
+            document.getElementById('editRecipeUnitInput').value = recipeUnit || normalizedUnit;
+            
+            // Auto-set recipe unit based on inventory unit if not explicitly set
+            if (!recipeUnit || recipeUnit === unit || recipeUnit === normalizedUnit) {
+                autoSetRecipeUnit(normalizedUnit, ingredientId);
+            }
             
             const container = document.getElementById('editBranchesContainer');
             container.innerHTML = '';
@@ -1366,5 +1401,77 @@
                 console.error('Inventory live data error:', error);
             }
         }, 15000);
+
+        // Auto-populate recipe unit based on inventory unit
+        async function autoSetRecipeUnit(inventoryUnit, ingredientId = null) {
+            if (ingredientId) {
+                // Fetch recommended recipe unit from backend
+                try {
+                    const response = await fetch(`/ingredients/${ingredientId}/recommended-recipe-unit`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.recommended_recipe_unit) {
+                            const recipeUnitSelect = document.getElementById('editRecipeUnitInput');
+                            if (recipeUnitSelect) {
+                                recipeUnitSelect.value = data.recommended_recipe_unit;
+                            }
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching recommended recipe unit:', error);
+                }
+            }
+            
+            // Fallback to local mapping if no ingredient ID or fetch fails
+            const unitLower = (inventoryUnit || '').toLowerCase().trim();
+            
+            // Map inventory unit to recipe unit
+            const unitMapping = {
+                // Volume units → ml
+                'can': 'ml', 'cans': 'ml',
+                'gallon': 'l', 'gallons': 'l',
+                'ml': 'ml',
+                'l': 'l',
+                
+                // Weight units → g
+                'g': 'g',
+                'kg': 'kg',
+                
+                // Count/discrete units → pieces
+                'pieces': 'pieces',
+                'pcs': 'pieces',
+                'pack': 'pieces',
+                'packs': 'pieces',
+                'tray': 'pieces',
+                'trays': 'pieces',
+                
+                // Default
+                'tbsp': 'tbsp',
+                'scoop': 'scoop'
+            };
+            
+            const recipeUnit = unitMapping[unitLower] || unitLower || 'g';
+            const recipeUnitSelect = document.getElementById('editRecipeUnitInput');
+            
+            if (recipeUnitSelect) {
+                recipeUnitSelect.value = recipeUnit;
+            }
+        }
+
+        // Add event listener to inventory unit input
+        const editInventoryUnitInput = document.getElementById('editInventoryUnitInput');
+        if (editInventoryUnitInput) {
+            editInventoryUnitInput.addEventListener('change', function() {
+                const ingredientId = document.getElementById('editIngredientId').value;
+                autoSetRecipeUnit(this.value, ingredientId);
+            });
+        }
     </script>
 </x-app-layout>

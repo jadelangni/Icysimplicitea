@@ -25,7 +25,17 @@ class RecipeController extends Controller
 
         $ingredients = Ingredient::where('is_active', true)
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function ($ingredient) {
+                return [
+                    'id' => $ingredient->id,
+                    'name' => $ingredient->name,
+                    'unit' => $ingredient->unit,
+                    'recipe_unit' => $ingredient->getRecipeUnit(),
+                    'recommended_recipe_unit' => $ingredient->getRecommendedRecipeUnit(),
+                    'recipe_conversion_label' => $ingredient->recipe_conversion_label,
+                ];
+            });
 
         return view('recipes.index', compact('products', 'ingredients'));
     }
@@ -51,10 +61,11 @@ class RecipeController extends Controller
                     'ingredient_id' => $ingredient->id,
                     'name' => $ingredient->name,
                     'quantity_required' => $ingredient->pivot->quantity_required,
-                    'unit' => $ingredient->pivot->unit ?? $ingredient->getRecipeUnit(),
+                    'unit' => $ingredient->pivot->unit ?? $ingredient->getRecommendedRecipeUnit(),
                     'available_quantity' => $branchId ? $ingredient->getQuantityForBranch($branchId) : 0,
                     'inventory_unit' => $ingredient->unit,
                     'recipe_unit' => $ingredient->getRecipeUnit(),
+                    'recommended_recipe_unit' => $ingredient->getRecommendedRecipeUnit(),
                     'recipe_conversion_label' => $ingredient->recipe_conversion_label,
                     'is_low_stock' => $branchId ? $ingredient->isLowStockForBranch($branchId) : false
                 ];
@@ -92,7 +103,11 @@ class RecipeController extends Controller
                             ]);
                         }
 
-                        $recipeUnit = Ingredient::normalizeUnit($ingredientData['unit'] ?? $ingredient->getRecipeUnit());
+                        // Use provided unit, or recommend based on inventory unit if not provided
+                        $recipeUnit = $ingredientData['unit'] 
+                            ? Ingredient::normalizeUnit($ingredientData['unit'])
+                            : $ingredient->getRecommendedRecipeUnit();
+                            
                         if (!$recipeUnit) {
                             throw ValidationException::withMessages([
                                 'ingredients' => ["Please select a valid unit for {$ingredient->name}."]
@@ -307,5 +322,58 @@ class RecipeController extends Controller
         }
 
         return Branch::where('is_active', true)->value('id') ?? Branch::value('id');
+    }
+
+    /**
+     * Get compatible units for an ingredient based on its inventory unit.
+     */
+    public function getCompatibleUnits(Ingredient $ingredient)
+    {
+        $compatibleUnits = $ingredient->getCompatibleUnits();
+        
+        return response()->json([
+            'success' => true,
+            'ingredient_id' => $ingredient->id,
+            'ingredient_name' => $ingredient->name,
+            'inventory_unit' => $ingredient->unit,
+            'compatible_units' => $compatibleUnits
+        ]);
+    }
+
+    /**
+     * Convert a quantity between two units for an ingredient.
+     * Used when the admin changes the unit of an ingredient in the recipe.
+     */
+    public function convertQuantity(Request $request)
+    {
+        $validated = $request->validate([
+            'ingredient_id' => 'required|exists:ingredients,id',
+            'quantity' => 'required|numeric|min:0.01',
+            'from_unit' => 'required|string',
+            'to_unit' => 'required|string'
+        ]);
+
+        $ingredient = Ingredient::find($validated['ingredient_id']);
+        $convertedQuantity = Ingredient::convertBetweenUnits(
+            (float) $validated['quantity'],
+            $validated['from_unit'],
+            $validated['to_unit']
+        );
+
+        if ($convertedQuantity === null) {
+            return response()->json([
+                'success' => false,
+                'error' => "Cannot convert from '{$validated['from_unit']}' to '{$validated['to_unit']}' for {$ingredient->name}. Units must be of compatible types."
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'ingredient_id' => $ingredient->id,
+            'original_quantity' => (float) $validated['quantity'],
+            'original_unit' => $validated['from_unit'],
+            'converted_quantity' => round($convertedQuantity, 4),
+            'new_unit' => $validated['to_unit']
+        ]);
     }
 }

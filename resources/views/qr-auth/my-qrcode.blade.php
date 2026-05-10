@@ -86,18 +86,27 @@
 
                             <div class="mt-5 print:hidden">
                                 <div class="flex flex-col gap-3">
-                                    @if(auth()->user()->isAdmin())
-                                        <a href="{{ route('qr.regenerate') }}"
-                                           onclick="return confirm('Are you sure you want to regenerate your QR code? Your old QR code will no longer work.')"
-                                           class="inline-flex items-center justify-center px-4 py-3 bg-green-500 text-black rounded-xl hover:bg-green-400 transition-colors font-semibold shadow-sm">
-                                            Regenerate QR Code
-                                        </a>
-                                    @endif
+                                            @php
+                                                $showRegenerateForUser = (isset($adminView) && $adminView) || auth()->user()->isAdmin();
+                                            @endphp
 
-                                    <a href="{{ route('attendance.my-attendance') }}"
-                                       class="inline-flex items-center justify-center px-4 py-3 bg-slate-200 text-slate-900 rounded-xl hover:bg-white transition-colors font-semibold shadow-sm">
-                                        View My Attendance
-                                    </a>
+                                            @if($showRegenerateForUser)
+                                                @if(isset($adminView) && $adminView)
+                                                    <a href="{{ route('qr.user-regenerate', $user) }}"
+                                                       onclick="return confirm('Are you sure you want to regenerate the QR code for {{ $user->name }}? The old QR code will no longer work.')"
+                                                       class="inline-flex items-center justify-center px-4 py-3 bg-green-500 text-black rounded-xl hover:bg-green-400 transition-colors font-semibold shadow-sm">
+                                                        Regenerate QR Code
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('qr.regenerate') }}"
+                                                       onclick="return confirm('Are you sure you want to regenerate your QR code? Your old QR code will no longer work.')"
+                                                       class="inline-flex items-center justify-center px-4 py-3 bg-green-500 text-black rounded-xl hover:bg-green-400 transition-colors font-semibold shadow-sm">
+                                                        Regenerate QR Code
+                                                    </a>
+                                                @endif
+                                            @endif
+
+                                    {{-- View My Attendance removed per admin/cashier request --}}
                                 </div>
                             </div>
                         </aside>
