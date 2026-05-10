@@ -7,9 +7,12 @@ use App\Models\Product;
 use App\Models\SalesItem;
 use App\Models\Ingredient;
 use App\Models\IngredientInventory;
+use App\Models\Inventory;
 use App\Models\Branch;
 use App\Models\BranchSession;
 use App\Models\Category;
+use App\Models\User;
+use App\Services\InventoryForecastService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -20,6 +23,7 @@ use App\Exports\SalesReportExport;
 use App\Exports\InventoryReportExport;
 use App\Exports\DailyReportExport;
 use App\Exports\MonthlyReportExport;
+use App\Exports\RestockPlanExport;
 
 class ReportController extends Controller
 {
@@ -29,6 +33,7 @@ class ReportController extends Controller
      */
     private function getBranchFilter(Request $request)
     {
+        /** @var User $user */
         $user = Auth::user();
         $branches = Branch::where('is_active', true)->orderBy('name')->get();
         
@@ -50,6 +55,7 @@ class ReportController extends Controller
 
     private function getInventoryBranchFilter(Request $request): array
     {
+        /** @var User $user */
         $user = Auth::user();
         $branches = Branch::where('is_active', true)->orderBy('name')->get();
 
@@ -259,6 +265,56 @@ class ReportController extends Controller
             'totalValue',
             'stockStatus'
         ), $branchFilter));
+    }
+
+    /**
+     * Display predictive inventory forecasting report.
+     */
+    public function forecast(Request $request, InventoryForecastService $forecastService)
+    {
+        $branchFilter = $this->getInventoryBranchFilter($request);
+
+        $lookbackDays = max(7, min(90, (int) $request->get('lookback_days', 30)));
+        $leadTimeDays = max(1, min(30, (int) $request->get('lead_time_days', 7)));
+        $targetCoverDays = max($leadTimeDays, min(60, (int) $request->get('target_cover_days', 14)));
+
+        $forecast = $forecastService->generateForBranch(
+            (int) $branchFilter['selectedBranchId'],
+            $lookbackDays,
+            $leadTimeDays,
+            $targetCoverDays
+        );
+
+        return view('reports.forecast', array_merge(
+            $forecast,
+            compact('lookbackDays', 'leadTimeDays', 'targetCoverDays'),
+            $branchFilter
+        ));
+    }
+
+
+    /**
+     * Export Restock Plan to Excel
+     */
+    public function exportRestock(Request $request, InventoryForecastService $forecastService)
+    {
+        $branchFilter = $this->getInventoryBranchFilter($request);
+
+        $lookbackDays = max(7, min(90, (int) $request->get('lookback_days', 30)));
+        $leadTimeDays = max(1, min(30, (int) $request->get('lead_time_days', 7)));
+        $targetCoverDays = max($leadTimeDays, min(60, (int) $request->get('target_cover_days', 14)));
+
+        $export = new RestockPlanExport(
+            $forecastService,
+            (int) $branchFilter['selectedBranchId'],
+            $lookbackDays,
+            $leadTimeDays,
+            $targetCoverDays
+        );
+
+        $fileName = sprintf('restock-plan-branch-%s-%s.xlsx', $branchFilter['selectedBranchId'], now()->format('Ymd'));
+
+        return Excel::download($export, $fileName);
     }
 
 

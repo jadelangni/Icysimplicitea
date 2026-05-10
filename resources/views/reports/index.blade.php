@@ -22,7 +22,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
                     <div class="flex items-start gap-4">
                         <div class="w-11 h-11 bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center flex-shrink-0">
                             <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
                     <div class="flex items-start gap-4">
                         <div class="w-11 h-11 bg-green-100 dark:bg-green-900/50 rounded-2xl flex items-center justify-center flex-shrink-0">
                             <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
                     <div class="flex items-start gap-4">
                         <div class="w-11 h-11 bg-yellow-100 dark:bg-yellow-900/50 rounded-2xl flex items-center justify-center flex-shrink-0">
                             <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +82,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
                     <div class="flex items-start gap-4">
                         <div class="w-11 h-11 bg-purple-100 dark:bg-purple-900/50 rounded-2xl flex items-center justify-center flex-shrink-0">
                             <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +91,7 @@
                         </div>
                         <div class="min-w-0">
                             <h3 class="text-lg font-medium text-gray-900 dark:text-black">Monthly Reports</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">Monthly sales trends</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-6">Monthly sales trends</p>
                             <a href="{{ route('reports.monthly') }}" class="inline-flex items-center text-sm font-medium text-purple-600 hover:text-purple-500">
                                 View Reports
                                 <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,6 +101,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

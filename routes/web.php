@@ -176,6 +176,8 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\ForcePasswordChange:
             Route::get('/', [ReportController::class, 'index'])->name('index');
             Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
             Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
+            Route::get('/forecast', [ReportController::class, 'forecast'])->name('forecast');
+            Route::get('/export/restock', [ReportController::class, 'exportRestock'])->name('export.restock');
             Route::get('/daily', [ReportController::class, 'daily'])->name('daily');
             Route::get('/monthly', [ReportController::class, 'monthly'])->name('monthly');
 

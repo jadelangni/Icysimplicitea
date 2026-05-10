@@ -54,6 +54,14 @@
             </svg>
             <span class="flex-1">Inventory</span>
         </a>
+
+        <!-- Inventory Forecast -->
+        <a href="{{ route('reports.forecast') }}" class="nav-item {{ str_starts_with($currentRoute, 'reports.forecast') ? 'active' : '' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19.5V4.5m0 15h16M7 16l3-4 4 3 5-7"/>
+            </svg>
+            <span class="flex-1">Inventory Forecast</span>
+        </a>
         @endif
 
         @if(Auth::user()->role === 'admin')

@@ -79,6 +79,12 @@
                                 </svg>
                                 Manage Inventory
                             </a>
+                            <a href="{{ route('reports.forecast', ['branch_id' => $selectedBranchId]) }}" class="inline-flex items-center px-4 py-2 bg-teal-600 text-black rounded-md hover:bg-teal-700">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19.5V4.5m0 15h16M7 16l3-4 4 3 5-7"></path>
+                                </svg>
+                                Predictive Forecast
+                            </a>
                         </div>
                     </div>
                     @if($ingredients->count() > 0)
