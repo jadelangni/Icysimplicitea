@@ -57,12 +57,15 @@ class IngredientController extends Controller
             'branches.*.min_stock_level' => 'nullable|numeric|min:0',
         ]);
 
+        $recipeUnit = Ingredient::getDefaultRecipeUnitForInventoryUnit($validated['unit']) ?? $validated['unit'];
+        $recipeUnitsPerInventoryUnit = Ingredient::getDefaultRecipeUnitsPerInventoryUnitForInventoryUnit($validated['unit']);
+
         $ingredient = Ingredient::create([
             'name' => $validated['name'],
             'description' => $validated['description'] ?? '',
             'unit' => $validated['unit'],
-            'recipe_unit' => $validated['recipe_unit'] ?? $validated['unit'],
-            'recipe_units_per_inventory_unit' => $validated['recipe_units_per_inventory_unit'] ?? 1,
+            'recipe_unit' => $recipeUnit,
+            'recipe_units_per_inventory_unit' => $recipeUnitsPerInventoryUnit,
             'is_active' => true,
         ]);
 
@@ -149,8 +152,8 @@ class IngredientController extends Controller
         ]);
 
         $validated['is_active'] = $request->has('is_active');
-        $validated['recipe_unit'] = $validated['recipe_unit'] ?: $validated['unit'];
-        $validated['recipe_units_per_inventory_unit'] = $validated['recipe_units_per_inventory_unit'] ?? 1;
+        $validated['recipe_unit'] = Ingredient::getDefaultRecipeUnitForInventoryUnit($validated['unit']) ?? $validated['unit'];
+        $validated['recipe_units_per_inventory_unit'] = Ingredient::getDefaultRecipeUnitsPerInventoryUnitForInventoryUnit($validated['unit']);
 
         $ingredient = Ingredient::findOrFail($id);
         $ingredient->update($validated);

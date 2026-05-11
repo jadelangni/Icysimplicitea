@@ -370,17 +370,17 @@ class InventoryController extends Controller
             'ingredient_id' => 'required|exists:ingredients,id',
             'unit' => 'nullable|string|max:50',
             'recipe_unit' => 'nullable|string|max:50',
-            'recipe_units_per_inventory_unit' => 'nullable|numeric|min:0.0001',
             'branches' => 'required|array',
             'branches.*.quantity' => 'required|numeric|min:0',
             'branches.*.min_stock_level' => 'required|numeric|min:0',
         ]);
 
         $ingredient = Ingredient::findOrFail($validated['ingredient_id']);
+        $unit = $validated['unit'] ?? $ingredient->unit;
         $ingredient->update([
-            'unit' => $validated['unit'] ?? $ingredient->unit,
-            'recipe_unit' => $validated['recipe_unit'] ?? $ingredient->getRecipeUnit(),
-            'recipe_units_per_inventory_unit' => $validated['recipe_units_per_inventory_unit'] ?? $ingredient->recipe_units_per_inventory_unit ?? 1,
+            'unit' => $unit,
+            'recipe_unit' => Ingredient::getDefaultRecipeUnitForInventoryUnit($unit) ?? $ingredient->getRecipeUnit(),
+            'recipe_units_per_inventory_unit' => Ingredient::getDefaultRecipeUnitsPerInventoryUnitForInventoryUnit($unit),
         ]);
 
         $allBranches = Branch::all();

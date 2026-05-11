@@ -317,7 +317,7 @@
                                 </svg>
                             </div>
                             @if(!($readOnly ?? false))
-                            <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" class="px-4 py-2 bg-simplicitea-600 text-black text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition flex items-center gap-2">
+                            <button onclick="openAddIngredientModal()" class="px-4 py-2 bg-simplicitea-600 text-black text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
@@ -400,7 +400,7 @@
                                     @if(!($readOnly ?? false))
                                     <td class="px-5 py-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
-                                            <button onclick="openEditIngredientModal({{ $ingredient->id }}, @js($ingredient->name), @js($ingredient->unit), @js($ingredient->recipe_unit), {{ $ingredient->recipe_units_per_inventory_unit }}, @js($ingredient->recipe_conversion_label), {{ json_encode($ingredient->branches) }})" 
+                                            <button onclick="openEditIngredientModal({{ $ingredient->id }}, @js($ingredient->name), @js($ingredient->unit), @js($ingredient->recipe_unit), @js($ingredient->recipe_conversion_label), {{ json_encode($ingredient->branches) }})" 
                                                 class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition"
                                                 title="Manage Ingredient">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -429,7 +429,7 @@
                                             <span class="text-4xl">🧪</span>
                                             <p class="mt-2">No ingredients found</p>
                                             @if(!($readOnly ?? false))
-                                            <button onclick="document.getElementById('addIngredientModal').classList.remove('hidden')" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-simplicitea-600 text-black text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition">
+                                            <button onclick="openAddIngredientModal()" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-simplicitea-600 text-black text-sm font-medium rounded-xl hover:bg-simplicitea-700 transition">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                                 </svg>
@@ -454,7 +454,7 @@
     
     {{-- Add New Ingredient Modal --}}
     <div id="addIngredientModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Add New Ingredient</h3>
                 <button onclick="document.getElementById('addIngredientModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
@@ -480,45 +480,27 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit of Measure</label>
-                        <input type="text" name="unit" list="ingredient-unit-options" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg" placeholder="e.g., bottle, kg, pack, can, tray, gallon">
-                        <datalist id="ingredient-unit-options">
-                            <option value="bottle"></option>
-                            <option value="bottles"></option>
-                            <option value="can"></option>
-                            <option value="cans"></option>
-                            <option value="tray"></option>
-                            <option value="trays"></option>
-                            <option value="gallon"></option>
-                            <option value="gallons"></option>
-                            <option value="g"></option>
-                            <option value="kg"></option>
-                            <option value="ml"></option>
-                            <option value="l"></option>
-                            <option value="pieces"></option>
-                            <option value="pcs"></option>
-                            <option value="pack"></option>
-                            <option value="packs"></option>
-                        </datalist>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Initial Quantity</label>
-                            <input type="number" name="initial_quantity" step="0.01" min="0" value="0" required 
-                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min. Stock Level</label>
-                            <input type="number" name="min_stock_level" step="0.01" min="0" value="10" required 
-                                   class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Branch Selector</label>
-                        <select name="branch_id" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
-                            @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}" {{ (string) $branch->id === (string) ($selectedBranchId ?? request('branch_id')) ? 'selected' : '' }}>{{ $branch->name }}</option>
-                            @endforeach
+                        <select name="unit" id="addInventoryUnitInput" onchange="syncIngredientAutoConversion('add')" required class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                            <option value="" disabled selected>Select a unit</option>
+                            <option value="bottle">Bottle</option>
+                            <option value="can">Can</option>
+                            <option value="tray">Tray</option>
+                            <option value="gallon">Gallon</option>
+                            <option value="g">Grams (g)</option>
+                            <option value="kg">Kilograms (kg)</option>
+                            <option value="ml">Milliliters (ml)</option>
+                            <option value="l">Liters (L)</option>
+                            <option value="pieces">Pieces</option>
+                            <option value="pack">Pack</option>
                         </select>
+                        <input type="hidden" name="recipe_unit" id="addRecipeUnitInput">
+                        <input type="hidden" name="recipe_units_per_inventory_unit" id="addRecipeUnitsPerInventoryUnitInput">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Branch Inventory</label>
+                    <div class="space-y-4" id="addBranchesContainer">
+                        {{-- Dynamically populated --}}
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
@@ -536,7 +518,7 @@
 
     {{-- Edit Ingredient (All Branches) Modal --}}
     <div id="editIngredientModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full mx-4 p-6 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-black">Edit Ingredient Inventory</h3>
                 <button onclick="document.getElementById('editIngredientModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
@@ -549,37 +531,28 @@
                 Editing: <strong id="editIngredientName" class="text-gray-900 dark:text-black"></strong>
                 (<span id="editIngredientUnit" class="text-gray-500"></span>)
             </p>
-            <p class="hidden mb-4 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:bg-gray-700/50 dark:text-gray-300">
-                Recipe conversion: <span id="editIngredientRecipeConversion" class="font-medium"></span>
-            </p>
             <form id="editIngredientForm" action="{{ route('inventory.update-ingredient-branches') }}" method="POST">
                 @csrf
                 <input type="hidden" name="ingredient_id" id="editIngredientId">
-                <div class="mb-4 grid gap-3 sm:grid-cols-3">
+                <div class="mb-4 grid gap-3 sm:grid-cols-2">
                     <div>
-                        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Inventory Unit</label>
-                        <input type="text" name="unit" id="editInventoryUnitInput" list="edit-inventory-unit-options" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
-                        <datalist id="edit-inventory-unit-options">
-                            <option value="bottle"></option>
-                            <option value="bottles"></option>
-                            <option value="can"></option>
-                            <option value="cans"></option>
-                            <option value="tray"></option>
-                            <option value="trays"></option>
-                            <option value="gallon"></option>
-                            <option value="gallons"></option>
-                            <option value="g"></option>
-                            <option value="kg"></option>
-                            <option value="ml"></option>
-                            <option value="l"></option>
-                            <option value="pieces"></option>
-                            <option value="pcs"></option>
-                            <option value="pack"></option>
-                            <option value="packs"></option>
-                        </datalist>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Inventory Unit</label>
+                        <select name="unit" id="editInventoryUnitInput" onchange="syncIngredientAutoConversion('edit')" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
+                            <option value="" disabled>Select a unit</option>
+                            <option value="bottle">Bottle</option>
+                            <option value="can">Can</option>
+                            <option value="tray">Tray</option>
+                            <option value="gallon">Gallon</option>
+                            <option value="g">Grams (g)</option>
+                            <option value="kg">Kilograms (kg)</option>
+                            <option value="ml">Milliliters (ml)</option>
+                            <option value="l">Liters (L)</option>
+                            <option value="pieces">Pieces</option>
+                            <option value="pack">Pack</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Recipe Unit</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recipe Unit</label>
                         <select name="recipe_unit" id="editRecipeUnitInput" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
                             <option value="g">Grams (g)</option>
                             <option value="kg">Kilograms (kg)</option>
@@ -590,18 +563,11 @@
                             <option value="scoop">Scoop</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Recipe Units per Inventory Unit</label>
-                        <input type="number" name="recipe_units_per_inventory_unit" id="editRecipeUnitsPerInventoryUnitInput" list="edit-recipe-conversion-presets" step="0.0001" min="0.0001" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg">
-                        <datalist id="edit-recipe-conversion-presets">
-                            <option value="250"></option>
-                            <option value="330"></option>
-                            <option value="500"></option>
-                            <option value="750"></option>
-                            <option value="1000"></option>
-                            <option value="1500"></option>
-                            <option value="2000"></option>
-                        </datalist>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recipe Conversion</label>
+                    <div class="px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700/50 text-sm text-gray-700 dark:text-gray-300">
+                        <span id="editIngredientRecipeConversion"></span>
                     </div>
                 </div>
                 <div class="space-y-4" id="editBranchesContainer">
@@ -1239,53 +1205,142 @@
 
         // ==================== INGREDIENT MODAL FUNCTIONS ====================
         const branchNames = @json($allBranches->pluck('name', 'id'));
-        
-        function openEditIngredientModal(ingredientId, name, unit, recipeUnit, recipeUnitsPerInventoryUnit, recipeConversion, branchesData) {
-            document.getElementById('editIngredientId').value = ingredientId;
-            document.getElementById('editIngredientName').textContent = name;
-            document.getElementById('editIngredientUnit').textContent = unit;
-            document.getElementById('editIngredientRecipeConversion').textContent = recipeConversion || `1 ${unit} = 1 ${unit}`;
-            document.getElementById('editInventoryUnitInput').value = unit;
-            document.getElementById('editRecipeUnitInput').value = recipeUnit || unit;
-            document.getElementById('editRecipeUnitsPerInventoryUnitInput').value = recipeUnitsPerInventoryUnit || 1;
-            
-            const container = document.getElementById('editBranchesContainer');
-            container.innerHTML = '';
-            
-            // Calculate total quantity across all branches
-            let totalQuantity = 0;
-            for (const data of Object.values(branchesData)) {
-                totalQuantity += parseFloat(data.quantity) || 0;
+
+        function normalizeIngredientUnit(unit) {
+            return (unit || '').toString().trim().toLowerCase();
+        }
+
+        function getDefaultRecipeUnitForInventoryUnit(unit) {
+            switch (normalizeIngredientUnit(unit)) {
+                case 'kg':
+                    return 'g';
+                case 'l':
+                    return 'ml';
+                case 'pack':
+                case 'bottle':
+                case 'tray':
+                    return 'pieces';
+                case 'can':
+                case 'gallon':
+                    return 'ml';
+                case 'g':
+                    return 'g';
+                case 'ml':
+                    return 'ml';
+                case 'pieces':
+                    return 'pieces';
+                default:
+                    return normalizeIngredientUnit(unit);
             }
-            
-            // Add summary header
-            const summaryHtml = `
-                <div class="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 mb-2 border border-blue-200 dark:border-blue-800">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Total Across All Branches</span>
+        }
+
+        function getDefaultRecipeUnitsPerInventoryUnit(unit) {
+            switch (normalizeIngredientUnit(unit)) {
+                case 'kg':
+                case 'l':
+                    return 1000;
+                default:
+                    return 1;
+            }
+        }
+
+        function syncIngredientUnitDisplays(containerId, unit) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                return;
+            }
+
+            container.querySelectorAll('.ingredient-unit-display').forEach((element) => {
+                element.textContent = unit || '';
+            });
+        }
+
+        function syncIngredientAutoConversion(mode) {
+            const unitInput = document.getElementById(mode === 'edit' ? 'editInventoryUnitInput' : 'addInventoryUnitInput');
+            const unit = unitInput ? unitInput.value : '';
+            const recipeUnit = getDefaultRecipeUnitForInventoryUnit(unit);
+            const recipeUnitsPerInventoryUnit = getDefaultRecipeUnitsPerInventoryUnit(unit);
+
+            if (mode === 'edit') {
+                const recipeUnitInput = document.getElementById('editRecipeUnitInput');
+                const conversionLabel = document.getElementById('editIngredientRecipeConversion');
+
+                if (recipeUnitInput) {
+                    recipeUnitInput.value = recipeUnit || '';
+                }
+
+                if (conversionLabel) {
+                    conversionLabel.textContent = unit && recipeUnit ? `1 ${unit} = ${recipeUnitsPerInventoryUnit} ${recipeUnit}` : '';
+                }
+
+                syncIngredientUnitDisplays('editBranchesContainer', unit);
+                return;
+            }
+
+            const addRecipeUnitInput = document.getElementById('addRecipeUnitInput');
+            const addRecipeUnitsPerInventoryUnitInput = document.getElementById('addRecipeUnitsPerInventoryUnitInput');
+
+            if (addRecipeUnitInput) {
+                addRecipeUnitInput.value = recipeUnit || '';
+            }
+
+            if (addRecipeUnitsPerInventoryUnitInput) {
+                addRecipeUnitsPerInventoryUnitInput.value = recipeUnitsPerInventoryUnit;
+            }
+
+            syncIngredientUnitDisplays('addBranchesContainer', unit);
+        }
+
+        function renderIngredientBranchRows(containerId, branchesData, unit, options = {}) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                return;
+            }
+
+            const {
+                includeInventoryId = false,
+                showSummary = false,
+                showStatusBadge = false,
+                showBranchCardShadow = false,
+            } = options;
+
+            let html = '';
+
+            if (showSummary) {
+                let totalQuantity = 0;
+                for (const data of Object.values(branchesData)) {
+                    totalQuantity += parseFloat(data.quantity) || 0;
+                }
+
+                html += `
+                    <div class="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 mb-2 border border-blue-200 dark:border-blue-800">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                                <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Total Across All Branches</span>
+                            </div>
+                            <span class="text-lg font-bold text-blue-800 dark:text-blue-200">${totalQuantity.toFixed(2)} ${unit}</span>
                         </div>
-                        <span class="text-lg font-bold text-blue-800 dark:text-blue-200">${totalQuantity.toFixed(2)} ${unit}</span>
                     </div>
-                </div>
-            `;
-            container.innerHTML = summaryHtml;
-            
+                `;
+            }
+
             for (const [branchId, data] of Object.entries(branchesData)) {
                 const branchName = branchNames[branchId] || 'Branch ' + branchId;
                 const currentQty = parseFloat(data.quantity) || 0;
                 const minStock = parseFloat(data.min_stock_level) || 0;
-                const statusBadge = data.is_out_of_stock 
-                    ? '<span class="text-xs bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 px-2 py-0.5 rounded-full">No Stock</span>' 
-                    : (data.is_low_stock 
-                        ? '<span class="text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400 px-2 py-0.5 rounded-full">Low Stock</span>' 
-                        : '<span class="text-xs bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 px-2 py-0.5 rounded-full">In Stock</span>');
-                
-                const html = `
-                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                const statusBadge = showStatusBadge
+                    ? (data.is_out_of_stock
+                        ? '<span class="text-xs bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 px-2 py-0.5 rounded-full">No Stock</span>'
+                        : (data.is_low_stock
+                            ? '<span class="text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400 px-2 py-0.5 rounded-full">Low Stock</span>'
+                            : '<span class="text-xs bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 px-2 py-0.5 rounded-full">In Stock</span>'))
+                    : '';
+
+                html += `
+                    <div class="${showBranchCardShadow ? 'bg-gray-50 dark:bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-700/50'} rounded-xl p-4">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1301,24 +1356,63 @@
                                 <div class="relative">
                                     <input type="number" name="branches[${branchId}][quantity]" value="${currentQty}" step="0.01" min="0" 
                                            class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg pr-12">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">${unit}</span>
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 ingredient-unit-display">${unit}</span>
                                 </div>
-                                <input type="hidden" name="branches[${branchId}][inventory_id]" value="${data.inventory_id || ''}">
+                                ${includeInventoryId ? `<input type="hidden" name="branches[${branchId}][inventory_id]" value="${data.inventory_id || ''}">` : ''}
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Alert Threshold</label>
                                 <div class="relative">
                                     <input type="number" name="branches[${branchId}][min_stock_level]" value="${minStock}" step="0.01" min="0" 
                                            class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-black rounded-lg pr-12">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">${unit}</span>
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 ingredient-unit-display">${unit}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
-                container.innerHTML += html;
             }
-            
+
+            container.innerHTML = html;
+        }
+
+        function openAddIngredientModal() {
+            const unit = document.getElementById('addInventoryUnitInput')?.value || 'unit';
+            const branchesData = {};
+
+            for (const branchId of Object.keys(branchNames)) {
+                branchesData[branchId] = {
+                    quantity: 0,
+                    min_stock_level: 10,
+                };
+            }
+
+            renderIngredientBranchRows('addBranchesContainer', branchesData, unit, {
+                includeInventoryId: false,
+                showSummary: false,
+                showStatusBadge: false,
+            });
+
+            syncIngredientAutoConversion('add');
+
+            document.getElementById('addIngredientModal').classList.remove('hidden');
+        }
+        
+        function openEditIngredientModal(ingredientId, name, unit, recipeUnit, recipeConversion, branchesData) {
+            document.getElementById('editIngredientId').value = ingredientId;
+            document.getElementById('editIngredientName').textContent = name;
+            document.getElementById('editIngredientUnit').textContent = unit;
+            document.getElementById('editIngredientRecipeConversion').textContent = recipeConversion || `1 ${unit} = 1 ${unit}`;
+            document.getElementById('editInventoryUnitInput').value = unit;
+            document.getElementById('editRecipeUnitInput').value = recipeUnit || unit;
+            renderIngredientBranchRows('editBranchesContainer', branchesData, unit, {
+                includeInventoryId: true,
+                showSummary: true,
+                showStatusBadge: true,
+            });
+
+            syncIngredientAutoConversion('edit');
+
             document.getElementById('editIngredientModal').classList.remove('hidden');
         }
 

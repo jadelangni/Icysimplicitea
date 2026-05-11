@@ -266,10 +266,13 @@
         <div class="footer-message">Thank you for your purchase!</div>
         <div class="footer-message">Please come again 🧋</div>
         <div class="cashier-info">
-            Served by: {{ $sale->user->name ?? 'Staff' }}
+            Served by: {{ $sale->user->name ?? auth()->user()->name ?? 'Staff' }}
         </div>
+        @php
+            $currentCashierId = auth()->id() ?? ($sale->user->id ?? null);
+        @endphp
         <div class="cashier-info">
-            Cashier ID: #{{ isset($sale->user->id) ? str_pad($sale->user->id, 7, '0', STR_PAD_LEFT) : 'N/A' }}
+            Cashier ID: #{{ $currentCashierId ? str_pad($currentCashierId, 7, '0', STR_PAD_LEFT) : 'N/A' }}
         </div>
     </div>
 

@@ -230,8 +230,11 @@
         <div class="cashier-info">
             Served by: {{ $sale->user->name ?? 'Staff' }}
         </div>
+        @php
+            $currentCashierId = auth()->id() ?? ($sale->user->id ?? null);
+        @endphp
         <div class="cashier-info">
-            Cashier ID: #{{ isset($sale->user->id) ? str_pad($sale->user->id, 7, '0', STR_PAD_LEFT) : 'N/A' }}
+            Cashier ID: #{{ $currentCashierId ? str_pad($currentCashierId, 7, '0', STR_PAD_LEFT) : 'N/A' }}
         </div>
     </div>
 

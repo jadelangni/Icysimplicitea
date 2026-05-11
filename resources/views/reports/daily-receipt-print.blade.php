@@ -260,7 +260,10 @@
             Cashier: {{ $cashier->name ?? 'Staff' }}
         </div>
         <div class="report-info" style="margin-top: 5px;">
-            Cashier ID: #{{ isset($cashier->id) ? str_pad($cashier->id, 7, '0', STR_PAD_LEFT) : 'N/A' }}
+                @php
+                    $currentCashierId = auth()->id() ?? ($cashier->id ?? null);
+                @endphp
+                Cashier ID: #{{ $currentCashierId ? str_pad($currentCashierId, 7, '0', STR_PAD_LEFT) : 'N/A' }}
         </div>
         
         <div class="signature-line"></div>
