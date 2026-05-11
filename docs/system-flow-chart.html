@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>System Flow Chart</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f6f4ef;
+        color: #2b2b2b;
+      }
+
+      .page {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 32px;
+      }
+
+      .card {
+        width: min(1200px, 95vw);
+        background: #ffffff;
+        border: 2px solid #1f1f1f;
+        border-radius: 18px;
+        padding: 24px 28px 32px;
+        box-shadow: 0 24px 40px rgba(20, 20, 20, 0.18);
+      }
+
+      h1 {
+        margin: 0 0 18px;
+        font-size: 28px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .mermaid {
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="card">
+        <h1>System Flow Chart</h1>
+        <div class="mermaid">
+flowchart TB
+  Start([Start]) --> Login[User Login]
+  Login --> Auth{Authenticated?}
+  Auth -->|No| RetryLogin[Retry Login]
+  RetryLogin --> Login
+  Auth -->|Yes| Dashboard[Open Dashboard]
+  Dashboard --> ChooseModule{Choose Module}
+
+  ChooseModule --> DashboardView[View Dashboard]
+  DashboardView --> End([End])
+
+  ChooseModule --> Products[Manage Products]
+  Products --> End
+
+  ChooseModule --> Recipes[Manage Recipes]
+  Recipes --> End
+
+  ChooseModule --> Inventory[Manage Inventory]
+  Inventory --> End
+
+  ChooseModule --> Forecast[Review Inventory Forecast]
+  Forecast --> End
+
+  ChooseModule --> Reports[Generate Reports]
+  Reports --> End
+
+  ChooseModule --> Employees[Manage Employee List]
+  Employees --> End
+
+  ChooseModule --> CashierSales[Record Cashier Sales]
+  CashierSales --> End
+
+  ChooseModule --> Attendance[Record Staff Attendance]
+  Attendance --> End
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#ffe2b8",
+          primaryBorderColor: "#1f1f1f",
+          primaryTextColor: "#1f1f1f",
+          lineColor: "#1f1f1f",
+          secondaryColor: "#ffd0c2",
+          tertiaryColor: "#c7e9ff",
+          fontFamily: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif"
+        }
+      });
+    </script>
+  </body>
+</html>

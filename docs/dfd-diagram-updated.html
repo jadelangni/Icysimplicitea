@@ -16,30 +16,41 @@
   <div class="diagram-shell">
     <div class="mermaid">
 flowchart LR
-  CUST[Customer]
-  CASH[Cashier]
-  POS[POS Checkout]
-  PROD[Products Catalog]
-  PR[Recipe Editor]
-  ING[Ingredients Catalog]
-  INV[Inventory Sync]
-  CONV[Unit Conversion]
-  IINV[Ingredient Inventory]
-  SUP[Supplier]
+  USER[Staff / Admin]
+  DASH[Dashboard]
+  PROD[Products]
+  RECIPE[Recipes]
+  INV[Inventory]
+  FORE[Inventory Forecast]
+  REPORTS[Reports]
+  EMP[Employee List]
+  CASH[Cashier Sales]
+  ATTN[Staff Attendance]
 
-  CUST --> CASH
-  CASH --> POS
-  POS -->|write| SALES[Sales DB]
-  POS -->|read recipes| PROD
-  POS --> INV
-  INV --> PROD
-  INV --> ING
-  INV --> CONV
-  CONV --> INV
-  INV --> IINV
-  SUP -->|deliver| IINV
-  PR --> ING
-  PR --> PROD
+  SALES_DB[(Sales DB)]
+  INV_DB[(Inventory DB)]
+  STAFF_DB[(Staff DB)]
+  PROD_DB[(Products DB)]
+
+  USER --> DASH
+  DASH --> PROD
+  DASH --> RECIPE
+  DASH --> INV
+  DASH --> FORE
+  DASH --> REPORTS
+  DASH --> EMP
+  DASH --> CASH
+  DASH --> ATTN
+
+  PROD -->|read/write| PROD_DB
+  RECIPE -->|read/write| PROD_DB
+  INV -->|read/write| INV_DB
+  FORE -->|read| INV_DB
+  CASH -->|write| SALES_DB
+  REPORTS -->|read| SALES_DB
+  REPORTS -->|read| INV_DB
+  EMP -->|read/write| STAFF_DB
+  ATTN -->|write| STAFF_DB
 
     </div>
   </div>
