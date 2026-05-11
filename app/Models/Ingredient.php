@@ -19,8 +19,6 @@ class Ingredient extends Model
         'bags',
         'box',
         'boxes',
-        'tray',
-        'trays',
     ];
 
     private const UNIT_ALIASES = [
@@ -61,22 +59,6 @@ class Ingredient extends Model
         'pcs' => 'pieces',
         'unit' => 'pieces',
         'units' => 'pieces',
-        'scoop' => 'scoop',
-        'scoops' => 'scoop',
-        'pearl scoop' => 'pearl_scoop',
-        'pearl scoops' => 'pearl_scoop',
-        'tray' => 'tray',
-        'trays' => 'tray',
-        'sack' => 'sack',
-        'sacks' => 'sack',
-        'bottle' => 'bottle',
-        'bottles' => 'bottle',
-        'can' => 'can',
-        'cans' => 'can',
-        'pack' => 'pack',
-        'packs' => 'pack',
-        'box' => 'box',
-        'boxes' => 'box',
     ];
 
     private const UNIT_FACTORS = [
@@ -90,35 +72,6 @@ class Ingredient extends Model
         'l' => ['type' => 'volume', 'factor' => 1000],
         'gallon' => ['type' => 'volume', 'factor' => 3785.411784],
         'pieces' => ['type' => 'count', 'factor' => 1],
-        'scoop' => ['type' => 'volume', 'factor' => 15],
-        'pearl_scoop' => ['type' => 'weight', 'factor' => 1],
-        'tray' => ['type' => 'count', 'factor' => 1],
-        'sack' => ['type' => 'weight', 'factor' => 1000],
-        'bottle' => ['type' => 'volume', 'factor' => 1],
-        'can' => ['type' => 'volume', 'factor' => 1],
-        'pack' => ['type' => 'count', 'factor' => 1],
-        'box' => ['type' => 'count', 'factor' => 1],
-    ];
-
-    /**
-     * Mapping of inventory units to recommended recipe units.
-     * When adding new recipes, these recommendations will be used as defaults.
-     */
-    private const UNIT_RECOMMENDATIONS = [
-        'kg' => 'g',                    // Kilogram → Gram
-        'g' => 'tbsp',                  // Gram → Tablespoon
-        'l' => 'ml',                    // Liter → Milliliter
-        'bottle' => 'ml',               // Bottle → Milliliter
-        'gallon' => 'l',                // Gallon → Liter
-        'cup' => 'ml',                  // Cup → Milliliter
-        'tbsp' => 'ml',                 // Tablespoon → Milliliter
-        'pack' => 'pieces',             // Pack → Pieces
-        'tray' => 'pieces',             // Tray → Pieces
-        'box' => 'pieces',              // Box → Pieces
-        'can' => 'ml',                  // Can → Milliliter
-        'sack' => 'kg',                 // Sack → Kilogram
-        'pearl_scoop' => 'g',           // Pearl Scoop → Gram
-        'scoop' => 'g',                 // Scoop → Gram
     ];
 
     protected $fillable = [
@@ -259,7 +212,7 @@ class Ingredient extends Model
     public function convertRecipeQuantityToStockUnit(float $quantity, ?string $recipeUnit): ?float
     {
         $from = self::normalizeUnit($recipeUnit ?: $this->getRecipeUnit());
-        $to = self::normalizeUnit($this->unit);
+        $to = self::normalizeUnit($this->getRecipeUnit());
 
         if (!$from || !$to) {
             return null;
@@ -289,37 +242,120 @@ class Ingredient extends Model
         $recipeUnit = $this->recipe_unit;
 
         if (!$recipeUnit && in_array(strtolower((string) $this->unit), self::PACKAGING_UNITS, true)) {
-            return 'g';
+            $unit = strtolower((string) $this->unit);
+
+            if (in_array($unit, ['can', 'cans', 'bottle', 'bottles'], true)) {
+                return self::normalizeUnit('ml');
+            }
+
+            if (in_array($unit, ['pack', 'packs', 'bag', 'bags', 'box', 'boxes'], true)) {
+                return self::normalizeUnit('pieces');
+            }
+
+            return self::normalizeUnit('ml');
         }
 
         return self::normalizeUnit($recipeUnit ?: $this->unit) ?: ($recipeUnit ?: $this->unit);
     }
 
-    /**
-     * Get the recommended recipe unit for this ingredient based on its inventory unit.
-     * This is used when creating new recipes - the system will automatically suggest
-     * this unit instead of asking the user to choose.
-     * 
-     * @return string The recommended recipe unit
-     */
-    public function getRecommendedRecipeUnit(): string
-    {
-        $normalizedInventoryUnit = self::normalizeUnit($this->unit);
-        
-        // Check if there's a recommendation for this inventory unit
-        if ($normalizedInventoryUnit && isset(self::UNIT_RECOMMENDATIONS[$normalizedInventoryUnit])) {
-            $recommendedUnit = self::UNIT_RECOMMENDATIONS[$normalizedInventoryUnit];
-            // Return the recommendation, ensuring it's normalized
-            return self::normalizeUnit($recommendedUnit) ?: $recommendedUnit;
-        }
-        
-        // Fall back to the current getRecipeUnit behavior
-        return $this->getRecipeUnit();
-    }
-
     public function getRecipeConversionLabelAttribute(): string
     {
         return '1 ' . $this->unit . ' = ' . rtrim(rtrim(number_format((float) ($this->recipe_units_per_inventory_unit ?: 1), 4), '0'), '.') . ' ' . $this->getRecipeUnit();
+    }
+
+    /**
+     * Get the recommended recipe unit for this ingredient.
+     * If a recipe_unit is already set, returns it. Otherwise recommends one based on inventory unit type.
+     */
+    public function getRecommendedRecipeUnit(): string
+    {
+        if ($this->recipe_unit) {
+            return self::normalizeUnit($this->recipe_unit) ?: $this->recipe_unit;
+        }
+
+        $normalizedUnit = self::normalizeUnit($this->unit);
+        
+        if (!$normalizedUnit) {
+            return $this->unit;
+        }
+
+        // Get the unit type for the inventory unit
+        $unitMeta = self::UNIT_FACTORS[$normalizedUnit] ?? null;
+        
+        if (!$unitMeta) {
+            return $normalizedUnit;
+        }
+
+        // Recommend a base unit for each type
+        $typeRecommendations = [
+            'weight' => 'g',      // grams for weight
+            'volume' => 'ml',     // milliliters for volume
+            'count'  => 'pieces', // pieces for count
+        ];
+
+        return $typeRecommendations[$unitMeta['type']] ?? $normalizedUnit;
+    }
+
+    /**
+     * Get all compatible units for this ingredient based on its unit type.
+     */
+    public function getCompatibleUnits(): array
+    {
+        $normalizedUnit = self::normalizeUnit($this->unit);
+        
+        if (!$normalizedUnit) {
+            return [$this->unit];
+        }
+
+        $unitMeta = self::UNIT_FACTORS[$normalizedUnit] ?? null;
+        
+        if (!$unitMeta) {
+            return [$this->unit];
+        }
+
+        // Get all units of the same type
+        $compatibleUnits = [];
+        foreach (self::UNIT_FACTORS as $unit => $meta) {
+            if ($meta['type'] === $unitMeta['type']) {
+                $compatibleUnits[] = $unit;
+            }
+        }
+
+        return $compatibleUnits;
+    }
+
+    /**
+     * Convert a quantity between two units.
+     * Returns null if units are incompatible (different types).
+     */
+    public static function convertBetweenUnits(float $quantity, string $fromUnit, string $toUnit): ?float
+    {
+        $from = self::normalizeUnit($fromUnit);
+        $to = self::normalizeUnit($toUnit);
+
+        if (!$from || !$to) {
+            return null;
+        }
+
+        $fromMeta = self::UNIT_FACTORS[$from] ?? null;
+        $toMeta = self::UNIT_FACTORS[$to] ?? null;
+
+        if (!$fromMeta || !$toMeta) {
+            return null;
+        }
+
+        // Units must be of the same type (weight, volume, or count)
+        if ($fromMeta['type'] !== $toMeta['type']) {
+            return null;
+        }
+
+        // If same unit, no conversion needed
+        if ($from === $to) {
+            return $quantity;
+        }
+
+        // Convert: quantity * (fromFactor / toFactor)
+        return ($quantity * $fromMeta['factor']) / $toMeta['factor'];
     }
 
     public static function normalizeUnit(?string $unit): ?string
@@ -334,67 +370,5 @@ class Ingredient extends Model
         }
 
         return self::UNIT_ALIASES[$normalized] ?? $normalized;
-    }
-
-    /**
-     * Get all compatible units for this ingredient based on its inventory unit type.
-     * Compatible units are those in the same unit type (weight, volume, count).
-     */
-    public function getCompatibleUnits(): array
-    {
-        $inventoryUnit = self::normalizeUnit($this->unit);
-        if (!$inventoryUnit) {
-            return [];
-        }
-
-        $unitMeta = self::UNIT_FACTORS[$inventoryUnit] ?? null;
-        if (!$unitMeta) {
-            return [$inventoryUnit];
-        }
-
-        $type = $unitMeta['type'];
-        $compatibleUnits = [];
-
-        foreach (self::UNIT_FACTORS as $unit => $meta) {
-            if ($meta['type'] === $type) {
-                $compatibleUnits[] = $unit;
-            }
-        }
-
-        return $compatibleUnits;
-    }
-
-    /**
-     * Convert a quantity from one unit to another.
-     * Returns null if units are incompatible.
-     */
-    public static function convertBetweenUnits(float $quantity, ?string $fromUnit, ?string $toUnit): ?float
-    {
-        $from = self::normalizeUnit($fromUnit);
-        $to = self::normalizeUnit($toUnit);
-
-        if (!$from || !$to) {
-            return null;
-        }
-
-        $fromMeta = self::UNIT_FACTORS[$from] ?? null;
-        $toMeta = self::UNIT_FACTORS[$to] ?? null;
-
-        if (!$fromMeta || !$toMeta || $fromMeta['type'] !== $toMeta['type']) {
-            return null;
-        }
-
-        // Convert to base unit, then to target unit
-        $baseQuantity = $quantity * $fromMeta['factor'];
-        return $baseQuantity / $toMeta['factor'];
-    }
-
-    /**
-     * Convert recipe quantity when changing the recipe unit.
-     * This is used when the admin changes the unit of an ingredient in the recipe.
-     */
-    public function convertRecipeQuantityBetweenUnits(float $quantity, ?string $currentUnit, ?string $newUnit): ?float
-    {
-        return self::convertBetweenUnits($quantity, $currentUnit, $newUnit);
     }
 }

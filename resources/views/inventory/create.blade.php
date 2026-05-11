@@ -34,22 +34,24 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <label class="block">
                                     <span class="text-sm font-medium text-gray-700">Inventory Unit from Supplier</span>
-                                    <select name="unit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
-                                        <option value="g" {{ old('unit') == 'g' ? 'selected' : '' }}>Grams (g)</option>
-                                        <option value="kg" {{ old('unit') == 'kg' ? 'selected' : '' }}>Kilograms (kg)</option>
-                                        <option value="mg" {{ old('unit') == 'mg' ? 'selected' : '' }}>Milligrams (mg)</option>
-                                        <option value="ml" {{ old('unit') == 'ml' ? 'selected' : '' }}>Milliliters (ml)</option>
-                                        <option value="l" {{ old('unit') == 'l' ? 'selected' : '' }}>Liters (L)</option>
-                                        <option value="cup" {{ old('unit') == 'cup' ? 'selected' : '' }}>Cup (cup)</option>
-                                        <option value="gallon" {{ old('unit') == 'gallon' ? 'selected' : '' }}>Gallon</option>
-                                        <option value="can" {{ old('unit') == 'can' ? 'selected' : '' }}>Can</option>
-                                        <option value="pack" {{ old('unit') == 'pack' ? 'selected' : '' }}>Pack</option>
-                                        <option value="pack" {{ old('unit') == 'pack' ? 'selected' : '' }}>Pack</option>
-                                        <option value="box" {{ old('unit') == 'box' ? 'selected' : '' }}>Box</option>
-                                        <option value="tray" {{ old('unit') == 'tray' ? 'selected' : '' }}>Tray</option>
-                                        <option value="sack" {{ old('unit') == 'sack' ? 'selected' : '' }}>Sack</option>
-                                        <option value="pieces" {{ old('unit') == 'pieces' ? 'selected' : '' }}>Pieces</option>
-                                    </select>
+                                    <input type="text" name="unit" list="inventory-unit-options" value="{{ old('unit') }}" placeholder="e.g., bottle, kg, pack, can, tray, gallon" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-simplicitea-500 focus:ring-simplicitea-500" required>
+                                    <datalist id="inventory-unit-options">
+                                        <option value="bottle"></option>
+                                        <option value="bottles"></option>
+                                        <option value="can"></option>
+                                        <option value="cans"></option>
+                                        <option value="tray"></option>
+                                        <option value="trays"></option>
+                                        <option value="gallon"></option>
+                                        <option value="gallons"></option>
+                                        <option value="kg"></option>
+                                        <option value="g"></option>
+                                        <option value="ml"></option>
+                                        <option value="l"></option>
+                                        <option value="pieces"></option>
+                                        <option value="packs"></option>
+                                        <option value="pack"></option>
+                                    </datalist>
                                 </label>
                                 <label class="block">
                                     <span class="text-sm font-medium text-gray-700">Recipe Unit</span>

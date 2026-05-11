@@ -104,63 +104,55 @@
 
     <div class="diagram-shell">
       <div class="mermaid">
-flowchart LR
-    customer[Customer]:::entity
-    cashier[Cashier / Employee]:::entity
-    admin[Admin / Branch Manager]:::entity
-    supplier[Supplier / Ingredient Source]:::entity
+    flowchart LR
+        customer[Customer]:::entity
+        cashier[Cashier]:::entity
+        admin[Admin]:::entity
+        supplier[Supplier]:::entity
 
-    pos((1.0 POS Checkout)):::process
-    inventory((2.0 Inventory Sync)):::process
-    reporting((3.0 Reporting & Monitoring)):::process
-    maintenance((4.0 Product & Ingredient Setup)):::process
+        pos[POS Checkout]:::process
+        recipeEditor[Recipe Editor]:::process
+        inventorySync[Inventory Sync]:::process
+        conversion[Unit Conversion Service]:::process
+        maintenance[Product and Ingredient Setup]:::process
+        supplierRecv[Supplier Receive]:::process
 
-    d1[(Sales)]:::store
-    d2[(Sales Items)]:::store
-    d3[(Products)]:::store
-    d4[(Inventory)]:::store
-    d5[(Ingredients)]:::store
-    d6[(Ingredient Inventory)]:::store
-    d7[(Branches)]:::store
-    d8[(User / Attendance Data)]:::store
-    d9[(Notifications / Alerts)]:::store
+        sales[(Sales)]:::store
+        salesItems[(Sales Items)]:::store
+        products[(Products)]:::store
+        ingredients[(Ingredients)]:::store
+        ingredientInventory[(Ingredient Inventory)]:::store
+        branches[(Branches)]:::store
+        alerts[(Alerts)]:::store
 
-    customer -->|places order| cashier
-    cashier -->|selected items, quantities, payment| pos
-    pos -->|store transaction| d1
-    pos -->|store line items| d2
-    pos -->|read price, options, product info| d3
-    pos -->|read branch context| d7
-    pos -->|receipt, change, order status| cashier
-    pos -->|purchase confirmation| customer
+        customer --> cashier
+        cashier --> pos
+        pos --> sales
+        pos --> salesItems
+        pos --> products
+        pos --> branches
 
-    pos -->|reduce stock levels| inventory
-    inventory -->|update branch stock| d4
-    inventory -->|consume recipe ingredients| d6
-    inventory -->|read product-to-ingredient map| d3
-    inventory -->|read recipe definitions| d5
+        pos --> inventorySync
+        inventorySync --> products
+        inventorySync --> ingredients
+        inventorySync --> conversion
+        conversion --> inventorySync
+        inventorySync --> ingredientInventory
+        inventorySync --> alerts
 
-    admin -->|review sales, stock, staff activity| reporting
-    reporting -->|read sales history| d1
-    reporting -->|read inventory history| d4
-    reporting -->|read ingredient stock| d6
-    reporting -->|read branch data| d7
-    reporting -->|read attendance / activity| d8
-    reporting -->|charts, summaries, alerts| admin
-    reporting -->|low-stock notices| d9
+        admin --> recipeEditor
+        recipeEditor --> ingredients
+        recipeEditor --> products
 
-    admin -->|create/update products, categories, recipes| maintenance
-    maintenance -->|write product catalog| d3
-    maintenance -->|write ingredient catalog| d5
-    maintenance -->|write branch-specific stock rules| d4
-    maintenance -->|write ingredient inventory| d6
+        maintenance --> ingredients
+        maintenance --> ingredients
 
-    supplier -->|delivers ingredients| inventory
-    inventory -->|record replenishment| d6
+        supplier --> supplierRecv
+        supplierRecv --> ingredientInventory
 
-    classDef process fill:#fff1e6,stroke:#c45f2d,stroke-width:2px,color:#2f241d;
-    classDef store fill:#ffffff,stroke:#7d6a5c,stroke-width:1.5px,color:#2f241d;
-    classDef entity fill:#f3e5d6,stroke:#a07b60,stroke-width:1.5px,color:#2f241d;
+        classDef process fill:#fff7ef,stroke:#c45f2d,stroke-width:2px,color:#2f241d;
+        classDef store fill:#ffffff,stroke:#7d6a5c,stroke-width:1.5px,color:#2f241d;
+        classDef entity fill:#f3e5d6,stroke:#a07b60,stroke-width:1.5px,color:#2f241d;
       </div>
     </div>
   </div>

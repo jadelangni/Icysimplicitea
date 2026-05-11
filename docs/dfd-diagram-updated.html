@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simplicitea POS Data Flow Diagram - Updated</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fffaf3; padding: 24px; }
+    .diagram-shell { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    .mermaid { width: 1200px; }
+  </style>
+  <script>mermaid.initialize({startOnLoad:true,securityLevel:'loose'});</script>
+</head>
+<body>
+  <div class="diagram-shell">
+    <div class="mermaid">
+flowchart LR
+  CUST[Customer]
+  CASH[Cashier]
+  POS[POS Checkout]
+  PROD[Products Catalog]
+  PR[Recipe Editor]
+  ING[Ingredients Catalog]
+  INV[Inventory Sync]
+  CONV[Unit Conversion]
+  IINV[Ingredient Inventory]
+  SUP[Supplier]
+
+  CUST --> CASH
+  CASH --> POS
+  POS -->|write| SALES[Sales DB]
+  POS -->|read recipes| PROD
+  POS --> INV
+  INV --> PROD
+  INV --> ING
+  INV --> CONV
+  CONV --> INV
+  INV --> IINV
+  SUP -->|deliver| IINV
+  PR --> ING
+  PR --> PROD
+
+    </div>
+  </div>
+</body>
+</html>
