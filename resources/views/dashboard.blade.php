@@ -340,51 +340,6 @@
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">⚡ Quick Actions</h3>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- New Sale quick action removed -->
-
-                    @if(auth()->user()->isAdmin())
-                    <a href="{{ route('products.create') }}" class="group flex flex-col items-center p-5 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/50 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-200 border border-green-200 dark:border-green-800">
-                        <div class="w-14 h-14 bg-white dark:bg-gray-800 rounded-2xl shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                            <span class="text-2xl">➕</span>
-                        </div>
-                        <span class="text-sm font-semibold text-green-900 dark:text-green-300">Add Product</span>
-                        <span class="text-xs text-green-600 dark:text-green-400">New item</span>
-                    </a>
-
-                    <a href="{{ route('product-inventory.index') }}" class="group flex flex-col items-center p-5 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-900/50 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-200 border border-yellow-200 dark:border-yellow-800">
-                        <div class="w-14 h-14 bg-white dark:bg-gray-800 rounded-2xl shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                            <span class="text-2xl">📦</span>
-                        </div>
-                        <span class="text-sm font-semibold text-yellow-900 dark:text-yellow-300">Inventory</span>
-                        <span class="text-xs text-yellow-600 dark:text-yellow-400">Manage stock</span>
-                    </a>
-
-                    <a href="{{ route('reports.index') }}" class="group flex flex-col items-center p-5 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-900/50 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-200 border border-purple-200 dark:border-purple-800">
-                        <div class="w-14 h-14 bg-white dark:bg-gray-800 rounded-2xl shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                            <span class="text-2xl">📊</span>
-                        </div>
-                        <span class="text-sm font-semibold text-purple-900 dark:text-purple-300">Reports</span>
-                        <span class="text-xs text-purple-600 dark:text-purple-400">View analytics</span>
-                    </a>
-                    @else
-                    <a href="{{ route('reports.sales') }}" class="group flex flex-col items-center p-5 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/50 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-200 border border-blue-200 dark:border-blue-800">
-                        <div class="w-14 h-14 bg-white dark:bg-gray-800 rounded-2xl shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                            <span class="text-2xl">📋</span>
-                        </div>
-                        <span class="text-sm font-semibold text-blue-900 dark:text-blue-300">Sales History</span>
-                        <span class="text-xs text-blue-600 dark:text-blue-400">View orders</span>
-                    </a>
-                    @endif
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
