@@ -55,7 +55,6 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Time</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Photo</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Notes</th>
                         </tr>
@@ -85,16 +84,6 @@
                                         {{ $record->type === 'clock_in' ? 'Clock In' : 'Clock Out' }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    @if($record->selfie_path)
-                                        <a href="{{ route('attendance.selfie', $record) }}" target="_blank"
-                                            class="text-simplicitea-600 hover:text-simplicitea-700 dark:text-simplicitea-400">
-                                            View Photo
-                                        </a>
-                                    @else
-                                        <span class="text-gray-400">-</span>
-                                    @endif
-                                </td>
                                 <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                     @if($record->branch)
                                         <div>{{ $record->branch->name }}</div>
@@ -113,7 +102,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="6" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                                     No attendance records found for this period.
                                 </td>
                             </tr>

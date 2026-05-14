@@ -14,7 +14,7 @@ class InventoryForecastService
      *
      * @return array{productForecasts: \Illuminate\Support\Collection, ingredientForecasts: \Illuminate\Support\Collection, summary: array<string, int|float>}
      */
-    public function generateForBranch(int $branchId, int $lookbackDays = 30, int $leadTimeDays = 7, int $targetCoverDays = 14): array
+    public function generateForBranch(int $branchId, int $lookbackDays = 7, int $leadTimeDays = 7, int $targetCoverDays = 14): array
     {
         $lookbackDays = max(7, $lookbackDays);
         $leadTimeDays = max(1, $leadTimeDays);
@@ -67,15 +67,15 @@ class InventoryForecastService
                 $restockReason = '';
                 if ($suggestedReorderQty > 0) {
                     if ($dailyRate <= 0) {
-                        $restockReason = 'No sales history — reorder to meet minimums';
+                        $restockReason = 'No recent sales data - keep minimum stock available';
                     } elseif ($daysUntilStockout !== null && $daysUntilStockout <= 3) {
-                        $restockReason = 'Immediate reorder — stock running out soon';
+                        $restockReason = 'Stock is running out soon - reorder now';
                     } elseif ($daysUntilStockout !== null && $daysUntilStockout <= $targetCoverDays) {
-                        $restockReason = 'Projected stockout within cover window';
+                        $restockReason = 'Stock may not last through the next few days';
                     } elseif ($dailyRate > ($quantity / max(1, (float) $lookbackDays / 2))) {
-                        $restockReason = 'High recent demand';
+                        $restockReason = 'Recent sales are using stock faster than usual';
                     } else {
-                        $restockReason = 'Maintain target cover level';
+                        $restockReason = 'Add stock to keep enough supply on hand';
                     }
                 }
 
@@ -126,15 +126,15 @@ class InventoryForecastService
                 $restockReason = '';
                 if ($suggestedReorderQty > 0) {
                     if ($dailyRate <= 0) {
-                        $restockReason = 'No usage history — reorder to meet minimums';
+                        $restockReason = 'No recent usage data - keep minimum stock available';
                     } elseif ($daysUntilStockout !== null && $daysUntilStockout <= 3) {
-                        $restockReason = 'Immediate reorder — stock running out soon';
+                        $restockReason = 'Stock is running out soon - reorder now';
                     } elseif ($daysUntilStockout !== null && $daysUntilStockout <= $targetCoverDays) {
-                        $restockReason = 'Projected stockout within cover window';
+                        $restockReason = 'Stock may not last through the next few days';
                     } elseif ($dailyRate > ($quantity / max(1, (float) $lookbackDays / 2))) {
-                        $restockReason = 'High recent demand';
+                        $restockReason = 'Recent sales are using stock faster than usual';
                     } else {
-                        $restockReason = 'Maintain target cover level';
+                        $restockReason = 'Add stock to keep enough supply on hand';
                     }
                 }
 

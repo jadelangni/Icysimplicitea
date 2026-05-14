@@ -274,7 +274,7 @@ class ReportController extends Controller
     {
         $branchFilter = $this->getInventoryBranchFilter($request);
 
-        $lookbackDays = max(7, min(90, (int) $request->get('lookback_days', 30)));
+        $lookbackDays = max(7, min(90, (int) $request->get('lookback_days', 7)));
         $leadTimeDays = max(1, min(30, (int) $request->get('lead_time_days', 7)));
         $targetCoverDays = max($leadTimeDays, min(60, (int) $request->get('target_cover_days', 14)));
 
@@ -300,7 +300,7 @@ class ReportController extends Controller
     {
         $branchFilter = $this->getInventoryBranchFilter($request);
 
-        $lookbackDays = max(7, min(90, (int) $request->get('lookback_days', 30)));
+        $lookbackDays = max(7, min(90, (int) $request->get('lookback_days', 7)));
         $leadTimeDays = max(1, min(30, (int) $request->get('lead_time_days', 7)));
         $targetCoverDays = max($leadTimeDays, min(60, (int) $request->get('target_cover_days', 14)));
 

@@ -88,7 +88,6 @@
                                 <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Clock In</th>
                                 <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Clock Out</th>
                                 <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Hours</th>
-                                <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Crew Team</th>
                                 <th class="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Status</th>
                             </tr>
                         </thead>
@@ -99,22 +98,6 @@
                                     <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-200">{{ $session['clock_in']->format('h:i A') }}</td>
                                     <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-200">{{ $session['clock_out'] ? $session['clock_out']->format('h:i A') : '-' }}</td>
                                     <td class="px-5 py-4 text-sm font-medium text-gray-900 dark:text-black">{{ number_format($session['hours_worked'], 2) }} hrs</td>
-                                    <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-200">
-                                        @if(!empty($session['crew_team']))
-                                            <div class="space-y-1">
-                                                @foreach($session['crew_team'] as $crew)
-                                                    <div class="text-xs">
-                                                        {{ $crew['name'] }}
-                                                        @if(!empty($crew['checked_in_at']))
-                                                            <span class="text-gray-500">({{ $crew['checked_in_at'] }})</span>
-                                                        @endif
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <span class="text-xs text-gray-500 dark:text-gray-400">-</span>
-                                        @endif
-                                    </td>
                                     <td class="px-5 py-4">
                                         @if($session['is_running'])
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">On Duty</span>
@@ -125,7 +108,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-5 py-12 text-center text-gray-500 dark:text-gray-400">No attendance sessions found for this period.</td>
+                                    <td colspan="5" class="px-5 py-12 text-center text-gray-500 dark:text-gray-400">No attendance sessions found for this period.</td>
                                 </tr>
                             @endforelse
                         </tbody>

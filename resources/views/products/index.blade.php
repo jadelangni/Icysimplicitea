@@ -102,7 +102,9 @@
                                                     @endif
                                                 @endforeach
                                             @else
-                                                <span class="text-lg font-bold text-gray-900 dark:text-black">₱{{ number_format($product->price, 0) }}</span>
+                                                <span class="inline-flex items-center bg-simplicitea-50 dark:bg-simplicitea-900/30 text-simplicitea-700 dark:text-simplicitea-300 px-2 py-1 rounded-lg text-xs font-medium">
+                                                    ₱{{ number_format($product->price, 0) }}
+                                                </span>
                                             @endif
                                         </td>
                                         <td class="py-4 px-4 text-right whitespace-nowrap">
