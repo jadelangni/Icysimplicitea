@@ -220,7 +220,7 @@
                 <div class="w-full">
                     <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 lg:p-5">
                         <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Ingredient Forecast Graph</p>
-                        <div class="mt-3 h-[420px] w-full lg:h-[520px]">
+                        <div class="mt-3 h-[260px] w-full lg:h-[320px]">
                             <canvas id="forecastTrendLineChart"></canvas>
                         </div>
                     </div>
